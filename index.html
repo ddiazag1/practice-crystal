@@ -3,45 +3,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache">
 <title>The Practice Crystal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#1d1b3a; --gem:#7b5cff; --gold:#ffcf3f; }
+  :root { --gold:#ffcf3f; --panel:rgba(14,12,48,.86); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; height:100%; overflow:hidden; background:#0b1030; font-family:'Nunito',system-ui,sans-serif; color:var(--ink); touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#0b1030; font-family:'Nunito',system-ui,sans-serif; color:#fff; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
   canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
-  .top { position:fixed; top:0; left:0; right:0; padding:10px 12px 0; display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
-  .title { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(20px,4.6vw,34px); color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.25); letter-spacing:.5px; }
-  .day { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(16px,3.6vw,24px); color:#fff; background:rgba(0,0,0,.28); padding:4px 14px; border-radius:999px; }
+  .top { position:fixed; top:0; left:0; right:0; padding:10px 58px 0; display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
+  .title { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(20px,4.6vw,34px); text-shadow:0 2px 0 rgba(0,0,0,.25); }
+  .day { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(16px,3.8vw,24px); background:rgba(0,0,0,.3); padding:4px 14px; border-radius:999px; text-align:center; }
   .track { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; max-width:720px; }
-  .track span { font-size:clamp(18px,4.2vw,28px); filter:grayscale(1) opacity(.35); transition:filter .4s, transform .4s; }
+  .track span { font-size:clamp(17px,4vw,26px); filter:grayscale(1) opacity(.35); transition:filter .4s, transform .4s; }
   .track span.on { filter:none; transform:scale(1.12); }
-  .banner { position:fixed; left:50%; top:30%; transform:translate(-50%,-50%) scale(.6); opacity:0; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(26px,7vw,54px); color:#fff; text-align:center; text-shadow:0 3px 0 #5a3fd6, 0 6px 18px rgba(0,0,0,.35); pointer-events:none; transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); white-space:nowrap; }
+  .banner { position:fixed; left:50%; top:27%; transform:translate(-50%,-50%) scale(.6); opacity:0; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(24px,6.5vw,50px); text-align:center; text-shadow:0 3px 0 #5a3fd6, 0 6px 18px rgba(0,0,0,.35); pointer-events:none; transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); white-space:nowrap; }
   .banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
-  .bottom { position:fixed; left:0; right:0; bottom:0; padding:10px 12px calc(14px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .hint { font-weight:800; color:#fff; font-size:clamp(14px,3.4vw,19px); text-align:center; text-shadow:0 1px 3px rgba(0,0,0,.5); }
-  .row { display:flex; gap:10px; align-items:center; }
-  button { font-family:'Fredoka',sans-serif; font-weight:700; border:0; cursor:pointer; border-radius:999px; touch-action:manipulation; }
-  .grow { font-size:clamp(24px,6vw,36px); padding:16px 34px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 6px 0 #c77d00, 0 10px 24px rgba(0,0,0,.3); }
-  .grow:active { transform:translateY(4px); box-shadow:0 2px 0 #c77d00, 0 6px 14px rgba(0,0,0,.3); }
-  .small { font-size:clamp(14px,3.4vw,18px); padding:10px 16px; color:#fff; background:rgba(255,255,255,.18); backdrop-filter:blur(4px); }
-  .overlay { position:fixed; inset:0; background:rgba(8,10,40,.88); display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:14px; color:#fff; }
+  button { font-family:'Fredoka',sans-serif; font-weight:700; border:0; cursor:pointer; border-radius:999px; touch-action:manipulation; color:#fff; }
+  .corner { position:fixed; top:10px; width:42px; height:42px; font-size:18px; background:rgba(255,255,255,.18); }
+  #infoBtn { left:10px; } #sound { right:10px; }
+
+  .panel { position:fixed; left:0; right:0; bottom:0; background:var(--panel); backdrop-filter:blur(6px); border-radius:22px 22px 0 0; padding:12px 16px calc(14px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; max-width:760px; margin:0 auto; transition:transform .35s ease; }
+  .panel.hide { transform:translateY(110%); }
+  .q { display:flex; flex-direction:column; gap:4px; }
+  .q label { font-weight:800; font-size:clamp(14px,3.6vw,18px); display:flex; justify-content:space-between; gap:8px; }
+  .q label b { font-family:'Fredoka',sans-serif; color:var(--gold); font-size:1.15em; white-space:nowrap; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chips button { font-size:clamp(13px,3.3vw,16px); padding:6px 12px; background:rgba(255,255,255,.14); }
+  .chips button.sel { background:var(--gold); color:#3a2600; }
+  input[type=range] { width:100%; accent-color:var(--gold); height:28px; }
+  .go { font-size:clamp(22px,5.6vw,32px); padding:12px 30px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 5px 0 #c77d00, 0 8px 20px rgba(0,0,0,.3); align-self:center; }
+  .go:active { transform:translateY(3px); box-shadow:0 2px 0 #c77d00; }
+
+  .result { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140%); width:min(720px,94vw); background:var(--panel); backdrop-filter:blur(6px); border-radius:22px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; transition:transform .4s cubic-bezier(.2,1.2,.4,1); }
+  .result.show { transform:translateX(-50%) translateY(0); }
+  .result .big { font-family:'Fredoka',sans-serif; font-size:clamp(20px,5vw,30px); line-height:1.2; text-align:center; }
+  .result .big b { color:var(--gold); }
+  .result .cmp { display:flex; flex-direction:column; gap:4px; font-size:clamp(14px,3.5vw,18px); }
+  .result .cmp div { display:flex; justify-content:space-between; gap:8px; background:rgba(255,255,255,.08); border-radius:12px; padding:6px 10px; }
+  .result .cmp div.me { outline:2px solid var(--gold); }
+  .result .cmp b { font-family:'Fredoka',sans-serif; color:var(--gold); white-space:nowrap; }
+  .result .lesson { text-align:center; font-weight:800; color:#ffe9a6; font-size:clamp(14px,3.5vw,18px); }
+  .result .row { display:flex; gap:10px; justify-content:center; }
+  .result .row button { font-size:clamp(15px,3.8vw,19px); padding:10px 18px; background:rgba(255,255,255,.18); }
+
+  .overlay { position:fixed; inset:0; background:rgba(8,10,40,.92); display:none; flex-direction:column; align-items:center; justify-content:center; padding:22px; gap:14px; }
   .overlay.show { display:flex; }
-  .overlay h2 { font-family:'Fredoka',sans-serif; margin:0; font-size:clamp(24px,6vw,40px); text-align:center; }
-  .lane { width:min(680px,94vw); background:rgba(255,255,255,.08); border-radius:20px; padding:12px 14px; display:flex; align-items:center; gap:12px; min-height:96px; }
-  .lane .who { width:34%; font-weight:800; font-size:clamp(14px,3.6vw,20px); line-height:1.2; }
-  .lane .who small { display:block; opacity:.75; font-weight:600; font-size:.8em; }
-  .lane .gem { flex:0 0 auto; transition:font-size .15s; line-height:1; }
-  .lane .what { flex:1; font-family:'Fredoka',sans-serif; font-size:clamp(16px,4vw,24px); text-align:right; }
-  .lane .what b { font-size:1.4em; }
-  .verdict { font-family:'Fredoka',sans-serif; font-size:clamp(18px,4.6vw,28px); text-align:center; max-width:680px; min-height:2.6em; color:var(--gold); }
-  .grown { position:fixed; right:10px; top:10px; }
-  .info { position:fixed; left:10px; top:10px; width:42px; }
-  .top { padding-left:58px; padding-right:58px; }
-  .goal { font-weight:800; color:#fff; font-size:clamp(14px,3.6vw,20px); background:rgba(20,16,60,.45); border:2px solid rgba(255,207,63,.85); padding:3px 12px; border-radius:999px; text-shadow:0 1px 2px rgba(0,0,0,.4); }
+  .overlay h2 { font-family:'Fredoka',sans-serif; margin:0; font-size:clamp(24px,6vw,38px); }
   .note { max-width:560px; font-size:clamp(15px,3.8vw,19px); line-height:1.45; margin:0; }
+  .overlay button { font-size:18px; padding:10px 18px; background:rgba(255,255,255,.18); }
 </style>
 </head>
 <body>
@@ -51,42 +63,45 @@
   <div class="title">The Practice Crystal 💎</div>
   <div class="day" id="day">Day 0 · tiny as an ant</div>
   <div class="track" id="track"></div>
-  <div class="goal" id="goal">Next goal: a mouse 🐭</div>
+</div>
+<div class="banner" id="banner"></div>
+<button class="corner" id="infoBtn" aria-label="for grown-ups">?</button>
+<button class="corner" id="sound" aria-label="sound">🔊</button>
+
+<div class="panel" id="panel">
+  <div class="q">
+    <label>How many days? <b id="daysOut">365 days</b></label>
+    <input type="range" id="days" min="7" max="1825" step="1" value="365">
+    <div class="chips" data-for="days"><button data-v="30">1 month</button><button data-v="100">100 days</button><button data-v="365" class="sel">1 year</button><button data-v="1095">3 years</button><button data-v="1825">5 years</button></div>
+  </div>
+  <div class="q">
+    <label>How much better each practice day? <b id="rateOut">1%</b></label>
+    <input type="range" id="rate" min="0.2" max="5" step="0.1" value="1">
+    <div class="chips" data-for="rate"><button data-v="0.5">a teeny bit</button><button data-v="1" class="sel">a little (1%)</button><button data-v="2">more (2%)</button><button data-v="5">a lot (5%)</button></div>
+  </div>
+  <div class="q">
+    <label>Practice days each week? <b id="weekOut">7 days</b></label>
+    <input type="range" id="week" min="1" max="7" step="1" value="7">
+  </div>
+  <button class="go" id="go">▶ Grow!</button>
 </div>
 
-<div class="banner" id="banner"></div>
-
-<button class="small grown" id="sound" aria-label="sound">🔊</button>
-<button class="small info" id="infoBtn" aria-label="for grown-ups">?</button>
+<div class="result" id="result">
+  <div class="big" id="resBig"></div>
+  <div class="cmp" id="resCmp"></div>
+  <div class="lesson" id="resLesson"></div>
+  <div class="row"><button id="again">▶ Watch again</button><button id="change">✏️ Change</button></div>
+</div>
 
 <div class="overlay" id="info">
   <h2>For grown-ups</h2>
-  <p class="note">Each tap is one day of practice, and the crystal doubles. That's compounding: growth builds on growth.</p>
-  <p class="note">Practicing every other day doesn't give half the crystal. After 60 days it's about a <b>billion</b> times smaller.</p>
-  <p class="note">Real money and real skills grow slower (money at about 7% a year doubles every ~10 years), but the shape is the same: slow, slow, then BOOM.</p>
-  <button class="small" id="infoClose">✕ Back</button>
-</div>
-
-<div class="bottom">
-  <div class="hint" id="hint">Every day you practice, your crystal grows 2× bigger!</div>
-  <div class="row">
-    <button class="small" id="reset">↺ Start over</button>
-    <button class="grow" id="grow">✨ Practice!</button>
-    <button class="small" id="raceBtn">🏁 Race</button>
-  </div>
-</div>
-
-<div class="overlay" id="race">
-  <h2>Who grows bigger?</h2>
-  <div class="lane"><div class="who">💪 Practices<br>every day<small>never skips</small></div><div class="gem" id="gA">💎</div><div class="what" id="wA"></div></div>
-  <div class="lane"><div class="who">😴 Practices<br>every other day<small>skips half the days</small></div><div class="gem" id="gB">💎</div><div class="what" id="wB"></div></div>
-  <div class="day" id="raceDay">Day 0</div>
-  <div class="verdict" id="verdict"></div>
-  <div class="row"><button class="grow" id="raceGo">▶ Go!</button><button class="small" id="raceClose">✕ Back</button></div>
+  <p class="note">Each practice day the crystal gets a little bigger than the day before: 1% better, then 1% better than <i>that</i>. That's compounding: growth builds on growth.</p>
+  <p class="note">1% a day for a year makes it about <b>38×</b> bigger. Practicing only 3 days a week makes it about <b>5×</b>. Fewer days doesn't just mean a little less; the gap gets huge.</p>
+  <p class="note">Money works the same way, only slower: about 7% a year doubles every ~10 years. Slow, slow, then BOOM.</p>
+  <button id="infoClose">✕ Back</button>
 </div>
 
 <script>
-// ---------- stages (size in meters) ----------
 const STAGES = [
   { e:'🐜', n:'an ant',            s:0.005 },
   { e:'🐭', n:'a mouse',           s:0.08 },
@@ -103,218 +118,194 @@ const STAGES = [
   { e:'✨', n:'the whole Universe', s:8.8e26, round:true },
 ];
 const START = 0.005, LAST = STAGES.length - 1;
+const $ = id => document.getElementById(id);
 
-const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const cv = $('c'), ctx = cv.getContext('2d');
 let W, H, DPR;
-function resize(){ DPR = Math.min(window.devicePixelRatio||1, 2); W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
 addEventListener('resize', resize); resize();
 
+// ---------- inputs ----------
+const inp = { days:$('days'), rate:$('rate'), week:$('week') };
+function vals(){ return { days:+inp.days.value, rate:+inp.rate.value/100, week:+inp.week.value }; }
+function niceDays(d){ if(d % 365 === 0) return d===365 ? '1 year' : (d/365)+' years'; return d+' days'; }
+function syncLabels(){
+  const v = vals();
+  $('daysOut').textContent = niceDays(v.days);
+  $('rateOut').textContent = (+inp.rate.value).toFixed(inp.rate.value % 1 ? 1 : 0) + '%';
+  $('weekOut').textContent = v.week + (v.week===1?' day':' days');
+  document.querySelectorAll('.chips').forEach(c => { const el = inp[c.dataset.for]; c.querySelectorAll('button').forEach(b => b.classList.toggle('sel', +b.dataset.v === +el.value)); });
+}
+Object.values(inp).forEach(el => el.addEventListener('input', syncLabels));
+document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; inp[c.dataset.for].value = b.dataset.v; syncLabels(); }));
+syncLabels();
+
 // ---------- state ----------
-let day = 0, size = START;           // true crystal size (m)
-let dispLog = Math.log(START);       // displayed crystal size (log m), eases fast
-let camLog  = Math.log(START);       // camera follows crystal size (log m), eases slow
-let reached = 0;                     // highest stage index passed
+let size = START, dispLog = Math.log(START), camLog = Math.log(START);
+let reached = 0, curDay = 0;
 const particles = [];
 const stars = Array.from({length:180}, () => ({ x:Math.random(), y:Math.random(), r:Math.random()*1.6+.3, t:Math.random()*6 }));
-
-const trackEl = document.getElementById('track');
+const trackEl = $('track');
 STAGES.forEach((s,i) => { const sp = document.createElement('span'); sp.textContent = s.e; if(i===0) sp.className='on'; trackEl.appendChild(sp); });
 
 function stageIndexFor(m){ let k = 0; for(let i=0;i<STAGES.length;i++) if(m >= STAGES[i].s*0.999) k = i; return k; }
-function fmtTimes(x){ if(x < 10) return x.toFixed(1).replace(/\.0$/,''); if(x < 1000) return Math.round(x).toString(); if(x < 1e6) return Math.round(x/1000)+' thousand'; if(x < 1e9) return Math.round(x/1e6)+' million'; if(x < 1e12) return Math.round(x/1e9)+' billion'; return 'zillions of'; }
+function fmtX(x){
+  if(x < 10) return (Math.round(x*10)/10).toString();
+  if(x < 1000) return Math.round(x).toLocaleString();
+  const units = [[1e18,'quintillion'],[1e15,'quadrillion'],[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1e3,'thousand']];
+  if(x >= 1e21) return 'zillions of';
+  for(const [u,n] of units) if(x >= u) return (x/u < 10 ? (Math.round(x/u*10)/10) : Math.round(x/u)) + ' ' + n;
+}
+function sizeText(m){
+  const k = stageIndexFor(m), s = STAGES[k], t = m/s.s;
+  if(m < STAGES[0].s*1.2) return 'tiny as an ant';
+  if(k === LAST && t > 1e3) return 'bigger than everything!';
+  return t < 1.5 ? `as big as ${s.n}` : `${fmtX(t)}× ${s.n}`;
+}
 
 // ---------- sound ----------
 let soundOn = true, AC = null;
-function beep(freq, dur=0.12, type='triangle', vol=0.12){
+function beep(freq, dur=0.12, type='triangle', vol=0.1){
   if(!soundOn) return;
-  try{
-    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
-    const o = AC.createOscillator(), g = AC.createGain();
-    o.type = type; o.frequency.value = freq; g.gain.value = vol;
-    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur);
-    o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
+  try{ AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol;
+    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime+dur); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+dur);
   }catch(e){}
 }
-function chord(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.25,'sine',0.1), i*70)); }
-document.getElementById('infoBtn').onclick = () => document.getElementById('info').classList.add('show');
-document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('show');
-document.getElementById('sound').onclick =e => { soundOn = !soundOn; e.target.textContent = soundOn ? '🔊' : '🔇'; };
+function chord(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.25,'sine',0.09), i*70)); }
+$('sound').onclick = e => { soundOn = !soundOn; e.target.textContent = soundOn ? '🔊' : '🔇'; };
+$('infoBtn').onclick = () => $('info').classList.add('show');
+$('infoClose').onclick = () => $('info').classList.remove('show');
 
-// ---------- grow ----------
-const banner = document.getElementById('banner');
 let bannerTimer;
-function showBanner(txt){ banner.textContent = txt; banner.classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(()=>banner.classList.remove('show'), 1600); }
+function showBanner(t){ const b = $('banner'); b.textContent = t; b.classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(()=>b.classList.remove('show'), 1300); }
+function burst(n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=2+Math.random()*6; particles.push({x:W*0.56, y:groundY()-80, vx:Math.cos(a)*v, vy:Math.sin(a)*v-3, life:1, hue:40+Math.random()*280, r:2+Math.random()*4}); } }
 
-function grow(){
-  if(reached >= LAST && size >= STAGES[LAST].s) { showBanner('You did it! 🎉'); chord(); burst(60); return; }
-  day++; size *= 2;
-  beep(220 * Math.pow(2, Math.min(day,60)/18), 0.1);
-  burst(10);
+function setSize(m){
+  size = m;
   const k = stageIndexFor(size);
   if(k > reached){
     reached = k;
     [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i<=k));
-    const s = STAGES[k];
-    showBanner(k===LAST ? `As big as the UNIVERSE! ${s.e}` : `Bigger than ${s.n}! ${s.e}`);
-    chord(); burst(45);
-    if(k===LAST){ stopHold(); setTimeout(()=>document.getElementById('hint').textContent = `${day} days of practice, one day at a time. 🌟`, 400); }
-  }
-  updateDay();
-}
-function updateDay(){
-  const k = stageIndexFor(size), s = STAGES[k];
-  const times = size / s.s;
-  const txt = k===0 && day===0 ? 'tiny as an ant' : (times < 1.5 ? `as big as ${s.n}` : `${fmtTimes(times)}× ${s.n}`);
-  document.getElementById('day').textContent = `Day ${day} · ${txt}`;
-  const goal = document.getElementById('goal');
-  if(k < LAST){ const n = STAGES[k+1]; goal.textContent = `Next goal: ${n.n} ${n.e}`; }
-  else goal.textContent = 'You grew past everything! 🌟';
-}
-function burst(n){
-  for(let i=0;i<n;i++){
-    const a = Math.random()*Math.PI*2, v = 2+Math.random()*6;
-    particles.push({ x:W/2, y:H*0.55, vx:Math.cos(a)*v, vy:Math.sin(a)*v-3, life:1, hue: 40+Math.random()*280, r:2+Math.random()*4 });
+    showBanner(k===LAST ? `As big as the UNIVERSE! ✨` : `Bigger than ${STAGES[k].n}! ${STAGES[k].e}`);
+    chord(); burst(40);
   }
 }
-
-// hold to keep growing
-let holdTimer = null, holdDelay = null;
-const growBtn = document.getElementById('grow');
-function stopHold(){ clearTimeout(holdDelay); clearInterval(holdTimer); holdTimer = null; }
-growBtn.addEventListener('pointerdown', e => { e.preventDefault(); grow(); holdDelay = setTimeout(()=>{ holdTimer = setInterval(grow, 170); }, 420); });
-['pointerup','pointerleave','pointercancel'].forEach(ev => growBtn.addEventListener(ev, stopHold));
-
-document.getElementById('reset').onclick = () => {
-  stopHold(); day = 0; size = START; reached = 0; dispLog = camLog = Math.log(START);
+function resetCrystal(){
+  size = START; dispLog = camLog = Math.log(START); reached = 0; curDay = 0;
   [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i===0));
-  document.getElementById('hint').textContent = 'Every day you practice, your crystal grows 2× bigger!';
-  updateDay();
-};
+  $('day').textContent = 'Day 0 · tiny as an ant';
+}
+
+// ---------- play ----------
+function practiceDaysBy(day, week){ return Math.floor(day/7)*week + Math.min(day%7, week); }
+function finalSize(v, week){ return START * Math.pow(1+v.rate, practiceDaysBy(v.days, week ?? v.week)); }
+
+let anim = null;
+function play(){
+  const v = vals();
+  resetCrystal();
+  $('panel').classList.add('hide'); $('result').classList.remove('show');
+  const dur = Math.min(9000, 3500 + v.days*4);
+  const t0 = performance.now();
+  let lastTick = -1;
+  cancelAnimationFrame(anim);
+  const step = now => {
+    const p = Math.min(1, (now - t0)/dur);
+    curDay = Math.round(p * v.days);
+    setSize(START * Math.pow(1+v.rate, practiceDaysBy(curDay, v.week)));
+    $('day').textContent = `Day ${curDay} · ${sizeText(size)}`;
+    const tick = Math.floor(p*40);
+    if(tick !== lastTick){ lastTick = tick; beep(240 + tick*12, 0.04, 'square', 0.03); }
+    if(p < 1) anim = requestAnimationFrame(step); else setTimeout(showResult, 900);
+  };
+  anim = requestAnimationFrame(step);
+}
+function showResult(){
+  const v = vals();
+  const mine = finalSize(v);
+  $('resBig').innerHTML = `${niceDays(v.days)} of practice made your crystal <b>${fmtX(mine/START)}× bigger</b>!<br>From tiny as an ant to <b>${sizeText(mine)}</b>.`;
+  const rows = [7,5,3,1];
+  if(!rows.includes(v.week)) rows.push(v.week);
+  rows.sort((a,b)=>b-a);
+  $('resCmp').innerHTML = rows.map(w => {
+    const m = finalSize(v, w);
+    return `<div class="${w===v.week?'me':''}"><span>${w===7?'💪':w>=5?'🙂':w>=3?'😐':'😴'} ${w} day${w>1?'s':''} a week</span><b>${fmtX(m/START)}× · ${STAGES[stageIndexFor(m)].e}</b></div>`;
+  }).join('');
+  const every = finalSize(v,7), three = finalSize(v,3);
+  $('resLesson').textContent = v.week < 7
+    ? `Practicing every day would have made it ${fmtX(every/mine)}× bigger than this!`
+    : `Only 3 days a week would have made it ${fmtX(every/three)}× smaller. Little and often wins! 🌟`;
+  $('result').classList.add('show'); chord(); burst(60);
+}
+$('go').onclick = play;
+$('again').onclick = play;
+$('change').onclick = () => { $('result').classList.remove('show'); $('panel').classList.remove('hide'); };
 
 // ---------- drawing ----------
+function groundY(){
+  const panel = $('panel'), res = $('result');
+  let cover = 0;
+  if(!panel.classList.contains('hide')) cover = panel.getBoundingClientRect().height;
+  else if(res.classList.contains('show')) cover = res.getBoundingClientRect().height + 14;
+  return Math.max(H*0.42, H - cover - 34);
+}
 function drawCrystal(cx, baseY, h, hue, t){
   const w = h*0.62;
   const shards = [ {dx:0, hh:1, ww:0.42, tilt:0}, {dx:-0.3, hh:0.7, ww:0.3, tilt:-0.32}, {dx:0.3, hh:0.62, ww:0.28, tilt:0.36}, {dx:-0.12, hh:0.45, ww:0.22, tilt:-0.12}, {dx:0.15, hh:0.4, ww:0.2, tilt:0.18} ];
-  ctx.save();
-  ctx.shadowColor = `hsla(${hue},100%,70%,.7)`; ctx.shadowBlur = Math.min(60, h*0.25);
+  ctx.save(); ctx.shadowColor = `hsla(${hue},100%,70%,.7)`; ctx.shadowBlur = Math.min(60, h*0.25);
   for(const s of shards){
     const sh = h*s.hh, sw = w*s.ww;
-    ctx.save();
-    ctx.translate(cx + s.dx*w, baseY);
-    ctx.rotate(s.tilt);
+    ctx.save(); ctx.translate(cx + s.dx*w, baseY); ctx.rotate(s.tilt);
     const g = ctx.createLinearGradient(-sw/2, 0, sw/2, -sh);
-    g.addColorStop(0, `hsl(${hue},85%,45%)`);
-    g.addColorStop(0.5, `hsl(${(hue+25)%360},95%,68%)`);
-    g.addColorStop(1, `hsl(${(hue+50)%360},100%,88%)`);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.moveTo(-sw/2, 0); ctx.lineTo(-sw/2, -sh*0.72); ctx.lineTo(0, -sh); ctx.lineTo(sw/2, -sh*0.72); ctx.lineTo(sw/2, 0); ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(1, sw*0.03);
+    g.addColorStop(0, `hsl(${hue},85%,45%)`); g.addColorStop(0.5, `hsl(${(hue+25)%360},95%,68%)`); g.addColorStop(1, `hsl(${(hue+50)%360},100%,88%)`);
+    ctx.fillStyle = g; ctx.beginPath();
+    ctx.moveTo(-sw/2,0); ctx.lineTo(-sw/2,-sh*0.72); ctx.lineTo(0,-sh); ctx.lineTo(sw/2,-sh*0.72); ctx.lineTo(sw/2,0); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(1, sw*0.03);
     ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-sh); ctx.moveTo(-sw/2,-sh*0.72); ctx.lineTo(0,-sh*0.6); ctx.lineTo(sw/2,-sh*0.72); ctx.stroke();
     ctx.restore();
   }
-  // sparkle
-  const sp = (Math.sin(t*3)+1)/2;
-  ctx.fillStyle = `rgba(255,255,255,${0.5+0.5*sp})`;
-  star4(cx + w*0.08, baseY - h*0.82, Math.max(3, h*0.07)*(0.6+0.4*sp));
+  const sp = (Math.sin(t*3)+1)/2; ctx.fillStyle = `rgba(255,255,255,${0.5+0.5*sp})`;
+  const x = cx + w*0.08, y = baseY - h*0.82, r = Math.max(3, h*0.07)*(0.6+0.4*sp);
+  ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.quadraticCurveTo(x,y,x,y+r); ctx.quadraticCurveTo(x,y,x-r,y); ctx.quadraticCurveTo(x,y,x,y-r); ctx.fill();
   ctx.restore();
 }
-function star4(x,y,r){ ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.quadraticCurveTo(x,y,x,y+r); ctx.quadraticCurveTo(x,y,x-r,y); ctx.quadraticCurveTo(x,y,x,y-r); ctx.fill(); }
-
 const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-function drawThing(st, x, baseY, px, label, side){
-  ctx.save();
-  ctx.textAlign = 'center';
-  if(px < 7){
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, baseY-4, 3, 0, Math.PI*2); ctx.fill();
-  } else {
-    const fs = Math.min(px/1.15, 1600);
-    ctx.font = `${fs}px ${EMOJI_FONT}`; ctx.textBaseline = st.round ? 'middle' : 'bottom';
-    ctx.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08);
-  }
-  ctx.font = `800 ${Math.max(13, Math.min(20, W/30))}px Nunito, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.textBaseline = 'top';
-  ctx.fillText(label, x, Math.min(H-150, baseY + 8));
-  ctx.restore();
+function drawThing(st, x, baseY, px){
+  ctx.save(); ctx.textAlign = 'center';
+  if(px < 7){ ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, baseY-4, 3, 0, Math.PI*2); ctx.fill(); }
+  else { const fs = Math.min(px/1.15, 1600); ctx.font = `${fs}px ${EMOJI_FONT}`; ctx.textBaseline = st.round ? 'middle' : 'bottom'; ctx.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08); }
+  ctx.font = `800 ${Math.max(13, Math.min(20, W/30))}px Nunito, sans-serif`; ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.textBaseline = 'top';
+  ctx.fillText(st.n, x, baseY + 8); ctx.restore();
 }
 
 let last = performance.now();
 function frame(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   const target = Math.log(size);
-  dispLog += (target - dispLog) * Math.min(1, dt*9);
-  camLog  += (target - camLog)  * Math.min(1, dt*2.6);
-
+  dispLog += (target - dispLog) * Math.min(1, dt*10);
+  camLog  += (target - camLog)  * Math.min(1, dt*3);
   const log10 = Math.log10(Math.exp(dispLog));
-  const space = Math.max(0, Math.min(1, (log10 - 4.2) / 1.6));  // 0 = sky, 1 = space
-
-  // background
+  const space = Math.max(0, Math.min(1, (log10 - 4.2) / 1.6));
   const g = ctx.createLinearGradient(0,0,0,H);
   const mix = (a,b) => a.map((v,i)=>Math.round(v+(b[i]-v)*space));
-  const top = mix([120,190,255],[6,8,28]), bot = mix([220,245,255],[18,14,60]);
-  g.addColorStop(0, `rgb(${top})`); g.addColorStop(1, `rgb(${bot})`);
+  g.addColorStop(0, `rgb(${mix([120,190,255],[6,8,28])})`); g.addColorStop(1, `rgb(${mix([220,245,255],[18,14,60])})`);
   ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  if(space > 0){
-    for(const s of stars){ ctx.fillStyle = `rgba(255,255,255,${space*(0.4+0.6*Math.abs(Math.sin(now/900+s.t)))})`; ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2); ctx.fill(); }
-  }
+  if(space > 0) for(const s of stars){ ctx.fillStyle = `rgba(255,255,255,${space*(0.4+0.6*Math.abs(Math.sin(now/900+s.t)))})`; ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2); ctx.fill(); }
 
-  const groundY = H*0.74;
-  const scale = Math.min(H*0.34, W*0.62) / Math.exp(camLog);   // px per meter
+  const gy = groundY();
+  const avail = gy - 170;
+  const scale = Math.max(40, Math.min(avail*0.85, W*0.6)) / Math.exp(camLog);
   const cPx = Math.exp(dispLog) * scale;
-  if(space < 1){
-    ctx.fillStyle = `rgba(90,170,90,${1-space})`; ctx.fillRect(0, groundY, W, H-groundY);
-    ctx.fillStyle = `rgba(60,140,70,${1-space})`; ctx.fillRect(0, groundY, W, 6);
-  }
-
-  const hue = (260 + log10*14) % 360;
-  const cx = W*0.56;
-  drawCrystal(cx, groundY, cPx, hue, now/1000);
-
-  // the thing we just passed, drawn to scale, standing in front of the crystal
+  if(space < 1){ ctx.fillStyle = `rgba(90,170,90,${1-space})`; ctx.fillRect(0, gy, W, H-gy); ctx.fillStyle = `rgba(60,140,70,${1-space})`; ctx.fillRect(0, gy, W, 6); }
+  const hue = (260 + log10*14) % 360, cx = W*0.56;
+  drawCrystal(cx, gy, cPx, hue, now/1000);
   const k = stageIndexFor(size);
-  if(!(k===0 && day===0)){
-    const prev = STAGES[k], pPx = prev.s*scale;
-    const x = Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35);
-    drawThing(prev, x, groundY, pPx, prev.n, -1);
-  }
-
-  // particles
-  for(let i=particles.length-1;i>=0;i--){
-    const p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.18; p.life -= dt*0.9;
-    if(p.life <= 0){ particles.splice(i,1); continue; }
-    ctx.fillStyle = `hsla(${p.hue},100%,65%,${p.life})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-  }
+  if(size > START*1.05){ const prev = STAGES[k], pPx = prev.s*scale; drawThing(prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx); }
+  for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life-=dt*0.9; if(p.life<=0){particles.splice(i,1);continue;} ctx.fillStyle=`hsla(${p.hue},100%,65%,${p.life})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-
-// ---------- race: every day vs every other day ----------
-const race = document.getElementById('race');
-document.getElementById('raceBtn').onclick = () => { stopHold(); race.classList.add('show'); resetRace(); };
-document.getElementById('raceClose').onclick = () => { race.classList.remove('show'); clearInterval(raceTimer); };
-let raceTimer = null;
-function laneText(m){ const k = stageIndexFor(m), s = STAGES[k]; const t = m/s.s; return `${s.e} <b>${t<1.5?'':fmtTimes(t)+'× '}</b>${s.n}`; }
-function gemSize(m){ return 22 + Math.log10(m/START) * 3.2; }
-function setLane(id, gid, m){ document.getElementById(id).innerHTML = laneText(m); document.getElementById(gid).style.fontSize = gemSize(m)+'px'; }
-function resetRace(){ clearInterval(raceTimer); document.getElementById('raceDay').textContent='Day 0'; document.getElementById('verdict').textContent='Both start as tiny as an ant. Tap Go!'; setLane('wA','gA',START); setLane('wB','gB',START); }
-document.getElementById('raceGo').onclick = () => {
-  resetRace(); let d = 0; const DAYS = 60;
-  document.getElementById('verdict').textContent = '';
-  raceTimer = setInterval(() => {
-    d++;
-    const a = START*Math.pow(2,d), b = START*Math.pow(2,Math.floor(d/2));
-    setLane('wA','gA',a); setLane('wB','gB',b);
-    document.getElementById('raceDay').textContent = `Day ${d}`;
-    beep(300 + d*8, 0.05, 'square', 0.04);
-    if(d >= DAYS){
-      clearInterval(raceTimer); chord();
-      document.getElementById('verdict').innerHTML = `Skipping half the days didn't make it half as big.<br>It made it about a <b>BILLION</b> times smaller! 🤯`;
-    }
-  }, 130);
-};
-updateDay();
 </script>
 </body>
 </html>
