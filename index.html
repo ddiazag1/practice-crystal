@@ -34,6 +34,15 @@
   .chips button { font-size:clamp(13px,3.3vw,16px); padding:6px 12px; background:rgba(255,255,255,.14); }
   .chips button.sel { background:var(--gold); color:#3a2600; }
   input[type=range] { width:100%; accent-color:var(--gold); height:28px; }
+  .panel { max-height:68vh; overflow-y:auto; overscroll-behavior:contain; }
+  .num { display:flex; align-items:center; gap:6px; }
+  .num input { width:76px; font-family:'Fredoka',sans-serif; font-size:17px; padding:3px 6px; border-radius:10px; border:2px solid rgba(255,207,63,.7); background:rgba(255,255,255,.1); color:#fff; text-align:right; }
+  .names { display:flex; gap:8px; }
+  .names input { flex:1; min-width:0; font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; padding:8px 10px; border-radius:12px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:#fff; }
+  .names input::placeholder { color:rgba(255,255,255,.5); }
+  .more { align-self:center; font-size:15px; padding:6px 14px; background:rgba(255,255,255,.12); }
+  .moreBox { display:none; flex-direction:column; gap:10px; }
+  .moreBox.open { display:flex; }
   .go { font-size:clamp(22px,5.6vw,32px); padding:12px 30px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 5px 0 #c77d00, 0 8px 20px rgba(0,0,0,.3); align-self:center; }
   .go:active { transform:translateY(3px); box-shadow:0 2px 0 #c77d00; }
 
@@ -70,18 +79,41 @@
 
 <div class="panel" id="panel">
   <div class="q">
-    <label>How many days? <b id="daysOut">365 days</b></label>
-    <input type="range" id="days" min="7" max="1825" step="1" value="365">
-    <div class="chips" data-for="days"><button data-v="30">1 month</button><button data-v="100">100 days</button><button data-v="365" class="sel">1 year</button><button data-v="1095">3 years</button><button data-v="1825">5 years</button></div>
+    <label>How many days? <span class="num"><input type="number" id="daysNum" min="1" max="3650" value="365"> <b id="daysOut">1 year</b></span></label>
+    <input type="range" id="days" min="1" max="3650" step="1" value="365">
+    <div class="chips" data-for="days"><button data-v="7">1 week</button><button data-v="30">1 month</button><button data-v="100">100 days</button><button data-v="182">6 months</button><button data-v="365" class="sel">1 year</button><button data-v="1095">3 years</button><button data-v="1825">5 years</button><button data-v="3650">10 years</button></div>
   </div>
   <div class="q">
-    <label>How much better each practice day? <b id="rateOut">1%</b></label>
-    <input type="range" id="rate" min="0.2" max="5" step="0.1" value="1">
-    <div class="chips" data-for="rate"><button data-v="0.5">a teeny bit</button><button data-v="1" class="sel">a little (1%)</button><button data-v="2">more (2%)</button><button data-v="5">a lot (5%)</button></div>
+    <label>How much better each practice day? <span class="num"><input type="number" id="rateNum" min="0.1" max="20" step="0.1" value="1"><b>%</b></span></label>
+    <input type="range" id="rate" min="0.1" max="20" step="0.1" value="1">
+    <div class="chips" data-for="rate"><button data-v="0.1">0.1%</button><button data-v="0.5">0.5%</button><button data-v="1" class="sel">1%</button><button data-v="2">2%</button><button data-v="5">5%</button><button data-v="10">10%</button><button data-v="20">20%</button></div>
   </div>
   <div class="q">
     <label>Practice days each week? <b id="weekOut">7 days</b></label>
-    <input type="range" id="week" min="1" max="7" step="1" value="7">
+    <div class="chips" data-for="week"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button><button data-v="7" class="sel">7 every day</button></div>
+    <input type="hidden" id="week" value="7">
+  </div>
+  <button class="more" id="moreBtn">More options ▾</button>
+  <div class="moreBox" id="moreBox">
+    <div class="q">
+      <label>On days you skip, the crystal…</label>
+      <div class="chips" data-for="decay"><button data-v="0" class="sel">stays the same</button><button data-v="0.5">shrinks a little (−0.5%)</button><button data-v="1">shrinks more (−1%)</button><button data-v="2">shrinks a lot (−2%)</button></div>
+      <input type="hidden" id="decay" value="0">
+    </div>
+    <div class="q">
+      <label>Start as big as…</label>
+      <div class="chips" data-for="start"><button data-v="0" class="sel">🐜 ant</button><button data-v="1">🐭 mouse</button><button data-v="2">🐱 cat</button><button data-v="3">🧍 person</button></div>
+      <input type="hidden" id="start" value="0">
+    </div>
+    <div class="q">
+      <label>Whose crystal? What are you practicing?</label>
+      <div class="names"><input type="text" id="who" maxlength="14" placeholder="Name (Liam)"><input type="text" id="what" maxlength="16" placeholder="Skill (piano)"></div>
+    </div>
+    <div class="q">
+      <label>Animation speed</label>
+      <div class="chips" data-for="speed"><button data-v="1.8">🐢 slow</button><button data-v="1" class="sel">normal</button><button data-v="0.55">🐇 fast</button></div>
+      <input type="hidden" id="speed" value="1">
+    </div>
   </div>
   <button class="go" id="go">▶ Grow!</button>
 </div>
@@ -126,18 +158,38 @@ function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = i
 addEventListener('resize', resize); resize();
 
 // ---------- inputs ----------
-const inp = { days:$('days'), rate:$('rate'), week:$('week') };
-function vals(){ return { days:+inp.days.value, rate:+inp.rate.value/100, week:+inp.week.value }; }
-function niceDays(d){ if(d % 365 === 0) return d===365 ? '1 year' : (d/365)+' years'; return d+' days'; }
-function syncLabels(){
+const inp = { days:$('days'), rate:$('rate'), week:$('week'), decay:$('decay'), start:$('start'), speed:$('speed') };
+const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
+function vals(){
+  return { days:clamp(Math.round(+inp.days.value)||1, 1, 3650), rate:clamp(+inp.rate.value||0.1, 0.1, 20)/100, week:+inp.week.value,
+           decay:+inp.decay.value/100, startIdx:+inp.start.value, speed:+inp.speed.value,
+           who:$('who').value.trim(), what:$('what').value.trim() };
+}
+function niceDays(d){
+  if(d % 365 === 0) return d===365 ? '1 year' : (d/365)+' years';
+  if(d === 7) return '1 week'; if(d === 30) return '1 month'; if(d === 182) return '6 months';
+  return d+' days';
+}
+function crystalName(v){
+  const skill = v.what ? v.what.charAt(0).toUpperCase() + v.what.slice(1) + ' ' : '';
+  return v.who ? `${v.who}'s ${skill}Crystal` : (skill ? `The ${skill}Crystal` : 'The Practice Crystal');
+}
+function syncLabels(src){
+  if(src === 'days') $('daysNum').value = inp.days.value;
+  if(src === 'rate') $('rateNum').value = inp.rate.value;
   const v = vals();
   $('daysOut').textContent = niceDays(v.days);
-  $('rateOut').textContent = (+inp.rate.value).toFixed(inp.rate.value % 1 ? 1 : 0) + '%';
-  $('weekOut').textContent = v.week + (v.week===1?' day':' days');
+  $('weekOut').textContent = v.week===7 ? 'every day' : v.week + (v.week===1?' day':' days');
   document.querySelectorAll('.chips').forEach(c => { const el = inp[c.dataset.for]; c.querySelectorAll('button').forEach(b => b.classList.toggle('sel', +b.dataset.v === +el.value)); });
+  document.querySelector('.title').textContent = crystalName(v) + ' 💎';
 }
-Object.values(inp).forEach(el => el.addEventListener('input', syncLabels));
-document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; inp[c.dataset.for].value = b.dataset.v; syncLabels(); }));
+inp.days.addEventListener('input', () => syncLabels('days'));
+inp.rate.addEventListener('input', () => syncLabels('rate'));
+$('daysNum').addEventListener('input', e => { if(e.target.value){ inp.days.value = clamp(+e.target.value,1,3650); syncLabels(); } });
+$('rateNum').addEventListener('input', e => { if(e.target.value){ inp.rate.value = clamp(+e.target.value,0.1,20); syncLabels(); } });
+['who','what'].forEach(id => $(id).addEventListener('input', () => syncLabels()));
+document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; inp[c.dataset.for].value = b.dataset.v; syncLabels(c.dataset.for); if(c.dataset.for === 'start') resetCrystal(STAGES[+b.dataset.v].s); }));
+$('moreBtn').onclick = () => { const box = $('moreBox'); box.classList.toggle('open'); $('moreBtn').textContent = box.classList.contains('open') ? 'Fewer options ▴' : 'More options ▾'; };
 syncLabels();
 
 // ---------- state ----------
@@ -156,9 +208,10 @@ function fmtX(x){
   if(x >= 1e21) return 'zillions of';
   for(const [u,n] of units) if(x >= u) return (x/u < 10 ? (Math.round(x/u*10)/10) : Math.round(x/u)) + ' ' + n;
 }
-function sizeText(m){
+function sizeText(m, start){
   const k = stageIndexFor(m), s = STAGES[k], t = m/s.s;
   if(m < STAGES[0].s*1.2) return 'tiny as an ant';
+  if(start && m < start*1.05 && Math.abs(start - s.s)/s.s < 0.01) return `as big as ${s.n}`;
   if(k === LAST && t > 1e3) return 'bigger than everything!';
   return t < 1.5 ? `as big as ${s.n}` : `${fmtX(t)}× ${s.n}`;
 }
@@ -191,30 +244,41 @@ function setSize(m){
     chord(); burst(40);
   }
 }
-function resetCrystal(){
-  size = START; dispLog = camLog = Math.log(START); reached = 0; curDay = 0;
-  [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i===0));
-  $('day').textContent = 'Day 0 · tiny as an ant';
+function resetCrystal(start){
+  size = start; dispLog = camLog = Math.log(start); curDay = 0;
+  reached = stageIndexFor(start);
+  [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i<=reached));
+  $('day').textContent = `Day 0 · ${sizeText(start, start)}`;
 }
 
-// ---------- play ----------
-function practiceDaysBy(day, week){ return Math.floor(day/7)*week + Math.min(day%7, week); }
-function finalSize(v, week){ return START * Math.pow(1+v.rate, practiceDaysBy(v.days, week ?? v.week)); }
+// ---------- simulate day by day ----------
+// practice on the first `week` days of every 7; skipped days shrink by `decay` (never below the start size)
+function simulate(v, week){
+  const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
+  let lg = Math.log(start); const up = Math.log(1+v.rate), down = Math.log(1-v.decay), floor = lg;
+  out[0] = lg;
+  for(let d=1; d<=v.days; d++){
+    lg = ((d-1) % 7) < week ? lg + up : Math.max(floor, lg + down);
+    out[d] = lg;
+  }
+  return out;   // log sizes
+}
+const finalSize = (v, week) => Math.exp(simulate(v, week ?? v.week)[v.days]);
 
 let anim = null;
 function play(){
-  const v = vals();
-  resetCrystal();
+  const v = vals(), start = STAGES[v.startIdx].s, path = simulate(v, v.week);
+  resetCrystal(start);
   $('panel').classList.add('hide'); $('result').classList.remove('show');
-  const dur = Math.min(9000, 3500 + v.days*4);
+  const dur = Math.min(10000, 3500 + v.days*3) * v.speed;
   const t0 = performance.now();
   let lastTick = -1;
   cancelAnimationFrame(anim);
   const step = now => {
     const p = Math.min(1, (now - t0)/dur);
     curDay = Math.round(p * v.days);
-    setSize(START * Math.pow(1+v.rate, practiceDaysBy(curDay, v.week)));
-    $('day').textContent = `Day ${curDay} · ${sizeText(size)}`;
+    setSize(Math.exp(path[curDay]));
+    $('day').textContent = `Day ${curDay} · ${sizeText(size, start)}`;
     const tick = Math.floor(p*40);
     if(tick !== lastTick){ lastTick = tick; beep(240 + tick*12, 0.04, 'square', 0.03); }
     if(p < 1) anim = requestAnimationFrame(step); else setTimeout(showResult, 900);
@@ -222,20 +286,25 @@ function play(){
   anim = requestAnimationFrame(step);
 }
 function showResult(){
-  const v = vals();
-  const mine = finalSize(v);
-  $('resBig').innerHTML = `${niceDays(v.days)} of practice made your crystal <b>${fmtX(mine/START)}× bigger</b>!<br>From tiny as an ant to <b>${sizeText(mine)}</b>.`;
+  const v = vals(), start = STAGES[v.startIdx].s;
+  const mine = finalSize(v), ratio = mine/start;
+  const whose = v.who ? `${v.who}'s crystal` : 'your crystal';
+  const skill = v.what ? ` of ${v.what}` : ' of practice';
+  const grewTxt = ratio >= 1.05 ? `made ${whose} <b>${fmtX(ratio)}× bigger</b>!` : (ratio > 0.98 ? `kept ${whose} about the same.` : `let ${whose} shrink.`);
+  $('resBig').innerHTML = `${niceDays(v.days)}${skill} ${grewTxt}<br>From ${STAGES[v.startIdx].n} to <b>${sizeText(mine, start)}</b>.`;
   const rows = [7,5,3,1];
   if(!rows.includes(v.week)) rows.push(v.week);
   rows.sort((a,b)=>b-a);
   $('resCmp').innerHTML = rows.map(w => {
     const m = finalSize(v, w);
-    return `<div class="${w===v.week?'me':''}"><span>${w===7?'💪':w>=5?'🙂':w>=3?'😐':'😴'} ${w} day${w>1?'s':''} a week</span><b>${fmtX(m/START)}× · ${STAGES[stageIndexFor(m)].e}</b></div>`;
+    return `<div class="${w===v.week?'me':''}"><span>${w===7?'💪':w>=5?'🙂':w>=3?'😐':'😴'} ${w===7?'every day':w+' day'+(w>1?'s':'')+' a week'}</span><b>${fmtX(m/start)}× · ${STAGES[stageIndexFor(m)].e}</b></div>`;
   }).join('');
   const every = finalSize(v,7), three = finalSize(v,3);
-  $('resLesson').textContent = v.week < 7
+  let lesson = v.week < 7
     ? `Practicing every day would have made it ${fmtX(every/mine)}× bigger than this!`
     : `Only 3 days a week would have made it ${fmtX(every/three)}× smaller. Little and often wins! 🌟`;
+  if(v.decay > 0) lesson += ' Skipped days shrink it, so breaks cost extra.';
+  $('resLesson').textContent = lesson;
   $('result').classList.add('show'); chord(); burst(60);
 }
 $('go').onclick = play;
