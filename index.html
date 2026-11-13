@@ -40,6 +40,11 @@
   .names { display:flex; gap:8px; }
   .names input { flex:1; min-width:0; font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; padding:8px 10px; border-radius:12px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:#fff; }
   .names input::placeholder { color:rgba(255,255,255,.5); }
+  .gorow { display:flex; gap:10px; justify-content:center; align-items:center; }
+  .racego { font-size:clamp(18px,4.6vw,24px); padding:12px 20px; background:linear-gradient(#8f6bff,#5a3fd6); box-shadow:0 5px 0 #3d2a9a; }
+  .mode { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+  .mode button { font-size:clamp(13px,3.4vw,16px); padding:7px 12px; background:rgba(255,255,255,.14); }
+  .mode button.sel { background:var(--gold); color:#3a2600; }
   .more { align-self:center; font-size:15px; padding:6px 14px; background:rgba(255,255,255,.12); }
   .moreBox { display:none; flex-direction:column; gap:10px; }
   .moreBox.open { display:flex; }
@@ -97,9 +102,9 @@
     <div class="chips" data-for="days"><button data-v="7">1 week</button><button data-v="30">1 month</button><button data-v="100">100 days</button><button data-v="182">6 months</button><button data-v="365" class="sel">1 year</button><button data-v="1095">3 years</button><button data-v="1825">5 years</button><button data-v="3650">10 years</button></div>
   </div>
   <div class="q">
-    <label>How much better each practice day? <span class="num"><input type="number" id="rateNum" min="0.1" max="20" step="0.1" value="1"><b>%</b></span></label>
-    <input type="range" id="rate" min="0.1" max="20" step="0.1" value="1">
-    <div class="chips" data-for="rate"><button data-v="0.1">0.1%</button><button data-v="0.5">0.5%</button><button data-v="1" class="sel">1%</button><button data-v="2">2%</button><button data-v="5">5%</button><button data-v="10">10%</button><button data-v="20">20%</button></div>
+    <label>How much better each practice day? <span class="num"><input type="number" id="rateNum" min="0.1" max="5" step="0.1" value="1"><b>%</b></span></label>
+    <input type="range" id="rate" min="0.1" max="5" step="0.1" value="1">
+    <div class="chips" data-for="rate"><button data-v="0.1">0.1%</button><button data-v="0.5">0.5%</button><button data-v="1" class="sel">1%</button><button data-v="2">2%</button><button data-v="3">3%</button><button data-v="5">5% (max)</button></div>
   </div>
   <div class="q">
     <label>Practice days each week? <b id="weekOut">7 days</b></label>
@@ -128,7 +133,7 @@
       <input type="hidden" id="speed" value="1">
     </div>
   </div>
-  <button class="go" id="go">▶ Grow!</button>
+  <div class="gorow"><button class="go" id="go">▶ Grow!</button><button class="racego" id="raceBtn2">⚔️ Race</button></div>
 </div>
 
 <div class="result" id="result">
@@ -139,10 +144,11 @@
 </div>
 
 <div class="overlay" id="race">
-  <h2>Same practice, two ways</h2>
+  <h2 id="raceTitle">Same practice, two ways</h2>
+  <div class="mode" id="raceMode"><button data-m="cram" class="sel">⚔️ Every day vs once a week</button><button data-m="alt">⚔️ Every day vs every other day</button></div>
   <div class="sub" id="raceSub"></div>
   <div class="lane"><div class="who">🐢 A little<br>every day<small id="raceA"></small></div><div class="gem" id="gA">💎</div><div class="what" id="wA"></div></div>
-  <div class="lane"><div class="who">🏋️ A lot<br>once a week<small id="raceB"></small></div><div class="gem" id="gB">💎</div><div class="what" id="wB"></div></div>
+  <div class="lane"><div class="who" id="raceBwho">🏋️ A lot<br>once a week<small id="raceB"></small></div><div class="gem" id="gB">💎</div><div class="what" id="wB"></div></div>
   <div class="day" id="raceDay">Day 0</div>
   <div class="verdict" id="verdict"></div>
   <div class="row"><button class="go" id="raceGo">▶ Race!</button><button id="raceClose">✕ Back</button></div>
@@ -172,6 +178,9 @@ const STAGES = [
   { e:'🪐', n:'the Solar System',  s:9e12, round:true },
   { e:'🌌', n:'the Milky Way',     s:1e21, round:true },
   { e:'✨', n:'the whole Universe', s:8.8e26, round:true },
+  { e:'🔮', n:'the Multiverse',     s:1e40, round:true },
+  { e:'🌀', n:'a Mega-verse',       s:1e60, round:true },
+  { e:'♾️', n:'infinity and beyond', s:1e100, round:true },
 ];
 const START = 0.005, LAST = STAGES.length - 1;
 const $ = id => document.getElementById(id);
@@ -185,7 +194,7 @@ addEventListener('resize', resize); resize();
 const inp = { days:$('days'), rate:$('rate'), week:$('week'), decay:$('decay'), start:$('start'), speed:$('speed') };
 const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
 function vals(){
-  return { days:clamp(Math.round(+inp.days.value)||1, 1, 3650), rate:clamp(+inp.rate.value||0.1, 0.1, 20)/100, week:+inp.week.value,
+  return { days:clamp(Math.round(+inp.days.value)||1, 1, 3650), rate:clamp(+inp.rate.value||0.1, 0.1, 5)/100, week:+inp.week.value,
            decay:+inp.decay.value/100, startIdx:+inp.start.value, speed:+inp.speed.value,
            who:$('who').value.trim(), what:$('what').value.trim() };
 }
@@ -210,7 +219,7 @@ function syncLabels(src){
 inp.days.addEventListener('input', () => syncLabels('days'));
 inp.rate.addEventListener('input', () => syncLabels('rate'));
 $('daysNum').addEventListener('input', e => { if(e.target.value){ inp.days.value = clamp(+e.target.value,1,3650); syncLabels(); } });
-$('rateNum').addEventListener('input', e => { if(e.target.value){ inp.rate.value = clamp(+e.target.value,0.1,20); syncLabels(); } });
+$('rateNum').addEventListener('input', e => { if(e.target.value){ inp.rate.value = clamp(+e.target.value,0.1,5); syncLabels(); } });
 ['who','what'].forEach(id => $(id).addEventListener('input', () => syncLabels()));
 document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; inp[c.dataset.for].value = b.dataset.v; syncLabels(c.dataset.for); if(c.dataset.for === 'start') resetCrystal(STAGES[+b.dataset.v].s); }));
 $('moreBtn').onclick = () => { const box = $('moreBox'); box.classList.toggle('open'); $('moreBtn').textContent = box.classList.contains('open') ? 'Fewer options ▴' : 'More options ▾'; };
@@ -228,8 +237,9 @@ function stageIndexFor(m){ let k = 0; for(let i=0;i<STAGES.length;i++) if(m >= S
 function fmtX(x){
   if(x < 10) return (Math.round(x*10)/10).toString();
   if(x < 1000) return Math.round(x).toLocaleString();
-  const units = [[1e18,'quintillion'],[1e15,'quadrillion'],[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1e3,'thousand']];
-  if(x >= 1e21) return 'zillions of';
+  if(x >= 1e66){ const e = Math.floor(Math.log10(x)), sup = '⁰¹²³⁴⁵⁶⁷⁸⁹'; return '10' + String(e).split('').map(c => sup[+c]).join(''); }
+  const units = [[1e63,'vigintillion'],[1e60,'novemdecillion'],[1e57,'octodecillion'],[1e54,'septendecillion'],[1e51,'sexdecillion'],[1e48,'quindecillion'],[1e45,'quattuordecillion'],[1e42,'tredecillion'],[1e39,'duodecillion'],[1e36,'undecillion'],[1e33,'decillion'],[1e30,'nonillion'],[1e27,'octillion'],[1e24,'septillion'],[1e21,'sextillion'],
+                 [1e18,'quintillion'],[1e15,'quadrillion'],[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1e3,'thousand']];
   for(const [u,n] of units) if(x >= u) return (x/u < 10 ? (Math.round(x/u*10)/10) : Math.round(x/u)) + ' ' + n;
 }
 function sizeText(m, start){
@@ -264,7 +274,7 @@ function setSize(m){
   if(k > reached){
     reached = k;
     [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i<=k));
-    showBanner(k===LAST ? `As big as the UNIVERSE! ✨` : `Bigger than ${STAGES[k].n}! ${STAGES[k].e}`);
+    showBanner(k===LAST ? `To infinity and beyond! ♾️` : `Bigger than ${STAGES[k].n}! ${STAGES[k].e}`);
     chord(); burst(40);
   }
 }
@@ -351,21 +361,40 @@ let raceTimer = null;
 function laneText(m, start){ const k = stageIndexFor(m); return `<b>${fmtX(m/start)}× bigger</b><br>${STAGES[k].e} ${sizeText(m, start)}`; }
 function gemPx(m, start){ return Math.min(84, 26 + Math.log10(m/start) * 9); }
 function setLane(k, m, start){ $('w'+k).innerHTML = laneText(m, start); $('g'+k).style.fontSize = gemPx(m, start) + 'px'; }
+let raceMode = 'cram';
+// every other day: practice on odd days, skipped days shrink by the chosen amount (never below the start)
+function simulateAlt(v){
+  const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
+  let lg = Math.log(start); const floor = lg, up = Math.log(1+v.rate), down = Math.log(1-v.decay);
+  out[0] = lg;
+  for(let d=1; d<=v.days; d++){ lg = (d % 2 === 1) ? lg + up : Math.max(floor, lg + down); out[d] = lg; }
+  return out;
+}
 function resetRace(){
   clearInterval(raceTimer);
   const v = vals(), start = STAGES[v.startIdx].s, pct = +(v.rate*100).toFixed(2);
-  $('raceSub').textContent = `Both practice the same amount each week. One does ${pct}% every day; the other crams all 7 days into one big session. One big session can only hold so much, and you forget a little in between.`;
-  $('raceA').textContent = `${pct}% × 7 days`;
-  $('raceB').textContent = `7 days' worth on 1 day`;
+  document.querySelectorAll('#raceMode button').forEach(b => b.classList.toggle('sel', b.dataset.m === raceMode));
+  if(raceMode === 'cram'){
+    $('raceTitle').textContent = 'Same practice, two ways';
+    $('raceSub').textContent = `Both practice the same amount each week. One does ${pct}% every day; the other crams all 7 days into one big session. One big session can only hold so much, and you forget a little in between.`;
+    $('raceBwho').innerHTML = `🏋️ A lot<br>once a week<small id="raceB">7 days' worth on 1 day</small>`;
+  } else {
+    $('raceTitle').textContent = 'Every day vs every other day';
+    $('raceSub').textContent = `Both get ${pct}% better on each practice day. One practices every day; the other skips every other day.`;
+    $('raceBwho').innerHTML = `😴 Every<br>other day<small id="raceB">skips half the days</small>`;
+  }
+  $('raceA').textContent = `${pct}% × every day`;
   setLane('A', start, start); setLane('B', start, start);
   document.querySelectorAll('.lane').forEach(l => l.classList.remove('lead'));
   $('raceDay').textContent = 'Day 0'; $('verdict').textContent = '';
 }
+$('raceMode').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; raceMode = b.dataset.m; resetRace(); });
 $('raceBtn').onclick = () => { $('race').classList.add('show'); resetRace(); };
+$('raceBtn2').onclick = () => { $('race').classList.add('show'); resetRace(); };
 $('raceClose').onclick = () => { clearInterval(raceTimer); $('race').classList.remove('show'); };
 $('raceGo').onclick = () => {
   resetRace();
-  const v = vals(), start = STAGES[v.startIdx].s, A = simulate(v, 7), B = simulateCram(v);
+  const v = vals(), start = STAGES[v.startIdx].s, A = simulate(v, 7), B = raceMode === 'cram' ? simulateCram(v) : simulateAlt(v);
   const total = Math.min(v.days, 3650), stepDays = Math.max(1, Math.ceil(total/180));
   const lanes = document.querySelectorAll('.lane');
   let d = 0;
@@ -378,9 +407,12 @@ $('raceGo').onclick = () => {
     if(d % 7 === 1 || stepDays > 1) beep(b > a ? 330 : 440, 0.04, 'square', 0.03);
     if(d >= total){
       clearInterval(raceTimer); chord();
+      const note = raceMode === 'cram'
+        ? 'The big weekly session jumped ahead on day 1, but every-day practice caught up and kept going.'
+        : `Skipping half the days didn't make it half as big. It made it ${fmtX(a/b)}× smaller!`;
       $('verdict').innerHTML = a > b
-        ? `A little every day wins: ${fmtX(a/b)}× bigger! 🐢🏆<br><span style="font-size:.75em;color:#fff">The big weekly session jumped ahead on day 1, but every-day practice caught up and kept going.</span>`
-        : `Once a week is ahead… for now. Try more days!`;
+        ? `Every day wins: ${fmtX(a/b)}× bigger! 🐢🏆<br><span style="font-size:.75em;color:#fff">${note}</span>`
+        : `It's a tie so far. Try more days!`;
     }
   }, 45);
 };
