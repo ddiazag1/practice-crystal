@@ -9,86 +9,86 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <style>
-  :root { --gold:#ffcf3f; --panel:rgba(14,12,48,.86); }
+  :root { --gold:#ffcf3f; --panel:rgba(14,12,48,.88); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; height:100%; overflow:hidden; background:#0b1030; font-family:'Nunito',system-ui,sans-serif; color:#fff; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
-  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  canvas#c { position:fixed; inset:0; width:100%; height:100%; display:block; }
   .top { position:fixed; top:0; left:0; right:0; padding:10px 58px 0; display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
-  .title { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(20px,4.6vw,34px); text-shadow:0 2px 0 rgba(0,0,0,.25); }
-  .day { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(16px,3.8vw,24px); background:rgba(0,0,0,.3); padding:4px 14px; border-radius:999px; text-align:center; }
-  .track { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; max-width:720px; }
-  .track span { font-size:clamp(17px,4vw,26px); filter:grayscale(1) opacity(.35); transition:filter .4s, transform .4s; }
+  .title { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(20px,4.6vw,34px); text-shadow:0 2px 0 rgba(0,0,0,.25); text-align:center; }
+  .day { font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(15px,3.7vw,23px); background:rgba(0,0,0,.3); padding:4px 14px; border-radius:999px; text-align:center; }
+  .track { display:flex; gap:3px; flex-wrap:wrap; justify-content:center; max-width:720px; }
+  .track span { font-size:clamp(15px,3.6vw,24px); filter:grayscale(1) opacity(.35); transition:filter .4s, transform .4s; }
   .track span.on { filter:none; transform:scale(1.12); }
-  .banner { position:fixed; left:50%; top:27%; transform:translate(-50%,-50%) scale(.6); opacity:0; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(24px,6.5vw,50px); text-align:center; text-shadow:0 3px 0 #5a3fd6, 0 6px 18px rgba(0,0,0,.35); pointer-events:none; transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); white-space:nowrap; }
+  .banner { position:fixed; left:50%; top:27%; transform:translate(-50%,-50%) scale(.6); opacity:0; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(22px,6.2vw,48px); text-align:center; text-shadow:0 3px 0 #5a3fd6, 0 6px 18px rgba(0,0,0,.35); pointer-events:none; transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); white-space:nowrap; }
   .banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
   button { font-family:'Fredoka',sans-serif; font-weight:700; border:0; cursor:pointer; border-radius:999px; touch-action:manipulation; color:#fff; }
   .corner { position:fixed; top:10px; width:42px; height:42px; font-size:18px; background:rgba(255,255,255,.18); }
   #infoBtn { left:10px; } #sound { right:10px; }
 
-  .panel { position:fixed; left:0; right:0; bottom:0; background:var(--panel); backdrop-filter:blur(6px); border-radius:22px 22px 0 0; padding:12px 16px calc(14px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; max-width:760px; margin:0 auto; transition:transform .35s ease; }
+  .panel { position:fixed; left:0; right:0; bottom:0; background:var(--panel); backdrop-filter:blur(6px); border-radius:22px 22px 0 0; padding:12px 16px calc(14px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; max-width:760px; margin:0 auto; transition:transform .35s ease; max-height:68vh; overflow-y:auto; overscroll-behavior:contain; }
   .panel.hide { transform:translateY(110%); }
   .q { display:flex; flex-direction:column; gap:4px; }
-  .q label { font-weight:800; font-size:clamp(14px,3.6vw,18px); display:flex; justify-content:space-between; gap:8px; }
-  .q label b { font-family:'Fredoka',sans-serif; color:var(--gold); font-size:1.15em; white-space:nowrap; }
+  .q label { font-weight:800; font-size:clamp(14px,3.6vw,18px); display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .q label b { font-family:'Fredoka',sans-serif; color:var(--gold); font-size:1.1em; white-space:nowrap; }
   .chips { display:flex; gap:6px; flex-wrap:wrap; }
   .chips button { font-size:clamp(13px,3.3vw,16px); padding:6px 12px; background:rgba(255,255,255,.14); }
   .chips button.sel { background:var(--gold); color:#3a2600; }
   input[type=range] { width:100%; accent-color:var(--gold); height:28px; }
-  .panel { max-height:68vh; overflow-y:auto; overscroll-behavior:contain; }
   .num { display:flex; align-items:center; gap:6px; }
   .num input { width:76px; font-family:'Fredoka',sans-serif; font-size:17px; padding:3px 6px; border-radius:10px; border:2px solid rgba(255,207,63,.7); background:rgba(255,255,255,.1); color:#fff; text-align:right; }
   .names { display:flex; gap:8px; }
   .names input { flex:1; min-width:0; font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; padding:8px 10px; border-radius:12px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:#fff; }
   .names input::placeholder { color:rgba(255,255,255,.5); }
-  .gorow { display:flex; gap:10px; justify-content:center; align-items:center; }
-  .racego { font-size:clamp(18px,4.6vw,24px); padding:12px 20px; background:linear-gradient(#8f6bff,#5a3fd6); box-shadow:0 5px 0 #3d2a9a; }
-  .mode { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
-  .mode button { font-size:clamp(13px,3.4vw,16px); padding:7px 12px; background:rgba(255,255,255,.14); }
-  .mode button.sel { background:var(--gold); color:#3a2600; }
   .more { align-self:center; font-size:15px; padding:6px 14px; background:rgba(255,255,255,.12); }
   .moreBox { display:none; flex-direction:column; gap:10px; }
   .moreBox.open { display:flex; }
-  .go { font-size:clamp(22px,5.6vw,32px); padding:12px 30px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 5px 0 #c77d00, 0 8px 20px rgba(0,0,0,.3); align-self:center; }
+  .gorow { display:flex; gap:10px; justify-content:center; align-items:center; }
+  .go { font-size:clamp(22px,5.6vw,32px); padding:12px 30px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 5px 0 #c77d00, 0 8px 20px rgba(0,0,0,.3); }
   .go:active { transform:translateY(3px); box-shadow:0 2px 0 #c77d00; }
+  .racego { font-size:clamp(18px,4.6vw,24px); padding:12px 20px; background:linear-gradient(#8f6bff,#5a3fd6); box-shadow:0 5px 0 #3d2a9a; }
 
-  .result { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140%); width:min(720px,94vw); background:var(--panel); backdrop-filter:blur(6px); border-radius:22px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; transition:transform .4s cubic-bezier(.2,1.2,.4,1); }
+  .result { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140%); width:min(720px,94vw); background:var(--panel); backdrop-filter:blur(6px); border-radius:22px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; transition:transform .4s cubic-bezier(.2,1.2,.4,1); max-height:70vh; overflow-y:auto; }
   .result.show { transform:translateX(-50%) translateY(0); }
-  .result .big { font-family:'Fredoka',sans-serif; font-size:clamp(20px,5vw,30px); line-height:1.2; text-align:center; }
+  .result .big { font-family:'Fredoka',sans-serif; font-size:clamp(19px,4.8vw,29px); line-height:1.2; text-align:center; }
   .result .big b { color:var(--gold); }
   .result .cmp { display:flex; flex-direction:column; gap:4px; font-size:clamp(14px,3.5vw,18px); }
   .result .cmp div { display:flex; justify-content:space-between; gap:8px; background:rgba(255,255,255,.08); border-radius:12px; padding:6px 10px; }
   .result .cmp div.me { outline:2px solid var(--gold); }
   .result .cmp b { font-family:'Fredoka',sans-serif; color:var(--gold); white-space:nowrap; }
   .result .lesson { text-align:center; font-weight:800; color:#ffe9a6; font-size:clamp(14px,3.5vw,18px); }
-  .result .row { display:flex; gap:10px; justify-content:center; }
+  .result .row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .result .row button { font-size:clamp(15px,3.8vw,19px); padding:10px 18px; background:rgba(255,255,255,.18); }
-
-  .overlay { position:fixed; inset:0; background:#080a28; z-index:10; display:none; flex-direction:column; align-items:center; justify-content:center; padding:22px; gap:14px; }
-  .overlay.show { display:flex; }
-  .overlay h2 { font-family:'Fredoka',sans-serif; margin:0; font-size:clamp(24px,6vw,38px); }
-  .note { max-width:560px; font-size:clamp(15px,3.8vw,19px); line-height:1.45; margin:0; }
-  .overlay button { font-size:18px; padding:10px 18px; background:rgba(255,255,255,.18); }
-  .overlay .row { display:flex; gap:10px; }
-  .overlay .go { font-size:clamp(22px,5.6vw,30px); padding:12px 28px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); }
-  .result .row { flex-wrap:wrap; }
   .result .row button.hot { background:linear-gradient(#8f6bff,#5a3fd6); }
-  .sub { max-width:640px; text-align:center; font-size:clamp(14px,3.6vw,18px); opacity:.85; }
-  .lane { width:min(680px,94vw); background:rgba(255,255,255,.08); border-radius:20px; padding:12px 14px; display:flex; align-items:center; gap:12px; min-height:100px; transition:outline-color .3s; outline:3px solid transparent; }
-  .lane.lead { outline-color:var(--gold); }
-  .lane .who { width:34%; font-weight:800; font-size:clamp(15px,3.8vw,20px); line-height:1.2; }
-  .lane .who small { display:block; opacity:.75; font-weight:600; font-size:.78em; margin-top:2px; }
-  .lane .gem { flex:0 0 auto; line-height:1; transition:font-size .12s; }
-  .lane .what { flex:1; font-family:'Fredoka',sans-serif; font-size:clamp(15px,3.9vw,22px); text-align:right; }
-  .lane .what b { color:var(--gold); }
-  .verdict { font-family:'Fredoka',sans-serif; font-size:clamp(18px,4.6vw,27px); text-align:center; max-width:680px; min-height:2.6em; color:var(--gold); }
+
+  .overlay { position:fixed; inset:0; background:#080a28; z-index:10; display:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:16px 10px calc(16px + env(safe-area-inset-bottom)); gap:10px; overflow-y:auto; }
+  .overlay.show { display:flex; }
+  .overlay h2 { font-family:'Fredoka',sans-serif; margin:0; font-size:clamp(22px,5.6vw,36px); text-align:center; }
+  .overlay .row { display:flex; gap:10px; }
+  .overlay .row button { font-size:18px; padding:10px 18px; background:rgba(255,255,255,.18); }
+  .overlay .row .go { font-size:clamp(22px,5.6vw,30px); padding:12px 28px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); }
+  .note { max-width:560px; font-size:clamp(15px,3.8vw,19px); line-height:1.45; margin:0; }
+  #info { justify-content:center; padding:22px; }
+  .mode { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:720px; }
+  .mode button { font-size:clamp(13px,3.4vw,16px); padding:7px 12px; background:rgba(255,255,255,.14); }
+  .mode button.sel { background:var(--gold); color:#3a2600; }
+  .sub { max-width:680px; text-align:center; font-size:clamp(13px,3.4vw,17px); opacity:.85; }
+  .split { display:grid; gap:8px; width:min(760px,97vw); }
+  .col { background:rgba(255,255,255,.07); border-radius:16px; overflow:hidden; outline:3px solid transparent; transition:outline-color .3s; display:flex; flex-direction:column; }
+  .col.lead { outline-color:var(--gold); }
+  .col .lab { font-weight:800; font-size:clamp(12px,3.2vw,17px); padding:6px 8px 4px; line-height:1.15; text-align:center; min-height:2.5em; }
+  .col canvas { width:100%; height:clamp(170px,34vh,320px); display:block; }
+  .col .val { font-family:'Fredoka',sans-serif; color:var(--gold); padding:6px 6px 8px; font-size:clamp(13px,3.4vw,19px); text-align:center; line-height:1.15; min-height:2.6em; }
+  .col .val small { display:block; color:#fff; opacity:.85; font-family:'Nunito',sans-serif; font-weight:800; font-size:.78em; }
+  .verdict { font-family:'Fredoka',sans-serif; font-size:clamp(17px,4.4vw,26px); text-align:center; max-width:700px; min-height:2.4em; color:var(--gold); }
+  .verdict span { font-size:.72em; color:#fff; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 
 <div class="top">
-  <div class="title">The Practice Crystal 💎</div>
-  <div class="day" id="day">Day 0 · tiny as an ant</div>
+  <div class="title" id="title">The Practice Crystal 💎</div>
+  <div class="day" id="day">Day 0 · as big as an atom</div>
   <div class="track" id="track"></div>
 </div>
 <div class="banner" id="banner"></div>
@@ -102,26 +102,26 @@
     <div class="chips" data-for="days"><button data-v="7">1 week</button><button data-v="30">1 month</button><button data-v="100">100 days</button><button data-v="182">6 months</button><button data-v="365" class="sel">1 year</button><button data-v="1095">3 years</button><button data-v="1825">5 years</button><button data-v="3650">10 years</button></div>
   </div>
   <div class="q">
-    <label>How much better each practice day? <span class="num"><input type="number" id="rateNum" min="0.1" max="5" step="0.1" value="1"><b>%</b></span></label>
+    <label>How much better each practice? <span class="num"><input type="number" id="rateNum" min="0.1" max="5" step="0.1" value="1"><b>%</b></span></label>
     <input type="range" id="rate" min="0.1" max="5" step="0.1" value="1">
     <div class="chips" data-for="rate"><button data-v="0.1">0.1%</button><button data-v="0.5">0.5%</button><button data-v="1" class="sel">1%</button><button data-v="2">2%</button><button data-v="3">3%</button><button data-v="5">5% (max)</button></div>
   </div>
   <div class="q">
-    <label>Practice days each week? <b id="weekOut">7 days</b></label>
+    <label>Practice days each week? <b id="weekOut">every day</b></label>
     <div class="chips" data-for="week"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button><button data-v="7" class="sel">7 every day</button></div>
     <input type="hidden" id="week" value="7">
   </div>
   <button class="more" id="moreBtn">More options ▾</button>
   <div class="moreBox" id="moreBox">
     <div class="q">
+      <label>Start as big as…</label>
+      <div class="chips" data-for="start"><button data-v="0" class="sel">⚛️ atom</button><button data-v="2">🦠 germ</button><button data-v="4">🐜 ant</button><button data-v="5">🐭 mouse</button><button data-v="6">🐱 cat</button><button data-v="7">🧍 person</button></div>
+      <input type="hidden" id="start" value="0">
+    </div>
+    <div class="q">
       <label>On days you skip, the crystal…</label>
       <div class="chips" data-for="decay"><button data-v="0" class="sel">stays the same</button><button data-v="0.5">shrinks a little (−0.5%)</button><button data-v="1">shrinks more (−1%)</button><button data-v="2">shrinks a lot (−2%)</button></div>
       <input type="hidden" id="decay" value="0">
-    </div>
-    <div class="q">
-      <label>Start as big as…</label>
-      <div class="chips" data-for="start"><button data-v="0" class="sel">🐜 ant</button><button data-v="1">🐭 mouse</button><button data-v="2">🐱 cat</button><button data-v="3">🧍 person</button></div>
-      <input type="hidden" id="start" value="0">
     </div>
     <div class="q">
       <label>Whose crystal? What are you practicing?</label>
@@ -140,15 +140,19 @@
   <div class="big" id="resBig"></div>
   <div class="cmp" id="resCmp"></div>
   <div class="lesson" id="resLesson"></div>
-  <div class="row"><button id="again">▶ Again</button><button id="raceBtn" class="hot">⚔️ Every day vs once a week</button><button id="change">✏️ Change</button></div>
+  <div class="row"><button id="again">▶ Again</button><button id="raceBtn" class="hot">⚔️ Race</button><button id="change">✏️ Change</button></div>
 </div>
 
 <div class="overlay" id="race">
-  <h2 id="raceTitle">Same practice, two ways</h2>
-  <div class="mode" id="raceMode"><button data-m="cram" class="sel">⚔️ Every day vs once a week</button><button data-m="alt">⚔️ Every day vs every other day</button></div>
+  <h2 id="raceTitle">Race!</h2>
+  <div class="mode" id="raceMode">
+    <button data-m="twice" class="sel">⚡ Twice a day vs every day</button>
+    <button data-m="alt">😴 Every other day</button>
+    <button data-m="cram">🏋️ Once a week</button>
+    <button data-m="all">🏁 All 4</button>
+  </div>
   <div class="sub" id="raceSub"></div>
-  <div class="lane"><div class="who">🐢 A little<br>every day<small id="raceA"></small></div><div class="gem" id="gA">💎</div><div class="what" id="wA"></div></div>
-  <div class="lane"><div class="who" id="raceBwho">🏋️ A lot<br>once a week<small id="raceB"></small></div><div class="gem" id="gB">💎</div><div class="what" id="wB"></div></div>
+  <div class="split" id="split"></div>
   <div class="day" id="raceDay">Day 0</div>
   <div class="verdict" id="verdict"></div>
   <div class="row"><button class="go" id="raceGo">▶ Race!</button><button id="raceClose">✕ Back</button></div>
@@ -156,47 +160,51 @@
 
 <div class="overlay" id="info">
   <h2>For grown-ups</h2>
-  <p class="note">Each practice day the crystal gets a little bigger than the day before: 1% better, then 1% better than <i>that</i>. That's compounding: growth builds on growth.</p>
-  <p class="note">1% a day for a year makes it about <b>38×</b> bigger. Practicing only 3 days a week makes it about <b>5×</b>. Fewer days doesn't just mean a little less; the gap gets huge.</p>
-  <p class="note"><b>Every day vs once a week:</b> the race gives both kids the same total practice. Cramming 7 days into one session counts like ~2.6 days (√7, diminishing returns), and a little is forgotten on the days in between, so the smallest daily habit always beats one big weekly session.</p>
+  <p class="note">Each practice makes the crystal a little bigger than the time before: 1% better, then 1% better than <i>that</i>. That's compounding: growth builds on growth.</p>
+  <p class="note">1% a day for a year makes it about <b>38×</b> bigger. Only 3 days a week: about <b>5×</b>. Twice a day: about <b>1,400×</b>.</p>
+  <p class="note"><b>The race:</b> "Once a week" gets the same total practice as every day, crammed into one session. One big session counts like ~2.6 days (√7, diminishing returns), and a little is forgotten in between, so even the smallest daily habit beats it.</p>
   <p class="note">Money works the same way, only slower: about 7% a year doubles every ~10 years. Slow, slow, then BOOM.</p>
-  <button id="infoClose">✕ Back</button>
+  <div class="row"><button id="infoClose">✕ Back</button></div>
 </div>
 
 <script>
 const STAGES = [
-  { e:'🐜', n:'an ant',            s:0.005 },
-  { e:'🐭', n:'a mouse',           s:0.08 },
-  { e:'🐱', n:'a cat',             s:0.3 },
-  { e:'🧍', n:'a person',          s:1.7 },
-  { e:'🏠', n:'a house',           s:9 },
-  { e:'🌳', n:'a giant tree',      s:30 },
-  { e:'🏢', n:'a skyscraper',      s:300 },
-  { e:'🏔️', n:'Denali mountain',   s:6190 },
-  { e:'🌍', n:'the Earth',         s:1.274e7, round:true },
-  { e:'☀️', n:'the Sun',           s:1.39e9, round:true },
-  { e:'🪐', n:'the Solar System',  s:9e12, round:true },
-  { e:'🌌', n:'the Milky Way',     s:1e21, round:true },
-  { e:'✨', n:'the whole Universe', s:8.8e26, round:true },
-  { e:'🔮', n:'the Multiverse',     s:1e40, round:true },
-  { e:'🌀', n:'a Mega-verse',       s:1e60, round:true },
+  { e:'⚛️', n:'an atom',            s:1e-10, round:true },
+  { e:'🧬', n:'a bit of DNA',        s:2e-9 },
+  { e:'🦠', n:'a germ',              s:2e-6, round:true },
+  { e:'🧂', n:'a grain of salt',     s:5e-4 },
+  { e:'🐜', n:'an ant',              s:0.005 },
+  { e:'🐭', n:'a mouse',             s:0.08 },
+  { e:'🐱', n:'a cat',               s:0.3 },
+  { e:'🧍', n:'a person',            s:1.7 },
+  { e:'🏠', n:'a house',             s:9 },
+  { e:'🌳', n:'a giant tree',        s:30 },
+  { e:'🏢', n:'a skyscraper',        s:300 },
+  { e:'🏔️', n:'Denali mountain',     s:6190 },
+  { e:'🌍', n:'the Earth',           s:1.274e7, round:true },
+  { e:'☀️', n:'the Sun',             s:1.39e9, round:true },
+  { e:'🪐', n:'the Solar System',    s:9e12, round:true },
+  { e:'🌌', n:'the Milky Way',       s:1e21, round:true },
+  { e:'✨', n:'the whole Universe',  s:8.8e26, round:true },
+  { e:'🔮', n:'the Multiverse',      s:1e40, round:true },
+  { e:'🌀', n:'a Mega-verse',        s:1e60, round:true },
   { e:'♾️', n:'infinity and beyond', s:1e100, round:true },
 ];
-const START = 0.005, LAST = STAGES.length - 1;
+const LAST = STAGES.length - 1;
 const $ = id => document.getElementById(id);
+const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
 
-const cv = $('c'), ctx = cv.getContext('2d');
+const cv = $('c');
+let ctx = cv.getContext('2d');
 let W, H, DPR;
-function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
-addEventListener('resize', resize); resize();
+function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); sizeMinis(); }
+addEventListener('resize', resize);
 
 // ---------- inputs ----------
 const inp = { days:$('days'), rate:$('rate'), week:$('week'), decay:$('decay'), start:$('start'), speed:$('speed') };
-const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
 function vals(){
   return { days:clamp(Math.round(+inp.days.value)||1, 1, 3650), rate:clamp(+inp.rate.value||0.1, 0.1, 5)/100, week:+inp.week.value,
-           decay:+inp.decay.value/100, startIdx:+inp.start.value, speed:+inp.speed.value,
-           who:$('who').value.trim(), what:$('what').value.trim() };
+           decay:+inp.decay.value/100, startIdx:+inp.start.value, speed:+inp.speed.value, who:$('who').value.trim(), what:$('what').value.trim() };
 }
 function niceDays(d){
   if(d % 365 === 0) return d===365 ? '1 year' : (d/365)+' years';
@@ -214,25 +222,22 @@ function syncLabels(src){
   $('daysOut').textContent = niceDays(v.days);
   $('weekOut').textContent = v.week===7 ? 'every day' : v.week + (v.week===1?' day':' days');
   document.querySelectorAll('.chips').forEach(c => { const el = inp[c.dataset.for]; c.querySelectorAll('button').forEach(b => b.classList.toggle('sel', +b.dataset.v === +el.value)); });
-  document.querySelector('.title').textContent = crystalName(v) + ' 💎';
+  $('title').textContent = crystalName(v) + ' 💎';
 }
 inp.days.addEventListener('input', () => syncLabels('days'));
 inp.rate.addEventListener('input', () => syncLabels('rate'));
 $('daysNum').addEventListener('input', e => { if(e.target.value){ inp.days.value = clamp(+e.target.value,1,3650); syncLabels(); } });
 $('rateNum').addEventListener('input', e => { if(e.target.value){ inp.rate.value = clamp(+e.target.value,0.1,5); syncLabels(); } });
+$('rateNum').addEventListener('change', e => { e.target.value = inp.rate.value; });
 ['who','what'].forEach(id => $(id).addEventListener('input', () => syncLabels()));
-document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; inp[c.dataset.for].value = b.dataset.v; syncLabels(c.dataset.for); if(c.dataset.for === 'start') resetCrystal(STAGES[+b.dataset.v].s); }));
+document.querySelectorAll('.chips').forEach(c => c.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  inp[c.dataset.for].value = b.dataset.v; syncLabels(c.dataset.for);
+  if(c.dataset.for === 'start') resetCrystal(STAGES[+b.dataset.v].s);
+}));
 $('moreBtn').onclick = () => { const box = $('moreBox'); box.classList.toggle('open'); $('moreBtn').textContent = box.classList.contains('open') ? 'Fewer options ▴' : 'More options ▾'; };
-syncLabels();
 
-// ---------- state ----------
-let size = START, dispLog = Math.log(START), camLog = Math.log(START);
-let reached = 0, curDay = 0;
-const particles = [];
-const stars = Array.from({length:180}, () => ({ x:Math.random(), y:Math.random(), r:Math.random()*1.6+.3, t:Math.random()*6 }));
-const trackEl = $('track');
-STAGES.forEach((s,i) => { const sp = document.createElement('span'); sp.textContent = s.e; if(i===0) sp.className='on'; trackEl.appendChild(sp); });
-
+// ---------- numbers & names ----------
 function stageIndexFor(m){ let k = 0; for(let i=0;i<STAGES.length;i++) if(m >= STAGES[i].s*0.999) k = i; return k; }
 function fmtX(x){
   if(x < 10) return (Math.round(x*10)/10).toString();
@@ -242,12 +247,10 @@ function fmtX(x){
                  [1e18,'quintillion'],[1e15,'quadrillion'],[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1e3,'thousand']];
   for(const [u,n] of units) if(x >= u) return (x/u < 10 ? (Math.round(x/u*10)/10) : Math.round(x/u)) + ' ' + n;
 }
-function sizeText(m, start){
+function sizeText(m){
   const k = stageIndexFor(m), s = STAGES[k], t = m/s.s;
-  if(m < STAGES[0].s*1.2) return 'tiny as an ant';
-  if(start && m < start*1.05 && Math.abs(start - s.s)/s.s < 0.01) return `as big as ${s.n}`;
   if(k === LAST && t > 1e3) return 'bigger than everything!';
-  return t < 1.05 ? `as big as ${s.n}` :`${fmtX(t)}× ${s.n}`;
+  return t < 1.05 ? `as big as ${s.n}` : `${fmtX(t)}× ${s.n}`;
 }
 
 // ---------- sound ----------
@@ -264,10 +267,16 @@ $('sound').onclick = e => { soundOn = !soundOn; e.target.textContent = soundOn ?
 $('infoBtn').onclick = () => $('info').classList.add('show');
 $('infoClose').onclick = () => $('info').classList.remove('show');
 
+// ---------- main crystal state ----------
+let size = STAGES[0].s, dispLog = Math.log(size), camLog = dispLog, reached = 0, curDay = 0;
+const particles = [];
+const stars = Array.from({length:180}, () => ({ x:Math.random(), y:Math.random(), r:Math.random()*1.6+.3, t:Math.random()*6 }));
+const trackEl = $('track');
+STAGES.forEach((s,i) => { const sp = document.createElement('span'); sp.textContent = s.e; if(i===0) sp.className='on'; trackEl.appendChild(sp); });
+
 let bannerTimer;
 function showBanner(t){ const b = $('banner'); b.textContent = t; b.classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(()=>b.classList.remove('show'), 1300); }
 function burst(n){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=2+Math.random()*6; particles.push({x:W*0.56, y:groundY()-80, vx:Math.cos(a)*v, vy:Math.sin(a)*v-3, life:1, hue:40+Math.random()*280, r:2+Math.random()*4}); } }
-
 function setSize(m){
   size = m;
   const k = stageIndexFor(size);
@@ -279,53 +288,48 @@ function setSize(m){
   }
 }
 function resetCrystal(start){
-  size = start; dispLog = camLog = Math.log(start); curDay = 0;
-  reached = stageIndexFor(start);
+  size = start; dispLog = camLog = Math.log(start); curDay = 0; reached = stageIndexFor(start);
   [...trackEl.children].forEach((sp,i)=> sp.classList.toggle('on', i<=reached));
-  $('day').textContent = `Day 0 · ${sizeText(start, start)}`;
+  $('day').textContent = `Day 0 · ${sizeText(start)}`;
 }
 
-// ---------- simulate day by day ----------
-// practice on the first `week` days of every 7; skipped days shrink by `decay` (never below the start size)
-function simulate(v, week){
+// ---------- the practice models (all in log size) ----------
+function run(v, practicesOn){   // practicesOn(day) -> number of practices that day (0 = skip)
   const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
-  let lg = Math.log(start); const up = Math.log(1+v.rate), down = Math.log(1-v.decay), floor = lg;
+  let lg = Math.log(start); const floor = lg, up = Math.log(1+v.rate), down = Math.log(1-v.decay);
   out[0] = lg;
-  for(let d=1; d<=v.days; d++){
-    lg = ((d-1) % 7) < week ? lg + up : Math.max(floor, lg + down);
-    out[d] = lg;
-  }
-  return out;   // log sizes
+  for(let d=1; d<=v.days; d++){ const n = practicesOn(d); lg = n > 0 ? lg + n*up : Math.max(floor, lg + down); out[d] = lg; }
+  return out;
 }
-const finalSize = (v, week) => Math.exp(simulate(v, week ?? v.week)[v.days]);
-
-// "A lot once a week": the same 7 days of practice crammed into one session on day 1 of each week.
-// One big session can't hold a whole week of practice: it counts like ~2.6 days (√7), and you forget
-// a little on the 6 days in between (at least 0.3%/day, more if "shrinks" is chosen).
+const simulate = (v, week) => run(v, d => ((d-1) % 7) < week ? 1 : 0);
+const simulateTwice = v => run(v, () => 2);
+const simulateAlt = v => run(v, d => d % 2);
+// "Once a week": the same 7 days of practice crammed into one session on day 1 of each week. One big session
+// counts like √7 ≈ 2.6 days (diminishing returns), and a little is forgotten on the days in between.
 const CRAM = Math.sqrt(7), FORGET_MIN = 0.003;
 function simulateCram(v){
   const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
-  let lg = Math.log(start); const floor = lg;
-  const up = Math.log(1 + v.rate*CRAM), down = Math.log(1 - Math.max(v.decay, FORGET_MIN));
+  let lg = Math.log(start); const floor = lg, up = Math.log(1 + v.rate*CRAM), down = Math.log(1 - Math.max(v.decay, FORGET_MIN));
   out[0] = lg;
   for(let d=1; d<=v.days; d++){ lg = ((d-1) % 7) === 0 ? lg + up : Math.max(floor, lg + down); out[d] = lg; }
   return out;
 }
+const finalSize = (v, week) => Math.exp(simulate(v, week ?? v.week)[v.days]);
 
+// ---------- grow (main view) ----------
 let anim = null;
 function play(){
   const v = vals(), start = STAGES[v.startIdx].s, path = simulate(v, v.week);
   resetCrystal(start);
   $('panel').classList.add('hide'); $('result').classList.remove('show');
-  const dur = Math.min(10000, 3500 + v.days*3) * v.speed;
-  const t0 = performance.now();
+  const dur = Math.min(10000, 3500 + v.days*3) * v.speed, t0 = performance.now();
   let lastTick = -1;
   cancelAnimationFrame(anim);
   const step = now => {
     const p = Math.min(1, (now - t0)/dur);
     curDay = Math.round(p * v.days);
     setSize(Math.exp(path[curDay]));
-    $('day').textContent = `Day ${curDay} · ${sizeText(size, start)}`;
+    $('day').textContent = `Day ${curDay} · ${sizeText(size)}`;
     const tick = Math.floor(p*40);
     if(tick !== lastTick){ lastTick = tick; beep(240 + tick*12, 0.04, 'square', 0.03); }
     if(p < 1) anim = requestAnimationFrame(step); else setTimeout(showResult, 900);
@@ -333,95 +337,76 @@ function play(){
   anim = requestAnimationFrame(step);
 }
 function showResult(){
-  const v = vals(), start = STAGES[v.startIdx].s;
-  const mine = finalSize(v), ratio = mine/start;
-  const whose = v.who ? `${v.who}'s crystal` : 'your crystal';
-  const skill = v.what ? ` of ${v.what}` : ' of practice';
+  const v = vals(), start = STAGES[v.startIdx].s, mine = finalSize(v), ratio = mine/start;
+  const whose = v.who ? `${v.who}'s crystal` : 'your crystal', skill = v.what ? ` of ${v.what}` : ' of practice';
   const grewTxt = ratio >= 1.05 ? `made ${whose} <b>${fmtX(ratio)}× bigger</b>!` : (ratio > 0.98 ? `kept ${whose} about the same.` : `let ${whose} shrink.`);
-  $('resBig').innerHTML = `${niceDays(v.days)}${skill} ${grewTxt}<br>From ${STAGES[v.startIdx].n} to <b>${sizeText(mine, start)}</b>.`;
-  const rows = [7,5,3,1];
-  if(!rows.includes(v.week)) rows.push(v.week);
-  rows.sort((a,b)=>b-a);
-  $('resCmp').innerHTML = rows.map(w => {
-    const m = finalSize(v, w);
-    return `<div class="${w===v.week?'me':''}"><span>${w===7?'💪':w>=5?'🙂':w>=3?'😐':'😴'} ${w===7?'every day':w+' day'+(w>1?'s':'')+' a week'}</span><b>${fmtX(m/start)}× · ${STAGES[stageIndexFor(m)].e}</b></div>`;
-  }).join('');
+  $('resBig').innerHTML = `${niceDays(v.days)}${skill} ${grewTxt}<br>From ${STAGES[v.startIdx].n} to <b>${sizeText(mine)}</b>.`;
+  const row = (icon, label, m, me) => `<div class="${me?'me':''}"><span>${icon} ${label}</span><b>${fmtX(m/start)}× · ${STAGES[stageIndexFor(m)].e}</b></div>`;
+  const weeks = [7,5,3,1]; if(!weeks.includes(v.week)) weeks.push(v.week); weeks.sort((a,b)=>b-a);
+  let html = row('⚡', 'twice a day', Math.exp(simulateTwice(v)[v.days]), false);
+  html += weeks.map(w => row(w===7?'💪':w>=5?'🙂':w>=3?'😐':'😴', w===7?'every day':`${w} day${w>1?'s':''} a week`, finalSize(v,w), w===v.week)).join('');
+  html += row('🏋️', 'same practice, all in 1 day a week', Math.exp(simulateCram(v)[v.days]), false);
+  $('resCmp').innerHTML = html;
   const every = finalSize(v,7), three = finalSize(v,3);
-  let lesson = v.week < 7
-    ? `Practicing every day would have made it ${fmtX(every/mine)}× bigger than this!`
-    : `Only 3 days a week would have made it ${fmtX(every/three)}× smaller. Little and often wins! 🌟`;
+  let lesson = v.week < 7 ? `Practicing every day would have made it ${fmtX(every/mine)}× bigger than this!`
+                          : `Only 3 days a week would have made it ${fmtX(every/three)}× smaller. Little and often wins! 🌟`;
   if(v.decay > 0) lesson += ' Skipped days shrink it, so breaks cost extra.';
-  const cram = Math.exp(simulateCram(v)[v.days]);
-  $('resCmp').innerHTML += `<div><span>🏋️ same practice, all in 1 day a week</span><b>${fmtX(cram/start)}× · ${STAGES[stageIndexFor(cram)].e}</b></div>`;
   $('resLesson').textContent = lesson;
   $('result').classList.add('show'); chord(); burst(60);
 }
-// ---------- race: a little every day vs a lot once a week ----------
-let raceTimer = null;
-function laneText(m, start){ const k = stageIndexFor(m); return `<b>${fmtX(m/start)}× bigger</b><br>${STAGES[k].e} ${sizeText(m, start)}`; }
-function gemPx(m, start){ return Math.min(84, 26 + Math.log10(m/start) * 9); }
-function setLane(k, m, start){ $('w'+k).innerHTML = laneText(m, start); $('g'+k).style.fontSize = gemPx(m, start) + 'px'; }
-let raceMode = 'cram';
-// every other day: practice on odd days, skipped days shrink by the chosen amount (never below the start)
-function simulateAlt(v){
-  const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
-  let lg = Math.log(start); const floor = lg, up = Math.log(1+v.rate), down = Math.log(1-v.decay);
-  out[0] = lg;
-  for(let d=1; d<=v.days; d++){ lg = (d % 2 === 1) ? lg + up : Math.max(floor, lg + down); out[d] = lg; }
-  return out;
-}
-function resetRace(){
-  clearInterval(raceTimer);
-  const v = vals(), start = STAGES[v.startIdx].s, pct = +(v.rate*100).toFixed(2);
-  document.querySelectorAll('#raceMode button').forEach(b => b.classList.toggle('sel', b.dataset.m === raceMode));
-  if(raceMode === 'cram'){
-    $('raceTitle').textContent = 'Same practice, two ways';
-    $('raceSub').textContent = `Both practice the same amount each week. One does ${pct}% every day; the other crams all 7 days into one big session. One big session can only hold so much, and you forget a little in between.`;
-    $('raceBwho').innerHTML = `🏋️ A lot<br>once a week<small id="raceB">7 days' worth on 1 day</small>`;
-  } else {
-    $('raceTitle').textContent = 'Every day vs every other day';
-    $('raceSub').textContent = `Both get ${pct}% better on each practice day. One practices every day; the other skips every other day.`;
-    $('raceBwho').innerHTML = `😴 Every<br>other day<small id="raceB">skips half the days</small>`;
-  }
-  $('raceA').textContent = `${pct}% × every day`;
-  setLane('A', start, start); setLane('B', start, start);
-  document.querySelectorAll('.lane').forEach(l => l.classList.remove('lead'));
-  $('raceDay').textContent = 'Day 0'; $('verdict').textContent = '';
-}
-$('raceMode').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; raceMode = b.dataset.m; resetRace(); });
-$('raceBtn').onclick = () => { $('race').classList.add('show'); resetRace(); };
-$('raceBtn2').onclick = () => { $('race').classList.add('show'); resetRace(); };
-$('raceClose').onclick = () => { clearInterval(raceTimer); $('race').classList.remove('show'); };
-$('raceGo').onclick = () => {
-  resetRace();
-  const v = vals(), start = STAGES[v.startIdx].s, A = simulate(v, 7), B = raceMode === 'cram' ? simulateCram(v) : simulateAlt(v);
-  const total = Math.min(v.days, 3650), stepDays = Math.max(1, Math.ceil(total/180));
-  const lanes = document.querySelectorAll('.lane');
-  let d = 0;
-  raceTimer = setInterval(() => {
-    d = Math.min(total, d + stepDays);
-    const a = Math.exp(A[d]), b = Math.exp(B[d]);
-    setLane('A', a, start); setLane('B', b, start);
-    lanes[0].classList.toggle('lead', a > b); lanes[1].classList.toggle('lead', b > a);
-    $('raceDay').textContent = `Day ${d}`;
-    if(d % 7 === 1 || stepDays > 1) beep(b > a ? 330 : 440, 0.04, 'square', 0.03);
-    if(d >= total){
-      clearInterval(raceTimer); chord();
-      const note = raceMode === 'cram'
-        ? 'The big weekly session jumped ahead on day 1, but every-day practice caught up and kept going.'
-        : `Skipping half the days didn't make it half as big. It made it ${fmtX(a/b)}× smaller!`;
-      $('verdict').innerHTML = a > b
-        ? `Every day wins: ${fmtX(a/b)}× bigger! 🐢🏆<br><span style="font-size:.75em;color:#fff">${note}</span>`
-        : `It's a tie so far. Try more days!`;
-    }
-  }, 45);
-};
-
 $('go').onclick = play;
 $('again').onclick = play;
 $('change').onclick = () => { $('result').classList.remove('show'); $('panel').classList.remove('hide'); };
 
-// ---------- drawing ----------
+// ---------- drawing (shared by main view and race minis) ----------
+function sceneFactors(L){ // L = log10(size in m) the camera is looking at
+  return { micro: clamp((-3.2 - L)/2.5, 0, 1), space: clamp((L - 4.2)/1.6, 0, 1), multi: clamp((L - 30)/12, 0, 1) };
+}
+function paintBackground(c, w, h, L, now, gy){
+  const f = sceneFactors(L);
+  const lerp = (a,b,t) => a.map((x,i) => Math.round(x + (b[i]-x)*t));
+  let top = [120,190,255], bot = [220,245,255];
+  top = lerp(top, [12,62,84], f.micro);  bot = lerp(bot, [28,122,128], f.micro);
+  top = lerp(top, [6,8,28], f.space);    bot = lerp(bot, [18,14,60], f.space);
+  top = lerp(top, [30,6,48], f.multi);   bot = lerp(bot, [70,16,90], f.multi);
+  const g = c.createLinearGradient(0,0,0,h); g.addColorStop(0, `rgb(${top})`); g.addColorStop(1, `rgb(${bot})`);
+  c.fillStyle = g; c.fillRect(0,0,w,h);
+  if(f.micro > 0) for(const s of stars){ if(s.r < 1.1) continue; c.strokeStyle = `rgba(190,255,250,${0.22*f.micro})`; c.lineWidth = 1.5; c.beginPath(); c.arc(s.x*w, (s.y*h + now*0.01*s.r) % h, s.r*9, 0, Math.PI*2); c.stroke(); }
+  if(f.space > 0) for(const s of stars){ c.fillStyle = `rgba(255,255,255,${f.space*(0.4+0.6*Math.abs(Math.sin(now/900+s.t)))})`; c.beginPath(); c.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2); c.fill(); }
+  const ground = (1 - f.micro) * (1 - f.space);
+  if(ground > 0){ c.fillStyle = `rgba(90,170,90,${ground})`; c.fillRect(0, gy, w, h-gy); c.fillStyle = `rgba(60,140,70,${ground})`; c.fillRect(0, gy, w, 5); }
+}
+function drawCrystal(c, cx, baseY, h, hue, t){
+  if(h < 5){ c.fillStyle = `hsla(${hue},100%,75%,.95)`; c.shadowColor = `hsla(${hue},100%,70%,.9)`; c.shadowBlur = 10; c.beginPath(); c.arc(cx, baseY-3, 3, 0, Math.PI*2); c.fill(); c.shadowBlur = 0; return; }
+  const w = h*0.62;
+  const shards = [ {dx:0, hh:1, ww:0.42, tilt:0}, {dx:-0.3, hh:0.7, ww:0.3, tilt:-0.32}, {dx:0.3, hh:0.62, ww:0.28, tilt:0.36}, {dx:-0.12, hh:0.45, ww:0.22, tilt:-0.12}, {dx:0.15, hh:0.4, ww:0.2, tilt:0.18} ];
+  c.save(); c.shadowColor = `hsla(${hue},100%,70%,.7)`; c.shadowBlur = Math.min(60, h*0.25);
+  for(const s of shards){
+    const sh = h*s.hh, sw = w*s.ww;
+    c.save(); c.translate(cx + s.dx*w, baseY); c.rotate(s.tilt);
+    const g = c.createLinearGradient(-sw/2, 0, sw/2, -sh);
+    g.addColorStop(0, `hsl(${hue},85%,45%)`); g.addColorStop(0.5, `hsl(${(hue+25)%360},95%,68%)`); g.addColorStop(1, `hsl(${(hue+50)%360},100%,88%)`);
+    c.fillStyle = g; c.beginPath();
+    c.moveTo(-sw/2,0); c.lineTo(-sw/2,-sh*0.72); c.lineTo(0,-sh); c.lineTo(sw/2,-sh*0.72); c.lineTo(sw/2,0); c.closePath(); c.fill();
+    c.shadowBlur = 0; c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = Math.max(1, sw*0.03);
+    c.beginPath(); c.moveTo(0,0); c.lineTo(0,-sh); c.moveTo(-sw/2,-sh*0.72); c.lineTo(0,-sh*0.6); c.lineTo(sw/2,-sh*0.72); c.stroke();
+    c.restore();
+  }
+  const sp = (Math.sin(t*3)+1)/2; c.fillStyle = `rgba(255,255,255,${0.5+0.5*sp})`;
+  const x = cx + w*0.08, y = baseY - h*0.82, r = Math.max(2, h*0.07)*(0.6+0.4*sp);
+  c.beginPath(); c.moveTo(x,y-r); c.quadraticCurveTo(x,y,x+r,y); c.quadraticCurveTo(x,y,x,y+r); c.quadraticCurveTo(x,y,x-r,y); c.quadraticCurveTo(x,y,x,y-r); c.fill();
+  c.restore();
+}
+const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function drawThing(c, st, x, baseY, px, label, labelSize){
+  c.save(); c.textAlign = 'center';
+  if(px < 6){ c.fillStyle = '#fff'; c.beginPath(); c.arc(x, baseY-3, 2.5, 0, Math.PI*2); c.fill(); }
+  else { const fs = Math.min(px/1.15, 1600); c.font = `${fs}px ${EMOJI_FONT}`; c.textBaseline = st.round ? 'middle' : 'bottom'; c.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08); }
+  if(label){ c.font = `800 ${labelSize}px Nunito, sans-serif`; c.fillStyle = 'rgba(255,255,255,.95)'; c.textBaseline = 'top'; c.fillText(st.n, x, baseY + 6); }
+  c.restore();
+}
+const hueFor = L => ((260 + L*14) % 360 + 360) % 360;
+
 function groundY(){
   const panel = $('panel'), res = $('result');
   let cover = 0;
@@ -429,61 +414,114 @@ function groundY(){
   else if(res.classList.contains('show')) cover = res.getBoundingClientRect().height + 14;
   return Math.max(H*0.42, H - cover - 34);
 }
-function drawCrystal(cx, baseY, h, hue, t){
-  const w = h*0.62;
-  const shards = [ {dx:0, hh:1, ww:0.42, tilt:0}, {dx:-0.3, hh:0.7, ww:0.3, tilt:-0.32}, {dx:0.3, hh:0.62, ww:0.28, tilt:0.36}, {dx:-0.12, hh:0.45, ww:0.22, tilt:-0.12}, {dx:0.15, hh:0.4, ww:0.2, tilt:0.18} ];
-  ctx.save(); ctx.shadowColor = `hsla(${hue},100%,70%,.7)`; ctx.shadowBlur = Math.min(60, h*0.25);
-  for(const s of shards){
-    const sh = h*s.hh, sw = w*s.ww;
-    ctx.save(); ctx.translate(cx + s.dx*w, baseY); ctx.rotate(s.tilt);
-    const g = ctx.createLinearGradient(-sw/2, 0, sw/2, -sh);
-    g.addColorStop(0, `hsl(${hue},85%,45%)`); g.addColorStop(0.5, `hsl(${(hue+25)%360},95%,68%)`); g.addColorStop(1, `hsl(${(hue+50)%360},100%,88%)`);
-    ctx.fillStyle = g; ctx.beginPath();
-    ctx.moveTo(-sw/2,0); ctx.lineTo(-sw/2,-sh*0.72); ctx.lineTo(0,-sh); ctx.lineTo(sw/2,-sh*0.72); ctx.lineTo(sw/2,0); ctx.closePath(); ctx.fill();
-    ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = Math.max(1, sw*0.03);
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-sh); ctx.moveTo(-sw/2,-sh*0.72); ctx.lineTo(0,-sh*0.6); ctx.lineTo(sw/2,-sh*0.72); ctx.stroke();
-    ctx.restore();
-  }
-  const sp = (Math.sin(t*3)+1)/2; ctx.fillStyle = `rgba(255,255,255,${0.5+0.5*sp})`;
-  const x = cx + w*0.08, y = baseY - h*0.82, r = Math.max(3, h*0.07)*(0.6+0.4*sp);
-  ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.quadraticCurveTo(x,y,x,y+r); ctx.quadraticCurveTo(x,y,x-r,y); ctx.quadraticCurveTo(x,y,x,y-r); ctx.fill();
-  ctx.restore();
-}
-const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-function drawThing(st, x, baseY, px){
-  ctx.save(); ctx.textAlign = 'center';
-  if(px < 7){ ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, baseY-4, 3, 0, Math.PI*2); ctx.fill(); }
-  else { const fs = Math.min(px/1.15, 1600); ctx.font = `${fs}px ${EMOJI_FONT}`; ctx.textBaseline = st.round ? 'middle' : 'bottom'; ctx.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08); }
-  ctx.font = `800 ${Math.max(13, Math.min(20, W/30))}px Nunito, sans-serif`; ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.textBaseline = 'top';
-  ctx.fillText(st.n, x, baseY + 8); ctx.restore();
-}
-
 let last = performance.now();
 function frame(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   const target = Math.log(size);
   dispLog += (target - dispLog) * Math.min(1, dt*10);
-  camLog  += (target - camLog)  * Math.min(1, dt*3);
-  const log10 = Math.log10(Math.exp(dispLog));
-  const space = Math.max(0, Math.min(1, (log10 - 4.2) / 1.6));
-  const g = ctx.createLinearGradient(0,0,0,H);
-  const mix = (a,b) => a.map((v,i)=>Math.round(v+(b[i]-v)*space));
-  g.addColorStop(0, `rgb(${mix([120,190,255],[6,8,28])})`); g.addColorStop(1, `rgb(${mix([220,245,255],[18,14,60])})`);
-  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  if(space > 0) for(const s of stars){ ctx.fillStyle = `rgba(255,255,255,${space*(0.4+0.6*Math.abs(Math.sin(now/900+s.t)))})`; ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2); ctx.fill(); }
-
-  const gy = groundY();
-  const avail = gy - 170;
+  camLog  += (target - camLog)  * Math.min(1, dt*4);
+  if(dispLog - camLog > Math.log(1.45)) camLog = dispLog - Math.log(1.45);   // never let the crystal outrun the camera
+  const L = dispLog / Math.LN10, gy = groundY();
+  paintBackground(ctx, W, H, camLog / Math.LN10, now, gy);
+  const avail = gy - 175;
   const scale = Math.max(40, Math.min(avail*0.85, W*0.6)) / Math.exp(camLog);
-  const cPx = Math.exp(dispLog) * scale;
-  if(space < 1){ ctx.fillStyle = `rgba(90,170,90,${1-space})`; ctx.fillRect(0, gy, W, H-gy); ctx.fillStyle = `rgba(60,140,70,${1-space})`; ctx.fillRect(0, gy, W, 6); }
-  const hue = (260 + log10*14) % 360, cx = W*0.56;
-  drawCrystal(cx, gy, cPx, hue, now/1000);
-  const k = stageIndexFor(size);
-  if(size > START*1.05){ const prev = STAGES[k], pPx = prev.s*scale; drawThing(prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx); }
+  const cPx = Math.exp(dispLog) * scale, cx = W*0.56;
+  drawCrystal(ctx, cx, gy, cPx, hueFor(L), now/1000);
+  if(size > STAGES[+inp.start.value].s * 1.05){
+    const k = stageIndexFor(size), prev = STAGES[k], pPx = prev.s*scale;
+    drawThing(ctx, prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx, true, Math.max(13, Math.min(20, W/30)));
+  }
   for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life-=dt*0.9; if(p.life<=0){particles.splice(i,1);continue;} ctx.fillStyle=`hsla(${p.hue},100%,65%,${p.life})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  if(raceState) drawRace(now);
   requestAnimationFrame(frame);
 }
+
+// ---------- race: split-screen mini animations ----------
+const RACERS = {
+  twice: { icon:'⚡', name:'Twice a day',     sub:'2 practices a day',      sim: v => simulateTwice(v) },
+  daily: { icon:'🐢', name:'Every day',       sub:'1 practice a day',       sim: v => simulate(v, 7) },
+  alt:   { icon:'😴', name:'Every other day', sub:'skips half the days',    sim: v => simulateAlt(v) },
+  cram:  { icon:'🏋️', name:'Once a week',     sub:"7 days' worth at once",  sim: v => simulateCram(v) },
+};
+const MODES = {
+  twice: { title:'Twice a day vs every day', lanes:['twice','daily'], sub:p => `Both get ${p}% better each practice. One practices twice a day, the other once a day.` },
+  alt:   { title:'Every day vs every other day', lanes:['daily','alt'], sub:p => `Both get ${p}% better each practice. One practices every day; the other skips every other day.` },
+  cram:  { title:'Same practice, two ways', lanes:['daily','cram'], sub:p => `Both practice the same amount each week. One does ${p}% every day; the other crams all 7 days into one big session. One big session can only hold so much, and you forget a little in between.` },
+  all:   { title:'The big race', lanes:['twice','daily','alt','cram'], sub:p => `${p}% better each practice. Who grows the most?` },
+};
+let raceMode = 'twice', raceState = null, minis = [];
+function buildLanes(){
+  const m = MODES[raceMode], split = $('split');
+  split.style.gridTemplateColumns = `repeat(${m.lanes.length}, 1fr)`;
+  split.innerHTML = m.lanes.map(k => `<div class="col"><div class="lab">${RACERS[k].icon} ${RACERS[k].name}<br><small>${RACERS[k].sub}</small></div><canvas></canvas><div class="val"></div></div>`).join('');
+  minis = [...split.querySelectorAll('.col')].map(col => ({ col, cv: col.querySelector('canvas'), val: col.querySelector('.val') }));
+  sizeMinis();
+}
+function sizeMinis(){ for(const mi of minis){ const r = mi.cv.getBoundingClientRect(); if(!r.width) continue; mi.w = r.width; mi.h = r.height; mi.cv.width = r.width*DPR; mi.cv.height = r.height*DPR; mi.c = mi.cv.getContext('2d'); mi.c.setTransform(DPR,0,0,DPR,0,0); } }
+function resetRace(){
+  raceState = null;
+  const v = vals(), start = STAGES[v.startIdx].s, pct = +(v.rate*100).toFixed(2), m = MODES[raceMode];
+  document.querySelectorAll('#raceMode button').forEach(b => b.classList.toggle('sel', b.dataset.m === raceMode));
+  $('raceTitle').textContent = m.title; $('raceSub').textContent = m.sub(pct);
+  buildLanes();
+  const L0 = Math.log(start);
+  raceState = { idle:true, v, start, paths: m.lanes.map(() => null), cur: m.lanes.map(() => L0), cam: L0, t0: 0, dur: 1 };
+  minis.forEach(mi => mi.val.innerHTML = `1× <small>${STAGES[v.startIdx].e} ${sizeText(start)}</small>`);
+  $('raceDay').textContent = 'Day 0'; $('verdict').innerHTML = '';
+}
+function openRace(){ $('race').classList.add('show'); resetRace(); }
+$('raceBtn').onclick = openRace; $('raceBtn2').onclick = openRace;
+$('raceClose').onclick = () => { raceState = null; $('race').classList.remove('show'); };
+$('raceMode').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; raceMode = b.dataset.m; resetRace(); });
+$('raceGo').onclick = () => {
+  resetRace();
+  const s = raceState, lanes = MODES[raceMode].lanes;
+  s.paths = lanes.map(k => RACERS[k].sim(s.v));
+  s.idle = false; s.t0 = performance.now(); s.dur = Math.min(10000, 4500 + s.v.days*3) * s.v.speed; s.lastTick = -1; s.done = false;
+};
+function drawRace(now){
+  const s = raceState; if(!$('race').classList.contains('show')) return;
+  let day = 0;
+  if(!s.idle){
+    const p = Math.min(1, (now - s.t0)/s.dur); day = Math.round(p * s.v.days);
+    s.cur = s.paths.map(path => path[day]);
+    $('raceDay').textContent = `Day ${day}`;
+    const tick = Math.floor(p*30); if(tick !== s.lastTick){ s.lastTick = tick; beep(300 + tick*10, 0.04, 'square', 0.025); }
+    if(p >= 1 && !s.done){ s.done = true; finishRace(); }
+  }
+  const maxL = Math.max(...s.cur);
+  s.cam += (maxL - s.cam) * 0.12;
+  const best = s.cur.indexOf(maxL);
+  minis.forEach((mi, i) => {
+    if(!mi.c) return;
+    const c = mi.c, w = mi.w, h = mi.h, gy = h*0.86;
+    const scale = (h*0.62) / Math.exp(s.cam);
+    const lg = s.cur[i], m = Math.exp(lg), px = m*scale, L = lg/Math.LN10;
+    paintBackground(c, w, h, s.cam/Math.LN10, now, gy);
+    const cx = w*0.6;
+    drawCrystal(c, cx, gy, px, hueFor(L), now/1000 + i);
+    const k = stageIndexFor(m), st = STAGES[k], opx = st.s*scale;
+    if(m > s.start*1.05 && opx < h*1.05) drawThing(c, st, Math.max(Math.max(opx,8)/2 + 4, cx - Math.max(px,6)*0.32 - Math.max(opx,8)*0.4), gy, opx, false);
+    if(!s.idle){
+      mi.val.innerHTML = `${fmtX(m/s.start)}× bigger<small>${st.e} ${sizeText(m)}</small>`;
+      mi.col.classList.toggle('lead', i === best && s.cur.filter(x => x === maxL).length === 1);
+    }
+  });
+}
+function finishRace(){
+  const s = raceState, lanes = MODES[raceMode].lanes;
+  const order = lanes.map((k,i) => ({ k, m: Math.exp(s.cur[i]) })).sort((a,b) => b.m - a.m);
+  chord();
+  const win = RACERS[order[0].k], ratio = order[0].m / order[1].m;
+  let note = '';
+  if(raceMode === 'twice') note = `Twice as much practice didn't make it twice as big. It made it ${fmtX(ratio)}× bigger!`;
+  if(raceMode === 'alt') note = `Skipping half the days didn't make it half as big. It made it ${fmtX(ratio)}× smaller!`;
+  if(raceMode === 'cram') note = 'The big weekly session jumped ahead on day 1, but every-day practice caught up and kept going.';
+  if(raceMode === 'all') note = 'Order: ' + order.map(o => RACERS[o.k].icon + ' ' + RACERS[o.k].name).join(' → ');
+  $('verdict').innerHTML = ratio > 1.0001 ? `${win.icon} ${win.name} wins: ${fmtX(ratio)}× bigger! 🏆<br><span>${note}</span>` : `It's a tie so far. Try more days!`;
+}
+
+resize(); syncLabels(); resetCrystal(STAGES[0].s);
 requestAnimationFrame(frame);
 </script>
 </body>
