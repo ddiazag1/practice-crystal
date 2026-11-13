@@ -58,11 +58,24 @@
   .result .row { display:flex; gap:10px; justify-content:center; }
   .result .row button { font-size:clamp(15px,3.8vw,19px); padding:10px 18px; background:rgba(255,255,255,.18); }
 
-  .overlay { position:fixed; inset:0; background:rgba(8,10,40,.92); display:none; flex-direction:column; align-items:center; justify-content:center; padding:22px; gap:14px; }
+  .overlay { position:fixed; inset:0; background:#080a28; z-index:10; display:none; flex-direction:column; align-items:center; justify-content:center; padding:22px; gap:14px; }
   .overlay.show { display:flex; }
   .overlay h2 { font-family:'Fredoka',sans-serif; margin:0; font-size:clamp(24px,6vw,38px); }
   .note { max-width:560px; font-size:clamp(15px,3.8vw,19px); line-height:1.45; margin:0; }
   .overlay button { font-size:18px; padding:10px 18px; background:rgba(255,255,255,.18); }
+  .overlay .row { display:flex; gap:10px; }
+  .overlay .go { font-size:clamp(22px,5.6vw,30px); padding:12px 28px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); }
+  .result .row { flex-wrap:wrap; }
+  .result .row button.hot { background:linear-gradient(#8f6bff,#5a3fd6); }
+  .sub { max-width:640px; text-align:center; font-size:clamp(14px,3.6vw,18px); opacity:.85; }
+  .lane { width:min(680px,94vw); background:rgba(255,255,255,.08); border-radius:20px; padding:12px 14px; display:flex; align-items:center; gap:12px; min-height:100px; transition:outline-color .3s; outline:3px solid transparent; }
+  .lane.lead { outline-color:var(--gold); }
+  .lane .who { width:34%; font-weight:800; font-size:clamp(15px,3.8vw,20px); line-height:1.2; }
+  .lane .who small { display:block; opacity:.75; font-weight:600; font-size:.78em; margin-top:2px; }
+  .lane .gem { flex:0 0 auto; line-height:1; transition:font-size .12s; }
+  .lane .what { flex:1; font-family:'Fredoka',sans-serif; font-size:clamp(15px,3.9vw,22px); text-align:right; }
+  .lane .what b { color:var(--gold); }
+  .verdict { font-family:'Fredoka',sans-serif; font-size:clamp(18px,4.6vw,27px); text-align:center; max-width:680px; min-height:2.6em; color:var(--gold); }
 </style>
 </head>
 <body>
@@ -122,13 +135,24 @@
   <div class="big" id="resBig"></div>
   <div class="cmp" id="resCmp"></div>
   <div class="lesson" id="resLesson"></div>
-  <div class="row"><button id="again">▶ Watch again</button><button id="change">✏️ Change</button></div>
+  <div class="row"><button id="again">▶ Again</button><button id="raceBtn" class="hot">⚔️ Every day vs once a week</button><button id="change">✏️ Change</button></div>
+</div>
+
+<div class="overlay" id="race">
+  <h2>Same practice, two ways</h2>
+  <div class="sub" id="raceSub"></div>
+  <div class="lane"><div class="who">🐢 A little<br>every day<small id="raceA"></small></div><div class="gem" id="gA">💎</div><div class="what" id="wA"></div></div>
+  <div class="lane"><div class="who">🏋️ A lot<br>once a week<small id="raceB"></small></div><div class="gem" id="gB">💎</div><div class="what" id="wB"></div></div>
+  <div class="day" id="raceDay">Day 0</div>
+  <div class="verdict" id="verdict"></div>
+  <div class="row"><button class="go" id="raceGo">▶ Race!</button><button id="raceClose">✕ Back</button></div>
 </div>
 
 <div class="overlay" id="info">
   <h2>For grown-ups</h2>
   <p class="note">Each practice day the crystal gets a little bigger than the day before: 1% better, then 1% better than <i>that</i>. That's compounding: growth builds on growth.</p>
   <p class="note">1% a day for a year makes it about <b>38×</b> bigger. Practicing only 3 days a week makes it about <b>5×</b>. Fewer days doesn't just mean a little less; the gap gets huge.</p>
+  <p class="note"><b>Every day vs once a week:</b> the race gives both kids the same total practice. Cramming 7 days into one session counts like ~2.6 days (√7, diminishing returns), and a little is forgotten on the days in between, so the smallest daily habit always beats one big weekly session.</p>
   <p class="note">Money works the same way, only slower: about 7% a year doubles every ~10 years. Slow, slow, then BOOM.</p>
   <button id="infoClose">✕ Back</button>
 </div>
@@ -213,7 +237,7 @@ function sizeText(m, start){
   if(m < STAGES[0].s*1.2) return 'tiny as an ant';
   if(start && m < start*1.05 && Math.abs(start - s.s)/s.s < 0.01) return `as big as ${s.n}`;
   if(k === LAST && t > 1e3) return 'bigger than everything!';
-  return t < 1.5 ? `as big as ${s.n}` : `${fmtX(t)}× ${s.n}`;
+  return t < 1.05 ? `as big as ${s.n}` :`${fmtX(t)}× ${s.n}`;
 }
 
 // ---------- sound ----------
@@ -265,6 +289,19 @@ function simulate(v, week){
 }
 const finalSize = (v, week) => Math.exp(simulate(v, week ?? v.week)[v.days]);
 
+// "A lot once a week": the same 7 days of practice crammed into one session on day 1 of each week.
+// One big session can't hold a whole week of practice: it counts like ~2.6 days (√7), and you forget
+// a little on the 6 days in between (at least 0.3%/day, more if "shrinks" is chosen).
+const CRAM = Math.sqrt(7), FORGET_MIN = 0.003;
+function simulateCram(v){
+  const start = STAGES[v.startIdx].s, out = new Float64Array(v.days + 1);
+  let lg = Math.log(start); const floor = lg;
+  const up = Math.log(1 + v.rate*CRAM), down = Math.log(1 - Math.max(v.decay, FORGET_MIN));
+  out[0] = lg;
+  for(let d=1; d<=v.days; d++){ lg = ((d-1) % 7) === 0 ? lg + up : Math.max(floor, lg + down); out[d] = lg; }
+  return out;
+}
+
 let anim = null;
 function play(){
   const v = vals(), start = STAGES[v.startIdx].s, path = simulate(v, v.week);
@@ -304,9 +341,50 @@ function showResult(){
     ? `Practicing every day would have made it ${fmtX(every/mine)}× bigger than this!`
     : `Only 3 days a week would have made it ${fmtX(every/three)}× smaller. Little and often wins! 🌟`;
   if(v.decay > 0) lesson += ' Skipped days shrink it, so breaks cost extra.';
+  const cram = Math.exp(simulateCram(v)[v.days]);
+  $('resCmp').innerHTML += `<div><span>🏋️ same practice, all in 1 day a week</span><b>${fmtX(cram/start)}× · ${STAGES[stageIndexFor(cram)].e}</b></div>`;
   $('resLesson').textContent = lesson;
   $('result').classList.add('show'); chord(); burst(60);
 }
+// ---------- race: a little every day vs a lot once a week ----------
+let raceTimer = null;
+function laneText(m, start){ const k = stageIndexFor(m); return `<b>${fmtX(m/start)}× bigger</b><br>${STAGES[k].e} ${sizeText(m, start)}`; }
+function gemPx(m, start){ return Math.min(84, 26 + Math.log10(m/start) * 9); }
+function setLane(k, m, start){ $('w'+k).innerHTML = laneText(m, start); $('g'+k).style.fontSize = gemPx(m, start) + 'px'; }
+function resetRace(){
+  clearInterval(raceTimer);
+  const v = vals(), start = STAGES[v.startIdx].s, pct = +(v.rate*100).toFixed(2);
+  $('raceSub').textContent = `Both practice the same amount each week. One does ${pct}% every day; the other crams all 7 days into one big session. One big session can only hold so much, and you forget a little in between.`;
+  $('raceA').textContent = `${pct}% × 7 days`;
+  $('raceB').textContent = `7 days' worth on 1 day`;
+  setLane('A', start, start); setLane('B', start, start);
+  document.querySelectorAll('.lane').forEach(l => l.classList.remove('lead'));
+  $('raceDay').textContent = 'Day 0'; $('verdict').textContent = '';
+}
+$('raceBtn').onclick = () => { $('race').classList.add('show'); resetRace(); };
+$('raceClose').onclick = () => { clearInterval(raceTimer); $('race').classList.remove('show'); };
+$('raceGo').onclick = () => {
+  resetRace();
+  const v = vals(), start = STAGES[v.startIdx].s, A = simulate(v, 7), B = simulateCram(v);
+  const total = Math.min(v.days, 3650), stepDays = Math.max(1, Math.ceil(total/180));
+  const lanes = document.querySelectorAll('.lane');
+  let d = 0;
+  raceTimer = setInterval(() => {
+    d = Math.min(total, d + stepDays);
+    const a = Math.exp(A[d]), b = Math.exp(B[d]);
+    setLane('A', a, start); setLane('B', b, start);
+    lanes[0].classList.toggle('lead', a > b); lanes[1].classList.toggle('lead', b > a);
+    $('raceDay').textContent = `Day ${d}`;
+    if(d % 7 === 1 || stepDays > 1) beep(b > a ? 330 : 440, 0.04, 'square', 0.03);
+    if(d >= total){
+      clearInterval(raceTimer); chord();
+      $('verdict').innerHTML = a > b
+        ? `A little every day wins: ${fmtX(a/b)}× bigger! 🐢🏆<br><span style="font-size:.75em;color:#fff">The big weekly session jumped ahead on day 1, but every-day practice caught up and kept going.</span>`
+        : `Once a week is ahead… for now. Try more days!`;
+    }
+  }, 45);
+};
+
 $('go').onclick = play;
 $('again').onclick = play;
 $('change').onclick = () => { $('result').classList.remove('show'); $('panel').classList.remove('hide'); };
