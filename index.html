@@ -225,6 +225,7 @@
   <p class="note"><b>The race:</b> "Once a week" gets the same total practice as every day, crammed into one session. One big session counts like ~2.6 days (√7, diminishing returns), and a little is forgotten in between, so even the smallest daily habit beats it.</p>
   <p class="note">Money works the same way, only slower: about 7% a year doubles every ~10 years. Slow, slow, then BOOM.</p>
   <p class="note"><b>My real crystal</b> (📅 button) tracks actual practice: tap once a day after practicing and the crystal grows by that day's %. It's stored only in this browser, nothing is uploaded. Tap a kid's name again to rename; clear the name to delete.</p>
+  <p class="note" style="opacity:.6;font-size:13px">Version 2026-11-13c. If this is older, pull down to refresh (GitHub can serve a cached copy for ~10 minutes).</p>
   <div class="row"><button id="infoClose">✕ Back</button></div>
 </div>
 
@@ -568,17 +569,30 @@ function frame(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   const target = Math.log(size);
   dispLog += (target - dispLog) * Math.min(1, dt*10);
-  camLog  += (target - camLog)  * Math.min(1, dt*4);
-  if(dispLog - camLog > Math.log(1.45)) camLog = dispLog - Math.log(1.45);   // never let the crystal outrun the camera
+  // The camera frames the NEXT thing to beat, so the crystal visibly grows on screen toward it.
+  // When it passes, the camera zooms out (whoosh) and it starts small again next to the new target.
+  // It never starts smaller than 1/6 of the frame, so long gaps (Earth to Sun) don't leave a speck.
+  const grown = size > STAGES[+inp.start.value].s * 1.0001;
+  const kNow = stageIndexFor(Math.exp(dispLog)), next = STAGES[Math.min(LAST, kNow + 1)];
+  const camTarget = (!playing || kNow === LAST) ? dispLog : clamp(Math.log(next.s), dispLog, dispLog + Math.log(6));
+  camLog += (camTarget - camLog) * Math.min(1, dt*3.5);
+  if(camLog < dispLog) camLog = dispLog;                       // the crystal never outgrows the frame
   const L = dispLog / Math.LN10, gy = groundY();
   paintBackground(ctx, W, H, camLog / Math.LN10, now, gy);
   const avail = gy - 175;
   const scale = Math.max(40, Math.min(avail*0.85, W*0.6)) / Math.exp(camLog);
-  const cPx = Math.exp(dispLog) * scale, cx = W*0.56;
+  const cPx = Math.exp(dispLog) * scale, cx = W*0.5;
+  const labelSize = Math.max(13, Math.min(20, W/30));
+  if(playing && kNow < LAST){                                 // faint target to beat, at its true size
+    const nPx = next.s*scale;
+    if(nPx < avail*1.15){ ctx.save(); ctx.globalAlpha = 0.55; drawThing(ctx, next, Math.min(W - Math.max(nPx,10)/2 - 8, cx + Math.max(cPx,6)*0.34 + Math.max(nPx,10)*0.45), gy, nPx, false); ctx.restore();
+      ctx.save(); ctx.font = `800 ${labelSize}px Nunito, sans-serif`; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(`next: ${next.n}`, Math.min(W - 70, cx + Math.max(cPx,6)*0.34 + Math.max(nPx,10)*0.45), gy + 6); ctx.restore(); }
+  }
   drawCrystal(ctx, cx, gy, cPx, hueFor(L), now/1000);
-  if(size > STAGES[+inp.start.value].s * 1.05){
-    const k = stageIndexFor(size), prev = STAGES[k], pPx = prev.s*scale;
-    drawThing(ctx, prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx, true, Math.max(13, Math.min(20, W/30)));
+  if(grown){
+    const prev = STAGES[kNow], pPx = prev.s*scale;
+    drawThing(ctx, prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx, true, labelSize);
   }
   for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life-=dt*0.9; if(p.life<=0){particles.splice(i,1);continue;} ctx.fillStyle=`hsla(${p.hue},100%,65%,${p.life})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
   if(raceState) drawRace(now);
