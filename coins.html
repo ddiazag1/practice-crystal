@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1030">
+<title>Treasure Coins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#ffcf3f; --panel:rgba(14,12,48,.88); --mine:#e8960f; --grow:#c9ef5a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#0b1030; font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif; color:#fff; touch-action:manipulation; user-select:none; -webkit-user-select:none; }
+  input { user-select:text; -webkit-user-select:text; }
+  canvas#c { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  .fd { font-family:'Fredoka','Nunito',system-ui,sans-serif; }
+  button:focus-visible, input:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+
+  .top { position:fixed; top:0; left:0; right:0; padding:calc(8px + env(safe-area-inset-top)) 56px 0; display:flex; flex-direction:column; align-items:center; gap:3px; pointer-events:none; z-index:2; }
+  .title { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; font-size:clamp(19px,4.8vw,30px); text-shadow:0 2px 0 rgba(0,0,0,.3); text-align:center; line-height:1.15; }
+  .when { font-family:'Fredoka',system-ui,sans-serif; font-weight:500; font-size:clamp(13px,3.4vw,17px); background:rgba(0,0,0,.35); padding:3px 12px; border-radius:999px; text-align:center; white-space:nowrap; }
+  .count { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; color:var(--gold); line-height:1.05; white-space:nowrap; text-shadow:0 3px 0 #7a4a00, 0 6px 16px rgba(0,0,0,.45); font-variant-numeric:tabular-nums; font-size:46px; margin-top:2px; }
+  .count .lbl { font-size:.42em; color:#fff; font-weight:500; text-shadow:0 2px 0 rgba(0,0,0,.4); }
+  .count small { font-size:.46em; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.4); }
+  .xline { font-weight:800; font-size:clamp(13px,3.4vw,16px); opacity:.9; min-height:1.2em; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+  .read { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; font-weight:800; font-size:clamp(13px,3.5vw,16px); margin:0 -48px; }
+  .read span { background:rgba(0,0,0,.38); padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .read b { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; }
+  .dot { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.25), 0 0 0 1.5px rgba(255,255,255,.5); }
+  .dot.mine { background:var(--mine); } .dot.grow { background:var(--grow); }
+
+  .banner { position:fixed; left:50%; top:calc(36% + env(safe-area-inset-top)); transform:translate(-50%,-50%) scale(.6); opacity:0; font-family:'Fredoka',system-ui,sans-serif; font-weight:700; font-size:clamp(22px,6.4vw,44px); line-height:1.15; text-align:center; text-shadow:0 3px 0 #5a3fd6, 0 6px 18px rgba(0,0,0,.45); pointer-events:none; transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); width:max-content; max-width:92vw; z-index:3; }
+  .banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  .banner.lesson { color:#eaffb0; text-shadow:0 3px 0 #3f7a10, 0 6px 18px rgba(0,0,0,.5); font-size:clamp(21px,5.8vw,40px); }
+
+  button { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; border:0; cursor:pointer; border-radius:999px; touch-action:manipulation; color:#fff; }
+  .corner { position:fixed; top:calc(10px + env(safe-area-inset-top)); width:42px; height:42px; font-size:18px; background:rgba(255,255,255,.18); z-index:4; }
+  #infoBtn { left:calc(10px + env(safe-area-inset-left)); } #sound { right:calc(10px + env(safe-area-inset-right)); }
+
+  .panel { position:fixed; left:0; right:0; bottom:0; z-index:4; background:var(--panel); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border-radius:22px 22px 0 0; padding:10px calc(14px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)); display:flex; flex-direction:column; gap:8px; max-width:760px; margin:0 auto; transition:transform .35s ease; max-height:62vh; overflow-y:auto; overscroll-behavior:contain; }
+  .panel.hide { transform:translateY(110%); }
+  .q { display:flex; flex-direction:column; gap:4px; }
+  .q > label, .q > .lab { font-weight:800; font-size:clamp(14px,3.7vw,17px); display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:30px; }
+  .q b.out { font-family:'Fredoka',system-ui,sans-serif; color:var(--gold); font-size:1.05em; white-space:nowrap; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chips.scroll { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:2px 2px 3px; margin:0 -2px; -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent); mask-image:linear-gradient(90deg,#000 88%,transparent); }
+  .chips.scroll::-webkit-scrollbar { display:none; }
+  .chips button { font-size:clamp(13px,3.4vw,16px); padding:6px 12px; background:rgba(255,255,255,.14); white-space:nowrap; flex:none; }
+  .chips button.sel { background:var(--gold); color:#3a2600; }
+  .num { display:flex; align-items:center; gap:5px; font-family:'Fredoka',system-ui,sans-serif; }
+  .num input { width:92px; font-family:'Fredoka',system-ui,sans-serif; font-size:17px; padding:3px 6px; border-radius:10px; border:2px solid rgba(255,207,63,.7); background:rgba(255,255,255,.1); color:#fff; text-align:right; }
+  .num input.short { width:70px; }
+  .rateRow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .rateRow .chips button { padding:6px 10px; }
+  .names input { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; padding:8px 10px; border-radius:12px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:#fff; }
+  .names input::placeholder { color:rgba(255,255,255,.5); }
+  .moreBox { display:none; flex-direction:column; gap:8px; }
+  .moreBox.open { display:flex; }
+  .gorow { display:flex; gap:8px; justify-content:center; align-items:center; padding-top:2px; }
+  .more { font-size:14px; padding:8px 12px; background:rgba(255,255,255,.12); }
+  .go { font-size:clamp(22px,5.8vw,30px); padding:11px 26px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); box-shadow:0 5px 0 #c77d00, 0 8px 20px rgba(0,0,0,.3); }
+  .go:active { transform:translateY(3px); box-shadow:0 2px 0 #c77d00; }
+  .racego { font-size:clamp(17px,4.4vw,22px); padding:11px 16px; background:linear-gradient(#8f6bff,#5a3fd6); box-shadow:0 5px 0 #3d2a9a; }
+  .racego:active { transform:translateY(3px); box-shadow:0 2px 0 #3d2a9a; }
+
+  .result { position:fixed; z-index:4; left:50%; bottom:calc(10px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140%); width:min(720px,95vw); background:var(--panel); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border-radius:22px; padding:12px 14px 0; display:flex; flex-direction:column; gap:8px; transition:transform .4s cubic-bezier(.2,1.2,.4,1); max-height:60vh; overflow-y:auto; overscroll-behavior:contain; }
+  .result.show { transform:translateX(-50%) translateY(0); }
+  .result .big { font-family:'Fredoka',system-ui,sans-serif; font-weight:500; font-size:clamp(17px,4.5vw,25px); line-height:1.22; text-align:center; }
+  .result .big b { color:var(--gold); font-weight:700; white-space:nowrap; }
+  .chartWrap { position:relative; }
+  #chart { width:100%; height:160px; display:block; touch-action:pan-y; }
+  .legend { display:flex; gap:14px; justify-content:center; font-weight:800; font-size:14px; opacity:.95; }
+  .result .cmp { display:flex; flex-direction:column; gap:4px; font-size:clamp(14px,3.6vw,17px); }
+  .result .cmp div { display:flex; justify-content:space-between; gap:8px; background:rgba(255,255,255,.08); border-radius:12px; padding:6px 10px; }
+  .result .cmp div.me { outline:2px solid var(--gold); }
+  .result .cmp b { font-family:'Fredoka',system-ui,sans-serif; color:var(--gold); white-space:nowrap; font-weight:700; }
+  .result .cmpH { font-weight:800; font-size:14px; opacity:.8; text-align:center; }
+  .result .lesson { text-align:center; font-weight:800; color:#ffe9a6; font-size:clamp(14px,3.6vw,18px); }
+  .result .row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; position:sticky; bottom:0; padding:8px 0 12px; background:linear-gradient(transparent, rgba(14,12,48,.97) 30%); }
+  .result .row button { font-size:clamp(15px,3.9vw,19px); padding:10px 16px; background:rgba(255,255,255,.2); }
+  .result .row button.hot { background:linear-gradient(#8f6bff,#5a3fd6); }
+
+  .overlay { position:fixed; inset:0; background:#080a28; z-index:10; display:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:calc(14px + env(safe-area-inset-top)) 10px calc(16px + env(safe-area-inset-bottom)); gap:9px; overflow-y:auto; }
+  .overlay.show { display:flex; }
+  .overlay h2 { font-family:'Fredoka',system-ui,sans-serif; margin:0; font-size:clamp(22px,5.8vw,34px); text-align:center; }
+  .overlay .row { display:flex; gap:10px; }
+  .overlay .row button { font-size:18px; padding:10px 18px; background:rgba(255,255,255,.18); }
+  .overlay .row .go { font-size:clamp(22px,5.6vw,28px); padding:11px 26px; color:#3a2600; background:linear-gradient(#ffe57a,#ffb31f); }
+  .note { max-width:560px; font-size:clamp(15px,3.9vw,18px); line-height:1.45; margin:0; }
+  .note b { color:var(--gold); }
+  #info { justify-content:flex-start; padding-left:20px; padding-right:20px; }
+  .mode { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:720px; }
+  .mode button { font-size:clamp(13px,3.4vw,16px); padding:7px 11px; background:rgba(255,255,255,.14); }
+  .mode button.sel { background:var(--gold); color:#3a2600; }
+  .sub { max-width:680px; text-align:center; font-size:clamp(13px,3.5vw,17px); opacity:.88; line-height:1.3; }
+  .split { display:grid; gap:8px; width:min(760px,97vw); }
+  .col { background:rgba(255,255,255,.07); border-radius:16px; overflow:hidden; outline:3px solid transparent; transition:outline-color .3s; display:flex; flex-direction:column; }
+  .col.lead { outline-color:var(--gold); }
+  .col .lab { font-weight:800; font-size:clamp(13px,3.4vw,17px); padding:6px 6px 3px; line-height:1.15; text-align:center; }
+  .col .lab small { font-weight:600; opacity:.8; font-size:.85em; }
+  .col canvas { width:100%; height:clamp(190px,30vh,320px); display:block; }
+  .split.four .col canvas { height:clamp(120px,20vh,230px); }
+  .col .val { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; color:#fff; padding:5px 4px 7px; font-size:clamp(15px,4.2vw,22px); text-align:center; line-height:1.15; font-variant-numeric:tabular-nums; }
+  .col.lead .val { color:var(--gold); }
+  .col .val small { display:block; color:#fff; opacity:.82; font-family:'Nunito',sans-serif; font-weight:800; font-size:.62em; }
+  .verdict { font-family:'Fredoka',system-ui,sans-serif; font-weight:500; font-size:clamp(16px,4.3vw,24px); text-align:center; max-width:700px; min-height:2.4em; line-height:1.25; }
+  .verdict b { color:var(--gold); font-weight:700; white-space:nowrap; }
+  .verdict span { font-size:.8em; opacity:.92; }
+  .switch { display:flex; align-self:center; flex-shrink:0; background:rgba(0,0,0,.35); border-radius:999px; padding:3px; gap:2px; }
+  .switch a { font-family:'Fredoka',sans-serif; font-weight:700; text-decoration:none; color:#fff; padding:6px 16px; border-radius:999px; font-size:clamp(14px,3.6vw,17px); }
+  .switch a.on { background:#ffcf3f; color:#3a2600; }
+  .switch a:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+</style>
+</head>
+<body>
+<canvas id="c" role="img" aria-label="Your treasure"></canvas>
+
+<div class="top" id="top">
+  <div class="title" id="title">Treasure Coins</div>
+  <div class="when" id="when">Start</div>
+  <div class="count" id="countRow"><span class="lbl">Total: </span><span id="count">0</span><small> coins</small></div>
+  <div class="xline" id="xline"></div>
+  <div class="read"><span><i class="dot mine"></i>You put in: <b id="putOut">0</b></span><span><i class="dot grow"></i>Treasure grew: <b id="grewOut">0</b></span></div>
+</div>
+<div class="banner" id="banner" aria-live="polite"></div>
+<button class="corner" id="infoBtn" aria-label="For grown-ups">?</button>
+<button class="corner" id="sound" aria-label="Sound on or off">🔊</button>
+
+<div class="panel" id="panel" role="region" aria-label="Treasure settings">
+  <nav class="switch" aria-label="Switch game"><a href="index.html">💎 Crystal</a><a class="on" href="coins.html" aria-current="page">💰 Coins</a></nav>
+  <div class="q">
+    <label for="startNum">Starting coins <span class="num"><input type="number" id="startNum" inputmode="numeric" min="0" max="1000000000" step="1" value="100"></span></label>
+    <div class="chips" data-for="start" role="group" aria-label="Starting coins"><button data-v="1">1</button><button data-v="10">10</button><button data-v="100">100</button><button data-v="1000">1,000</button></div>
+  </div>
+  <div class="q">
+    <div class="lab">How fast it grows <b class="out" id="rateOut">7% a year</b></div>
+    <div class="chips scroll" data-for="preset" role="group" aria-label="Growth presets">
+      <button data-r="7" data-p="year">📈 Grown-up investing 7%/yr</button>
+      <button data-r="4" data-p="year">🏦 Savings 4%/yr</button>
+      <button data-r="10" data-p="year">🚀 Super 10%/yr</button>
+      <button data-r="0" data-p="year">🐷 Piggy bank 0%</button>
+      <button data-r="1" data-p="day">✨ Magic 1%/day (pretend!)</button>
+    </div>
+    <div class="rateRow"><span class="num"><input class="short" type="number" id="rateNum" inputmode="decimal" min="0" max="100" step="0.1" value="7" aria-label="Growth percent">%</span>
+      <div class="chips" data-for="period" role="group" aria-label="Growth period"><button data-v="day">per day</button><button data-v="week">week</button><button data-v="month">month</button><button data-v="year">year</button></div></div>
+  </div>
+  <div class="q">
+    <label for="yearsNum">How long <span class="num"><input class="short" type="number" id="yearsNum" inputmode="decimal" min="0.01" max="100" step="1" value="10"><b class="out" id="daysOut">years</b></span></label>
+    <div class="chips scroll" data-for="days" role="group" aria-label="How long"><button data-v="30">1 month</button><button data-v="365">1 year</button><button data-v="1825">5 years</button><button data-v="3650">10 years</button><button data-v="7300">20 years</button><button data-v="10950">30 years</button><button data-v="18250">50 years</button></div>
+  </div>
+  <div class="q">
+    <label for="weeklyNum">Add coins every week <span class="num"><input class="short" type="number" id="weeklyNum" inputmode="numeric" min="0" max="1000000" step="1" value="5"></span></label>
+    <div class="chips" data-for="weekly" role="group" aria-label="Coins added every week"><button data-v="0">0</button><button data-v="1">1</button><button data-v="5">5</button><button data-v="10">10</button><button data-v="20">20</button></div>
+  </div>
+  <div class="moreBox" id="moreBox">
+    <div class="q">
+      <label for="nameIn">Whose treasure?</label>
+      <div class="names"><input type="text" id="nameIn" maxlength="14" placeholder="Name (Liam)" autocomplete="off"></div>
+    </div>
+    <div class="q">
+      <div class="lab">Animation speed</div>
+      <div class="chips" data-for="speed" role="group" aria-label="Animation speed"><button data-v="1.8">🐢 slow</button><button data-v="1">normal</button><button data-v="0.5">🐇 fast</button></div>
+    </div>
+    <div class="q">
+      <div class="lab">Sound</div>
+      <div class="chips" data-for="sound" role="group" aria-label="Sound"><button data-v="1">🔊 on</button><button data-v="0">🔇 off</button></div>
+    </div>
+  </div>
+  <div class="gorow"><button class="more" id="moreBtn" aria-expanded="false">More ▾</button><button class="go" id="go">▶ Grow!</button><button class="racego" id="raceBtn2">⚔️ Race</button></div>
+</div>
+
+<div class="result" id="result" role="region" aria-label="Result">
+  <div class="big" id="resBig"></div>
+  <div class="chartWrap"><canvas id="chart" role="img" aria-label="Chart of your treasure over time"></canvas></div>
+  <div class="legend"><span><i class="dot mine"></i>You put in</span><span><i class="dot grow"></i>Treasure grew</span></div>
+  <div class="cmpH">The same plan…</div>
+  <div class="cmp" id="resCmp"></div>
+  <div class="lesson" id="resLesson"></div>
+  <div class="row"><button id="again">▶ Again</button><button id="raceBtn" class="hot">⚔️ Race</button><button id="change">✏️ Change</button></div>
+</div>
+
+<div class="overlay" id="race" role="dialog" aria-label="Race">
+  <h2 id="raceTitle">Race!</h2>
+  <div class="mode" id="raceMode" role="group" aria-label="Race type">
+    <button data-m="early" class="sel">⏰ Start early vs late</button>
+    <button data-m="save">🍭 Save vs spend half</button>
+    <button data-m="piggy">🐷 Piggy vs growing</button>
+    <button data-m="all">🏁 All 3</button>
+  </div>
+  <div class="sub" id="raceSub"></div>
+  <div class="split" id="split"></div>
+  <div class="when" id="raceDay">Year 0</div>
+  <div class="verdict" id="verdict" aria-live="polite"></div>
+  <div class="row"><button class="go" id="raceGo">▶ Race!</button><button id="raceClose">✕ Back</button></div>
+</div>
+
+<div class="overlay" id="info" role="dialog" aria-label="For grown-ups">
+  <h2>For grown-ups</h2>
+  <p class="note"><b>Compound interest</b> means the coins you earn start earning too. In year one, interest is paid on what you saved. In year two it's paid on your savings <i>plus</i> last year's interest, and so on. Growth builds on growth, so the curve looks flat for years and then bends sharply upward.</p>
+  <p class="note"><b>Rule of 72:</b> divide 72 by the yearly rate to get roughly how many years it takes money to double. 7% a year ≈ every 10 years; 4% ≈ every 18; 10% ≈ every 7.</p>
+  <p class="note"><b>7% a year</b> is a rough long-run average for the stock market after inflation. Real returns bounce around a lot from year to year, some years are negative, and nothing is guaranteed. <b>4%</b> is roughly a good savings rate. <b>“Magic 1% a day”</b> is pretend; no real investment does that. It's there to show how fast compounding can run away.</p>
+  <p class="note"><b>How the math works here:</b> each period's interest is spread evenly across its days, so the treasure grows smoothly and the starting coins match “compound once per period” exactly at every period boundary. Weekly coins are added at the end of each week. Results match the standard future-value formula (lump sum plus an ordinary annuity).</p>
+  <p class="note">The lesson for kids: start early, add a little often, and leave it alone to grow. This is a teaching toy, not financial advice.</p>
+  <div class="row"><button id="infoClose">✕ Back</button></div>
+</div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
+const RMQ = matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = RMQ.matches;
+if(RMQ.addEventListener) RMQ.addEventListener('change', e => { reduced = e.matches; });
+
+// ================= settings =================
+const PERIOD_DAYS = { day:1, week:7, month:365/12, year:365 };
+const PERIOD_WORD = { day:'day', week:'week', month:'month', year:'year' };
+const KEY = 'treasureCoins.v1';
+const DEF = { start:100, rate:7, period:'year', days:3650, weekly:5, name:'', speed:1, sound:true };
+const numOr = (x, d) => { x = Number(x); return Number.isFinite(x) ? x : d; };
+function sanitize(o){
+  return {
+    start:  Math.round(clamp(numOr(o.start, DEF.start), 0, 1e9)),
+    rate:   Math.round(clamp(numOr(o.rate, DEF.rate), 0, 100) * 100) / 100,
+    period: Object.prototype.hasOwnProperty.call(PERIOD_DAYS, o.period) ? o.period : 'year',
+    days:   Math.round(clamp(numOr(o.days, DEF.days), 1, 36500)),
+    weekly: Math.round(clamp(numOr(o.weekly, DEF.weekly), 0, 1e6) * 100) / 100,
+    name:   String(o.name == null ? '' : o.name).replace(/[<>&"]/g, '').slice(0, 14),
+    speed:  [1.8, 1, 0.5].includes(+o.speed) ? +o.speed : 1,
+    sound:  o.sound !== false,
+  };
+}
+let S = sanitize(DEF);
+try { const j = JSON.parse(localStorage.getItem(KEY) || 'null'); if(j && typeof j === 'object') S = sanitize(Object.assign({}, DEF, j)); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+
+// ================= the money model (pure) =================
+// o = { start, rate (fraction per period), pd (days per period), days, weekly, delay (days before saving starts) }
+const CAP = 1e300;
+function plan(s, over){ return Object.assign({ start:s.start, rate:s.rate/100, pd:PERIOD_DAYS[s.period], days:s.days, weekly:s.weekly, delay:0 }, over || {}); }
+function simulate(o){
+  const D = Math.max(0, Math.floor(o.days)), sd = Math.max(0, Math.floor(o.delay || 0));
+  const bal = new Float64Array(D + 1), put = new Float64Array(D + 1);
+  const g = Math.pow(1 + Math.max(0, o.rate), 1 / o.pd);   // daily factor: compounds to exactly (1+rate) per period
+  let b = 0, p = 0, capped = false;
+  if(sd === 0){ b = o.start; p = o.start; }
+  bal[0] = b; put[0] = p;
+  for(let d = 1; d <= D; d++){
+    b *= g;
+    if(d === sd){ b += o.start; p += o.start; }
+    if(d > sd && (d - sd) % 7 === 0){ b += o.weekly; p += o.weekly; }
+    if(!(b < CAP)){ b = CAP; capped = true; }
+    bal[d] = b; put[d] = p;
+  }
+  return { bal, put, days:D, capped };
+}
+// closed form: lump sum + ordinary annuity of weekly deposits (with effective weekly rate), carried to the last day
+function closedForm(o){
+  const D = Math.floor(o.days), sd = Math.floor(o.delay || 0);
+  if(D < sd) return 0;
+  const n = D - sd, f = Math.pow(1 + o.rate, 1 / o.pd);
+  const W = Math.floor(n / 7), i = Math.pow(f, 7) - 1;
+  const ann = i === 0 ? o.weekly * W : o.weekly * (Math.pow(1 + i, W) - 1) / i;
+  return o.start * Math.pow(f, n) + ann * Math.pow(f, n - 7 * W);
+}
+
+// ================= number formatting =================
+const UNITS = [[1e63,'vigintillion'],[1e60,'novemdecillion'],[1e57,'octodecillion'],[1e54,'septendecillion'],[1e51,'sexdecillion'],[1e48,'quindecillion'],[1e45,'quattuordecillion'],[1e42,'tredecillion'],[1e39,'duodecillion'],[1e36,'undecillion'],[1e33,'decillion'],[1e30,'nonillion'],[1e27,'octillion'],[1e24,'septillion'],[1e21,'sextillion'],
+               [1e18,'quintillion'],[1e15,'quadrillion'],[1e12,'trillion'],[1e9,'billion'],[1e6,'million'],[1e3,'thousand']];
+const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup = n => String(n).split('').map(c => SUP[+c]).join('');
+function named(x){
+  if(x >= 1e66){ const e = Math.floor(Math.log10(x)), m = Math.floor(x / Math.pow(10, e) * 10) / 10; return (m >= 1.05 ? m + ' × ' : '') + '10' + sup(e); }
+  for(const [u, n] of UNITS) if(x >= u){ const q = x / u; return (q < 10 ? Math.floor(q * 10) / 10 : Math.floor(q)) + ' ' + n; }
+  return String(Math.floor(x));
+}
+function fmtCoins(x){
+  if(!Number.isFinite(x) || x < 0) x = x === Infinity ? CAP : 0;
+  return x < 1e15 ? Math.floor(x + 1e-7).toLocaleString('en-US') : named(x);
+}
+function fmtX(x){
+  if(!Number.isFinite(x)) return '—';
+  if(x < 10) return (Math.floor(x * 10) / 10).toFixed(1);
+  if(x < 1e6) return Math.floor(x).toLocaleString('en-US');
+  return named(x);
+}
+function fmtAxis(x){
+  if(x < 1000) return String(Math.round(x));
+  if(x >= 1e15){ const e = Math.floor(Math.log10(x)), m = Math.round(x / Math.pow(10, e) * 10) / 10; return m + '×10' + sup(e); }
+  for(const [u, n] of [[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'k']]) if(x >= u){ const q = x / u; return (q < 10 ? Math.round(q * 10) / 10 : Math.round(q)) + n; }
+}
+function niceDur(d){
+  if(d === 30 || d === 31) return '1 month';
+  if(d % 365 === 0) return d === 365 ? '1 year' : (d / 365) + ' years';
+  if(d < 7) return d + (d === 1 ? ' day' : ' days');
+  if(d < 60) return Math.round(d / 7) + ' weeks';
+  if(d < 365) return Math.round(d / 30.4) + ' months';
+  return (Math.round(d / 365 * 10) / 10) + ' years';
+}
+function timeTxt(d, D){
+  if(D <= 70) return d < 7 ? `Day ${d}` : `Week ${Math.floor(d / 7)}` + (d % 7 ? `, day ${d % 7}` : '');
+  const y = Math.floor(d / 365), w = Math.floor((d - y * 365) / 7);
+  return y === 0 ? `Week ${w}` : `Year ${y}` + (w ? `, week ${w}` : '');
+}
+function rateTxt(s){ return `${s.rate}% a ${PERIOD_WORD[s.period]}`; }
+const fmtWeekly = w => Number.isInteger(w) ? w.toLocaleString('en-US') : String(Math.round(w * 100) / 100);
+
+// ================= tiers =================
+const TIERS = [
+  { min:0,    e:'🟡', name:'coins',             unit:1 },
+  { min:10,   e:'🟡', name:'stacks of 10',      unit:10,  banner:'A stack of 10 coins!',        each:'each stack = 10 coins' },
+  { min:100,  e:'💰', name:'coin bags',         unit:100, banner:'A bag of 100 coins! 💰',       each:'each bag = 100 coins' },
+  { min:1e3,  e:'🧰', name:'treasure chests',   unit:1e3, banner:'A treasure chest! 1,000 coins', each:'each chest = 1,000 coins' },
+  { min:1e4,  e:'🧰', name:'a pile of chests',  unit:1e4, banner:'A pile of chests! 10,000 coins' },
+  { min:1e5,  e:'⛏️', name:'a cave of gold',    unit:1e5, banner:'A cave of gold! 100,000 coins' },
+  { min:1e6,  e:'🐉', name:"a dragon's hoard",  unit:1e6, banner:"A dragon's hoard! 1 million 🐉" },
+  { min:1e9,  e:'⛰️', name:'a gold mountain',   unit:1e9, banner:'A gold mountain! 1 billion ⛰️' },
+  { min:1e12, e:'🌕', name:'a gold moon',       unit:1e12, banner:'A gold moon! 1 trillion 🌕' },
+  { min:1e15, e:'✨', name:'beyond the stars',  unit:1e15, banner:'Beyond the stars! ✨' },
+];
+function tierFor(x){ let k = 0; for(let i = 1; i < TIERS.length; i++) if(x >= TIERS[i].min * (1 - 1e-12)) k = i; return k; }
+
+// ================= sound =================
+let AC = null;
+function beep(freq, dur = 0.12, type = 'triangle', vol = 0.1){
+  if(!S.sound) return;
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
+  } catch(e) {}
+}
+function chord(base = 523){ [1, 1.26, 1.5, 2].forEach((m, i) => setTimeout(() => beep(base * m, 0.25, 'sine', 0.08), i * 70)); }
+let lastDing = 0;
+function ding(now){ if(now - lastDing < 110) return; lastDing = now; beep(1320 + Math.random() * 300, 0.07, 'sine', 0.035); }
+
+// ================= coin colors & sprites =================
+const COL = {
+  mine: { hi:'#fff0a6', mid:'#f3b02a', lo:'#b56a00', edge:'#8a4d00', edgeHi:'#e39b1c', rim:'#a35d00', dark:'#5a3000' },
+  grow: { hi:'#fbffd8', mid:'#d4f25c', lo:'#86b41a', edge:'#4f7d0a', edgeHi:'#b8e246', rim:'#6d9a12', dark:'#2f4f04' },
+};
+const SR = 96;          // sprite coin radius in px
+const FLAT_RY = 0.34, FLAT_T = 0.26, FRONT_TH = 0.12;
+function star(c, R, r, n = 5){ c.beginPath(); for(let i = 0; i < n * 2; i++){ const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r : R; c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } c.closePath(); }
+function paintFace(c, r, col){
+  let g = c.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r * 1.05);
+  g.addColorStop(0, col.hi); g.addColorStop(.5, col.mid); g.addColorStop(1, col.lo);
+  c.fillStyle = g; c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = col.rim; c.globalAlpha = .5; c.lineWidth = r * .03;
+  for(let i = 0; i < 56; i++){ const a = i / 56 * Math.PI * 2; c.beginPath(); c.moveTo(Math.cos(a) * r * .89, Math.sin(a) * r * .89); c.lineTo(Math.cos(a) * r * .985, Math.sin(a) * r * .985); c.stroke(); }
+  c.globalAlpha = 1;
+  c.lineWidth = r * .07; c.strokeStyle = col.rim; c.beginPath(); c.arc(r * .02, r * .025, r * .8, 0, Math.PI * 2); c.stroke();
+  c.lineWidth = r * .04; c.strokeStyle = col.hi; c.globalAlpha = .9; c.beginPath(); c.arc(-r * .015, -r * .02, r * .8, Math.PI * .85, Math.PI * 1.85); c.stroke(); c.globalAlpha = 1;
+  g = c.createRadialGradient(-r * .2, -r * .25, r * .05, 0, 0, r * .8); g.addColorStop(0, col.mid); g.addColorStop(1, col.lo);
+  c.fillStyle = g; c.beginPath(); c.arc(0, 0, r * .755, 0, Math.PI * 2); c.fill();
+  c.save(); c.translate(r * .04, r * .05); star(c, r * .47, r * .2); c.fillStyle = col.dark; c.globalAlpha = .55; c.fill(); c.restore();
+  c.save(); c.translate(-r * .03, -r * .035); star(c, r * .47, r * .2); c.fillStyle = col.hi; c.fill(); c.restore();
+  star(c, r * .45, r * .19); g = c.createLinearGradient(-r * .4, -r * .45, r * .4, r * .4); g.addColorStop(0, col.hi); g.addColorStop(.5, col.mid); g.addColorStop(1, col.lo); c.fillStyle = g; c.fill();
+  c.save(); c.rotate(-0.65); c.globalAlpha = .42; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * .58, r * .5, r * .13, 0, 0, Math.PI * 2); c.fill();
+  c.globalAlpha = .22; c.beginPath(); c.ellipse(0, -r * .3, r * .62, r * .06, 0, 0, Math.PI * 2); c.fill(); c.restore();
+  c.globalAlpha = 1;
+}
+function mk(w, h){ const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h); return c; }
+const SPR = { front:{}, flat:{} };
+for(const k of ['mine', 'grow']){
+  const col = COL[k], r = SR, th = r * FRONT_TH, pad = 6;
+  let cv = mk(2 * r + pad * 2, 2 * r + th + pad * 2), c = cv.getContext('2d');
+  c.translate(r + pad, r + pad);
+  c.fillStyle = col.edge; c.beginPath(); c.arc(0, th, r, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = col.dark; c.lineWidth = r * .03; c.stroke();
+  paintFace(c, r, col);
+  cv.ax = r + pad; cv.ay = r + pad; SPR.front[k] = cv;
+
+  const ry = r * FLAT_RY, T = r * FLAT_T;
+  cv = mk(2 * r + pad * 2, 2 * ry + T + pad * 2); c = cv.getContext('2d');
+  c.translate(r + pad, ry + pad);
+  let g = c.createLinearGradient(-r, 0, r, 0);
+  g.addColorStop(0, col.dark); g.addColorStop(.18, col.edge); g.addColorStop(.38, col.edgeHi); g.addColorStop(.62, col.edge); g.addColorStop(1, col.dark);
+  c.fillStyle = g; c.beginPath(); c.moveTo(-r, 0); c.lineTo(-r, T); c.ellipse(0, T, r, ry, 0, Math.PI, 0, true); c.lineTo(r, 0); c.closePath(); c.fill();
+  c.strokeStyle = 'rgba(0,0,0,.22)'; c.lineWidth = r * .025;
+  for(let i = 1; i < 34; i++){ const a = i / 34 * Math.PI, x = Math.cos(a) * r, y = Math.sin(a) * ry; c.beginPath(); c.moveTo(x, y + r * .02); c.lineTo(x, y + T - r * .02); c.stroke(); }
+  c.strokeStyle = col.dark; c.lineWidth = r * .03; c.beginPath(); c.ellipse(0, T, r, ry, 0, 0, Math.PI); c.stroke();
+  c.save(); c.scale(1, FLAT_RY); paintFace(c, r, col); c.restore();
+  c.strokeStyle = 'rgba(70,35,0,.55)'; c.lineWidth = r * .025; c.beginPath(); c.ellipse(0, 0, r, ry, 0, 0, Math.PI * 2); c.stroke();
+  cv.ax = r + pad; cv.ay = ry + pad; SPR.flat[k] = cv;
+}
+// front-facing coin centred at (x,y), radius r (local units)
+function coinF(c, x, y, r, k, rot, flip){
+  const s = SPR.front[k], sc = r / SR;
+  if(rot || (flip != null && flip !== 1)){ c.save(); c.translate(x, y); if(rot) c.rotate(rot); if(flip != null) c.scale(flip, 1); c.drawImage(s, -s.ax * sc, -s.ay * sc, s.width * sc, s.height * sc); c.restore(); }
+  else c.drawImage(s, x - s.ax * sc, y - s.ay * sc, s.width * sc, s.height * sc);
+}
+// lying coin: (x,y) is the centre of its top face
+function coinFlat(c, x, y, rx, k){ const s = SPR.flat[k], sc = rx / SR; c.drawImage(s, x - s.ax * sc, y - s.ay * sc, s.width * sc, s.height * sc); }
+
+// ================= seeded decoration =================
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const MT = Array.from({length:64}, () => ({ u:rnd() * 2 - 1, v:Math.pow(rnd(), .8), s:.75 + rnd() * .5 })).sort((a, b) => b.v - a.v);
+const STARS = Array.from({length:150}, () => ({ x:rnd(), y:rnd(), r:rnd() * 1.5 + .3, t:rnd() * 6 }));
+const STAL = Array.from({length:22}, (_, i) => ({ x:(i + rnd() * .6) / 22, w:.03 + rnd() * .04, h:.05 + rnd() * .12 }));
+const CRAT = [[-.35,-.3,.22],[.3,-.45,.16],[.1,.15,.26],[-.45,.35,.15],[.5,.25,.14],[-.05,-.62,.1],[.62,-.1,.09],[-.15,.62,.12]];
+const GX = Array.from({length:170}, (_, i) => { const d = Math.pow(rnd(), .7); return { a:(i % 3) * Math.PI * 2 / 3 + d * 4.4 + (rnd() - .5) * .5, d, s:.5 + rnd() }; });
+const GEMS = ['#ff4d6d', '#4dc3ff', '#b36bff', '#4dffa0'];
+
+// ================= canvas setup =================
+const cv = $('c'); const ctx = cv.getContext('2d');
+let W = 390, H = 844, DPR = 1;
+function resize(){
+  DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  measure(); sizeMinis(); fitCount(true);
+}
+addEventListener('resize', resize);
+// cached layout reads (never read layout inside the frame loop)
+let topH = 170, panelH = 400, resultH = 400;
+let lastMaxFor = '';
+function measure(){
+  topH = $('top').offsetHeight;
+  const key = H + ':' + topH;
+  if(key !== lastMaxFor){ lastMaxFor = key;   // always leave room for the treasure between the readout and the panels
+    $('panel').style.maxHeight = Math.max(260, H - topH - 150) + 'px';
+    $('result').style.maxHeight = Math.max(280, H - topH - 175) + 'px'; }
+  panelH = $('panel').offsetHeight; resultH = $('result').offsetHeight;
+}
+if(window.ResizeObserver){ const ro = new ResizeObserver(measure); ro.observe($('top')); ro.observe($('panel')); ro.observe($('result')); }
+
+// ================= small drawing helpers (local units, origin = ground under the object) =================
+function rr(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath(); }
+function shadow(c, rx, ry){ c.fillStyle = 'rgba(0,0,0,.33)'; c.beginPath(); c.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); c.fill(); }
+function metal(c, y0, y1){ const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#fff1a8'); g.addColorStop(.45, '#f0b429'); g.addColorStop(1, '#a86a08'); return g; }
+function drawStack(c, it){
+  shadow(c, 11, 3.4);
+  const rx = 9, ry = rx * FLAT_RY, T = rx * FLAT_T;
+  for(let i = 0; i < it.n; i++){ const j = Math.sin(it.x * 3.1 + i * 2.3) * .55; coinFlat(c, j, -(T + ry) - i * T, rx, i < it.pc ? 'mine' : 'grow'); }
+}
+function drawBag(c, k, t){
+  const col = COL[k];
+  shadow(c, 17, 3.6);
+  const body = () => { c.beginPath(); c.moveTo(-6, -28); c.bezierCurveTo(-12, -24, -17.5, -18, -16.5, -11); c.bezierCurveTo(-15.5, -3, -10, 0, 0, 0); c.bezierCurveTo(10, 0, 15.5, -3, 16.5, -11); c.bezierCurveTo(17.5, -18, 12, -24, 6, -28); c.closePath(); };
+  // coins peeking out of the top
+  c.fillStyle = '#6e4119'; c.beginPath(); c.ellipse(0, -33, 8.5, 2.6, 0, 0, Math.PI * 2); c.fill();
+  coinF(c, -3.6, -35, 3.6, k, -.2); coinF(c, 3.8, -35.5, 3.6, k, .25); coinF(c, 0, -37.5, 3.8, k);
+  body();
+  let g = c.createRadialGradient(-6, -16, 2, 0, -12, 21); g.addColorStop(0, '#e2b06a'); g.addColorStop(.6, '#b07436'); g.addColorStop(1, '#6e4119');
+  c.fillStyle = g; c.fill(); c.strokeStyle = '#4a2a10'; c.lineWidth = 1.1; c.stroke();
+  // burlap texture
+  c.save(); body(); c.clip(); c.strokeStyle = 'rgba(70,35,10,.16)'; c.lineWidth = .6;
+  for(let y = -27; y < 0; y += 2.4){ c.beginPath(); c.moveTo(-18, y); c.lineTo(18, y + 1); c.stroke(); }
+  c.restore();
+  // ruffled neck
+  c.fillStyle = '#c18a48'; c.strokeStyle = '#4a2a10'; c.lineWidth = .9;
+  c.beginPath(); c.moveTo(-6, -28); c.lineTo(-10, -34); c.quadraticCurveTo(-7, -32, -5, -34.5); c.quadraticCurveTo(-2.5, -32, 0, -34.8); c.quadraticCurveTo(2.5, -32, 5, -34.5); c.quadraticCurveTo(7, -32, 10, -34); c.lineTo(6, -28); c.closePath(); c.fill(); c.stroke();
+  // rope
+  c.fillStyle = '#7a1f1f'; rr(c, -7.5, -29.6, 15, 3.2, 1.5); c.fill();
+  c.fillStyle = '#a83232'; c.beginPath(); c.arc(4.5, -28, 2, 0, Math.PI * 2); c.fill();
+  // coin patch with "100"
+  coinF(c, 0, -12.5, 7.4, k);
+  c.fillStyle = col.dark; c.font = '700 6.2px Fredoka, Nunito, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = 'rgba(255,255,255,.8)'; c.fillText('100', .3, -12.2); c.fillStyle = col.dark; c.fillText('100', 0, -12.5);
+  c.globalAlpha = .18; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(-9, -16, 3, 7, .3, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1;
+}
+function woodGrad(c, y0, y1, dark){ const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, dark ? '#6e3e1a' : '#a0652f'); g.addColorStop(1, dark ? '#3d200c' : '#62361a'); return g; }
+function drawChest(c, k, open, t, glowOn){
+  const col = COL[k];
+  shadow(c, 23, 4.2);
+  if(open){
+    c.fillStyle = woodGrad(c, -44, -22, true); c.beginPath(); c.moveTo(-20, -22); c.lineTo(-18, -38); c.quadraticCurveTo(0, -45, 18, -38); c.lineTo(20, -22); c.closePath(); c.fill();
+    c.strokeStyle = '#2b1606'; c.lineWidth = 1; c.stroke();
+    c.fillStyle = '#2a1508'; c.beginPath(); c.moveTo(-17, -23); c.lineTo(-15.5, -36); c.quadraticCurveTo(0, -41.5, 15.5, -36); c.lineTo(17, -23); c.closePath(); c.fill();
+    c.strokeStyle = metal(c, -44, -36); c.lineWidth = 2.2; c.beginPath(); c.moveTo(-18, -38); c.quadraticCurveTo(0, -45, 18, -38); c.stroke();
+    if(glowOn !== false){
+      const p = .5 + .5 * Math.sin(t * 2.2);
+      const g = c.createRadialGradient(0, -26, 1, 0, -26, 30); g.addColorStop(0, k === 'grow' ? `rgba(220,255,140,${.55 + .2 * p})` : `rgba(255,220,110,${.5 + .2 * p})`); g.addColorStop(1, 'rgba(255,200,60,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(0, -26, 30, 0, Math.PI * 2); c.fill();
+    }
+    const hg = c.createLinearGradient(0, -31, 0, -22); hg.addColorStop(0, col.hi); hg.addColorStop(1, col.lo);
+    c.fillStyle = hg; c.beginPath(); c.ellipse(0, -22.5, 18.5, 7.5, 0, Math.PI, 0); c.fill();
+    coinF(c, -9, -25.5, 3.6, k, -.3); coinF(c, -2, -28.2, 3.9, k, .1); coinF(c, 6, -26.5, 3.7, k, .35); coinF(c, 12, -24, 3.2, k, -.2); coinF(c, 2.5, -24.3, 3.4, k);
+  }
+  c.fillStyle = woodGrad(c, -22, 0); rr(c, -20, -22, 40, 22, 2.5); c.fill(); c.strokeStyle = '#3d220d'; c.lineWidth = 1.1; c.stroke();
+  c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = .7; for(const y of [-15, -8]){ c.beginPath(); c.moveTo(-19.5, y); c.lineTo(19.5, y); c.stroke(); }
+  c.fillStyle = metal(c, -22, 0); c.fillRect(-15.5, -22, 3.6, 22); c.fillRect(11.9, -22, 3.6, 22); c.fillRect(-20, -23.2, 40, 3.4);
+  if(!open){
+    c.fillStyle = woodGrad(c, -34, -22); c.beginPath(); c.moveTo(-20, -22); c.lineTo(-20, -27); c.quadraticCurveTo(0, -37, 20, -27); c.lineTo(20, -22); c.closePath(); c.fill(); c.strokeStyle = '#3d220d'; c.lineWidth = 1.1; c.stroke();
+    c.fillStyle = metal(c, -33, -22); c.fillRect(-15.5, -31, 3.6, 9); c.fillRect(11.9, -31, 3.6, 9);
+    // coins squeezed out of the seam show what's inside
+    coinF(c, -6.5, -23.5, 2.8, k, -.4); coinF(c, 5.5, -23.3, 2.6, k, .4);
+  }
+  c.fillStyle = metal(c, -20, -10); rr(c, -4.2, -20, 8.4, 9.5, 1.5); c.fill(); c.strokeStyle = '#7a4a00'; c.lineWidth = .6; c.stroke();
+  c.fillStyle = '#2b1606'; c.beginPath(); c.arc(0, -16.5, 1.3, 0, Math.PI * 2); c.fill(); c.fillRect(-.6, -16.5, 1.2, 3.4);
+}
+function moundPath(c, w, h){ c.beginPath(); c.moveTo(-w / 2, 0); c.bezierCurveTo(-w * .34, -h * .24, -w * .2, -h, 0, -h); c.bezierCurveTo(w * .2, -h, w * .34, -h * .24, w / 2, 0); c.closePath(); }
+// pf = fraction that is "your" coins (drawn at the bottom); growth coins sit on top
+function drawMound(c, w, h, pf, t){
+  c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, 0, w * .56, h * .1 + 2, 0, 0, Math.PI * 2); c.fill();
+  moundPath(c, w, h);
+  let g = c.createLinearGradient(0, -h, 0, 0); g.addColorStop(0, '#ffd760'); g.addColorStop(1, '#a35d00'); c.fillStyle = g; c.fill();
+  const gf = clamp(1 - pf, 0, 1), split = -h + h * Math.sqrt(gf);
+  c.save(); moundPath(c, w, h); c.clip();
+  if(gf > .002){ g = c.createLinearGradient(0, -h, 0, split); g.addColorStop(0, '#fbffd0'); g.addColorStop(1, '#a6d62c'); c.fillStyle = g; c.beginPath(); c.moveTo(-w, -h - 2); c.lineTo(w, -h - 2); c.lineTo(w, split);
+    for(let x = w; x >= -w; x -= w / 10) c.lineTo(x, split + Math.sin(x * .3 + t) * h * .02); c.closePath(); c.fill(); }
+  const rx = Math.max(w * .032, 1.2);
+  for(const p of MT){ const x = p.u * w * .45, prof = Math.pow(Math.max(0, 1 - p.u * p.u), .8) * h, y = -p.v * prof * .9 - rx * .2; coinFlat(c, x, y, rx * p.s, y < split ? 'grow' : 'mine'); }
+  c.globalAlpha = .22; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(-w * .14, -h * .62, w * .06, h * .25, .5, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1;
+  c.restore();
+}
+function drawGem(c, x, y, s, color){
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = color; c.beginPath(); c.moveTo(-4, -5); c.lineTo(4, -5); c.lineTo(6, -2.5); c.lineTo(0, 4); c.lineTo(-6, -2.5); c.closePath(); c.fill();
+  c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.moveTo(-4, -5); c.lineTo(0, -5); c.lineTo(-2, -2.5); c.lineTo(-6, -2.5); c.closePath(); c.fill();
+  c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.moveTo(0, 4); c.lineTo(6, -2.5); c.lineTo(2, -2.5); c.closePath(); c.fill();
+  c.restore();
+}
+function drawCrown(c, x, y, s){
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = metal(c, -12, 0); c.beginPath(); c.moveTo(-9, 0); c.lineTo(-10, -9); c.lineTo(-5, -4); c.lineTo(0, -12); c.lineTo(5, -4); c.lineTo(10, -9); c.lineTo(9, 0); c.closePath(); c.fill();
+  c.strokeStyle = '#8a5200'; c.lineWidth = .7; c.stroke();
+  drawGem(c, 0, -2.5, .38, GEMS[0]); drawGem(c, -6, -1.8, .28, GEMS[1]); drawGem(c, 6, -1.8, .28, GEMS[2]);
+  c.restore();
+}
+function drawDragon(c, t){
+  const br = 1 + .03 * Math.sin(t * 1.6);
+  c.lineCap = 'round'; c.lineJoin = 'round';
+  // tail curling round the front
+  c.strokeStyle = '#2b9a72'; c.lineWidth = 7; c.beginPath(); c.moveTo(16, -8); c.bezierCurveTo(38, -4, 34, 10, 10, 9); c.bezierCurveTo(-4, 8.5, -12, 6, -19, 4); c.stroke();
+  c.fillStyle = '#2b9a72'; c.beginPath(); c.moveTo(-18, 4); c.lineTo(-28, -2); c.lineTo(-25, 5); c.lineTo(-28, 11); c.closePath(); c.fill();
+  // wing (back)
+  c.fillStyle = '#1f7a58'; c.beginPath(); c.moveTo(-2, -20); c.lineTo(10, -42); c.lineTo(30, -36); c.quadraticCurveTo(26, -30, 28, -24); c.quadraticCurveTo(22, -24, 20, -19); c.quadraticCurveTo(14, -21, 10, -16); c.closePath(); c.fill();
+  c.strokeStyle = '#155a40'; c.lineWidth = 1; c.beginPath(); c.moveTo(10, -42); c.lineTo(10, -17); c.moveTo(10, -42); c.lineTo(20, -20); c.moveTo(10, -42); c.lineTo(27, -25); c.stroke();
+  // body
+  c.save(); c.translate(4, -12); c.scale(1, br);
+  let g = c.createRadialGradient(-6, -6, 2, 0, 0, 24); g.addColorStop(0, '#5fe0a8'); g.addColorStop(1, '#1f7f5c');
+  c.fillStyle = g; c.beginPath(); c.ellipse(0, 0, 22, 12.5, 0, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#c8f5d2'; c.beginPath(); c.ellipse(-3, 6, 15, 5, 0, 0, Math.PI * 2); c.fill();
+  c.restore();
+  // spikes
+  c.fillStyle = '#8f6bff';
+  for(let i = 0; i < 6; i++){ const a = Math.PI * 1.05 + i * .16 * Math.PI, x = 4 + Math.cos(a) * 21, y = -12 + Math.sin(a) * 12 * br; c.beginPath(); c.moveTo(x - 2.4, y + 1); c.lineTo(x + Math.cos(a) * 4.5, y + Math.sin(a) * 4.5); c.lineTo(x + 2.4, y + 1); c.closePath(); c.fill(); }
+  // neck + head resting on paws
+  c.fillStyle = '#34b383'; c.beginPath(); c.ellipse(-14, -10, 9, 7, -.3, 0, Math.PI * 2); c.fill();
+  g = c.createRadialGradient(-24, -12, 1, -22, -9, 12); g.addColorStop(0, '#6ff0b8'); g.addColorStop(1, '#249068');
+  c.fillStyle = g; c.beginPath(); c.ellipse(-22, -9, 10, 7.6, 0, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.ellipse(-30, -6.5, 6.5, 5, 0, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#ffe9a6'; c.beginPath(); c.moveTo(-20, -15); c.lineTo(-17, -22); c.lineTo(-16, -14); c.closePath(); c.fill(); c.beginPath(); c.moveTo(-25, -15.5); c.lineTo(-24, -21.5); c.lineTo(-21.5, -15); c.closePath(); c.fill();
+  c.strokeStyle = '#0f3d2b'; c.lineWidth = 1.1; c.beginPath(); c.arc(-24, -10.5, 2.2, .15 * Math.PI, .85 * Math.PI); c.stroke();
+  c.fillStyle = '#0f3d2b'; c.beginPath(); c.arc(-34, -7.5, .8, 0, Math.PI * 2); c.arc(-32, -8.3, .8, 0, Math.PI * 2); c.fill();
+  c.fillStyle = 'rgba(255,120,150,.45)'; c.beginPath(); c.arc(-20, -6.5, 2.2, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#2b9a72'; c.beginPath(); c.ellipse(-27, -1.5, 5, 2.6, 0, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = '#0f3d2b'; c.lineWidth = .6; c.beginPath(); c.moveTo(-29, -1); c.lineTo(-29, .8); c.moveTo(-26.5, -.8); c.lineTo(-26.5, 1); c.stroke();
+  // Zzz
+  c.fillStyle = 'rgba(255,255,255,.85)'; c.font = '700 6px Fredoka, Nunito, sans-serif'; c.textAlign = 'center';
+  for(let i = 0; i < 3; i++){ const p = ((t * .35 + i / 3) % 1); c.globalAlpha = Math.sin(p * Math.PI) * .9; c.font = `700 ${4 + p * 5}px Fredoka, Nunito, sans-serif`; c.fillText('z', -36 - p * 6, -14 - p * 18); }
+  c.globalAlpha = 1;
+}
+function capSplit(R, frac){ // height of a circular cap (from the top) holding `frac` of the disc area
+  let lo = 0, hi = 2 * R;
+  for(let i = 0; i < 24; i++){ const h = (lo + hi) / 2, a = R * R * Math.acos((R - h) / R) - (R - h) * Math.sqrt(Math.max(0, 2 * R * h - h * h)); if(a / (Math.PI * R * R) < frac) lo = h; else hi = h; }
+  return lo;
+}
+function sparkleStar(c, x, y, r, a){ c.globalAlpha = a; c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r); c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill(); c.globalAlpha = 1; }
+
+const DRAW = {
+  coin(c, it){ if(!it.lift) shadow(c, it.r * 1.05, it.r * .28); coinF(c, 0, -it.r * (1 + FRONT_TH), it.r, it.g ? 'grow' : 'mine', it.rot || 0); },
+  flat(c, it){ shadow(c, it.r * 1.15, it.r * .4); coinFlat(c, 0, -it.r * (FLAT_T + FLAT_RY), it.r, it.g ? 'grow' : 'mine'); },
+  stack(c, it){ drawStack(c, it); },
+  bag(c, it, t){ drawBag(c, it.g ? 'grow' : 'mine', t); },
+  chest(c, it, t){ drawChest(c, it.g ? 'grow' : 'mine', it.open, t, it.glow); },
+  mound(c, it, t){ drawMound(c, it.w, it.h, it.pf, t); },
+  cave(c, it, t){
+    const f = it.f, w = 92 + 56 * f, h = 30 + 24 * f;
+    c.save(); c.translate(-w * .42, 6); c.scale(.78, .78); drawChest(c, it.pf > .5 ? 'mine' : 'grow', true, t); c.restore();
+    drawMound(c, w, h, it.pf, t);
+    drawCrown(c, 1, -h + 2, .9 + .2 * f);
+    drawGem(c, -w * .18, -h * .35, .9, GEMS[1]); drawGem(c, w * .2, -h * .45, .8, GEMS[0]); drawGem(c, w * .3, -h * .15, .7, GEMS[3]); drawGem(c, -w * .3, -h * .12, .7, GEMS[2]);
+    c.save(); c.translate(w * .43, 9); c.scale(.72, .72); drawChest(c, 'grow', false, t); c.restore();
+    coinF(c, -w * .2, 12, 3.2, 'mine', .4); coinF(c, w * .15, 13, 3, 'grow', -.3); coinF(c, 0, 14, 2.8, 'mine', .1);
+  },
+  hoard(c, it, t){
+    const f = it.f, w = 118 + 44 * f, h = 42 + 20 * f;
+    drawMound(c, w, h, it.pf, t);
+    c.save(); c.translate(-w * .44, 8); c.scale(.7, .7); drawChest(c, 'mine', true, t); c.restore();
+    c.save(); c.translate(w * .45, 9); c.scale(.66, .66); drawChest(c, 'grow', true, t); c.restore();
+    drawGem(c, -w * .25, -h * .3, .9, GEMS[0]); drawGem(c, w * .28, -h * .28, .9, GEMS[1]); drawGem(c, w * .08, -h * .2, .7, GEMS[2]);
+    c.save(); c.translate(6, -h * .86); const ds = 1 + .15 * f; c.scale(ds, ds); drawDragon(c, t); c.restore();
+    coinF(c, -w * .1, 13, 3.4, 'mine', .3); coinF(c, w * .2, 12, 3, 'grow', -.3);
+  },
+  mountain(c, it, t){
+    const f = it.f, Wm = 150 + 30 * f, Hm = 92 + 30 * f, pf = it.pf;
+    const P = [[-.5,0],[-.36,-.4],[-.28,-.34],[-.13,-.8],[0,-1],[.1,-.74],[.2,-.82],[.34,-.45],[.5,0]];
+    const path = () => { c.beginPath(); P.forEach(([x, y], i) => i ? c.lineTo(x * Wm, y * Hm) : c.moveTo(x * Wm, y * Hm)); c.closePath(); };
+    c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(0, 0, Wm * .55, 5, 0, 0, Math.PI * 2); c.fill();
+    path(); let g = c.createLinearGradient(0, -Hm, 0, 0); g.addColorStop(0, '#ffe07a'); g.addColorStop(1, '#a35d00'); c.fillStyle = g; c.fill();
+    c.save(); path(); c.clip();
+    const gf = clamp(1 - pf, 0, 1), split = -Hm + Hm * Math.sqrt(gf);
+    if(gf > .002){ g = c.createLinearGradient(0, -Hm, 0, split); g.addColorStop(0, '#fbffd0'); g.addColorStop(1, '#a6d62c'); c.fillStyle = g; c.fillRect(-Wm, -Hm - 2, Wm * 2, split + Hm + 2); }
+    for(const p of MT){ const v = p.v * .92, x = p.u * Wm * .48 * (1 - v), y = -v * Hm; coinFlat(c, x, y, 2.6 * p.s, y < split ? 'grow' : 'mine'); }
+    c.fillStyle = 'rgba(90,30,0,.22)'; c.beginPath(); c.moveTo(0, -Hm); c.lineTo(.1 * Wm, -.74 * Hm); c.lineTo(.2 * Wm, -.82 * Hm); c.lineTo(.34 * Wm, -.45 * Hm); c.lineTo(.5 * Wm, 0); c.lineTo(.06 * Wm, 0); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.moveTo(0, -Hm); c.lineTo(-.13 * Wm, -.8 * Hm); c.lineTo(-.22 * Wm, 0); c.lineTo(-.04 * Wm, 0); c.closePath(); c.fill();
+    c.restore();
+    c.fillStyle = '#fff'; sparkleStar(c, 0, -Hm, 5 + 2 * Math.sin(t * 3), .9);
+    // little trees and a house for scale
+    for(const [x, s] of [[-.56,1],[-.5,.8],[.47,.9],[.55,1.1],[-.42,.7]]){ c.fillStyle = '#1d5a3a'; c.beginPath(); c.moveTo(x * Wm, -8 * s); c.lineTo(x * Wm - 3 * s, 1); c.lineTo(x * Wm + 3 * s, 1); c.closePath(); c.fill(); }
+    c.fillStyle = '#f2e6d0'; c.fillRect(Wm * .38, -4, 5, 4.5); c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(Wm * .38 - .8, -4); c.lineTo(Wm * .38 + 2.5, -7); c.lineTo(Wm * .38 + 5.8, -4); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.9)';
+    for(let i = 0; i < 3; i++){ const x = ((t * 4 + i * 70) % (Wm * 1.4)) - Wm * .7, y = -Hm * (.45 + i * .13); c.beginPath(); c.ellipse(x, y, 13, 4, 0, 0, Math.PI * 2); c.ellipse(x + 7, y - 3, 8, 4, 0, 0, Math.PI * 2); c.ellipse(x - 6, y - 2, 7, 3.5, 0, 0, Math.PI * 2); c.fill(); }
+  },
+  moon(c, it, t){
+    const R = 50 + 16 * it.f, pf = it.pf;
+    c.translate(0, -R - 22);
+    let g = c.createRadialGradient(0, 0, R * .8, 0, 0, R * 1.5); g.addColorStop(0, 'rgba(255,210,90,.35)'); g.addColorStop(1, 'rgba(255,210,90,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, R * 1.5, 0, Math.PI * 2); c.fill();
+    // orbiting coins behind
+    const orb = (front) => { for(let i = 0; i < 6; i++){ const a = t * .5 + i * Math.PI / 3, s = Math.sin(a); if((s > 0) !== front) continue; coinF(c, Math.cos(a) * R * 1.5, s * R * .32 - Math.cos(a) * R * .3, R * .075, i % 2 ? 'grow' : 'mine', 0, Math.cos(t * 3 + i)); } };
+    orb(false);
+    g = c.createRadialGradient(-R * .35, -R * .4, R * .1, 0, 0, R); g.addColorStop(0, '#fff2a8'); g.addColorStop(.55, '#f0aa22'); g.addColorStop(1, '#9a5600');
+    c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, Math.PI * 2); c.fill();
+    c.save(); c.beginPath(); c.arc(0, 0, R, 0, Math.PI * 2); c.clip();
+    const gf = clamp(1 - pf, 0, 1);
+    if(gf > .002){ const hc = capSplit(R, gf); g = c.createRadialGradient(-R * .35, -R * .45, R * .1, 0, 0, R); g.addColorStop(0, '#fbffd8'); g.addColorStop(.6, '#cdef55'); g.addColorStop(1, '#6f9a12'); c.fillStyle = g; c.fillRect(-R, -R, 2 * R, hc); }
+    for(const [u, v, r] of CRAT){ const x = u * R, y = v * R, cr = r * R; c.strokeStyle = 'rgba(110,60,0,.45)'; c.lineWidth = cr * .14; c.beginPath(); c.arc(x, y, cr, 0, Math.PI * 2); c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = cr * .08; c.beginPath(); c.arc(x - cr * .05, y - cr * .05, cr * .92, Math.PI, Math.PI * 1.6); c.stroke();
+      c.save(); c.translate(x, y); star(c, cr * .5, cr * .2); c.fillStyle = 'rgba(120,60,0,.25)'; c.fill(); c.restore(); }
+    g = c.createRadialGradient(-R * .6, -R * .5, R * .6, -R * .2, -R * .1, R * 1.9); g.addColorStop(0, 'rgba(20,0,40,0)'); g.addColorStop(1, 'rgba(20,0,40,.6)'); c.fillStyle = g; c.fillRect(-R, -R, 2 * R, 2 * R);
+    c.restore();
+    orb(true);
+    // tiny Earth for scale
+    const ex = -R * 1.25, ey = -R * .95, er = R * .11;
+    c.fillStyle = '#2f7ff0'; c.beginPath(); c.arc(ex, ey, er, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#4cd07a'; c.beginPath(); c.ellipse(ex - er * .3, ey - er * .2, er * .45, er * .3, .5, 0, Math.PI * 2); c.ellipse(ex + er * .4, ey + er * .35, er * .3, er * .22, 0, 0, Math.PI * 2); c.fill();
+  },
+  galaxy(c, it, t){
+    const R = 62 + 22 * it.f, pf = it.pf;
+    c.translate(0, -R * .62 - 18); c.scale(1, .62);
+    let g = c.createRadialGradient(0, 0, 0, 0, 0, R * 1.2); g.addColorStop(0, 'rgba(255,240,170,.9)'); g.addColorStop(.25, 'rgba(255,190,60,.35)'); g.addColorStop(1, 'rgba(120,60,200,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(0, 0, R * 1.2, 0, Math.PI * 2); c.fill();
+    const rot = t * .12;
+    GX.forEach((p, i) => { const a = p.a + rot, d = p.d * R, x = Math.cos(a) * d, y = Math.sin(a) * d; c.fillStyle = p.d < Math.sqrt(pf) ? '#ffc23a' : '#d8f56a'; c.globalAlpha = .55 + .45 * Math.abs(Math.sin(t * 1.5 + i)); c.beginPath(); c.arc(x, y, (2.6 - p.d * 1.6) * p.s, 0, Math.PI * 2); c.fill(); });
+    c.globalAlpha = 1;
+    c.scale(1, 1 / .62);
+    for(let i = 0; i < 8; i++){ const a = rot * 1.4 + i * .8, d = R * (.3 + (i % 4) * .18); coinF(c, Math.cos(a) * d, Math.sin(a) * d * .62, 3.2, i % 2 ? 'grow' : 'mine', 0, Math.cos(t * 2 + i)); }
+    c.fillStyle = '#fff'; sparkleStar(c, 0, 0, 9 + 3 * Math.sin(t * 2), .95);
+  },
+};
+
+// ================= layouts: what to draw for a given count =================
+function rowPositions(count, spacing, maxBack){ const out = [], back = Math.min(count, maxBack), front = count - back;
+  for(let i = 0; i < back; i++) out.push({ x:(i - (back - 1) / 2) * spacing, y:0 });
+  for(let i = 0; i < front; i++) out.push({ x:(i - (front - 1) / 2) * spacing, y:1 });
+  return out; }
+const COIN_SLOTS = [[-11,0],[11,0],[0,1],[-33,0],[33,0],[-22,1],[22,1],[-11,2],[11,2]];
+function layout(tier, total, put){
+  const items = []; let cum = 0;
+  const add = (it, v) => { it.g = (cum + v / 2) > put + 1e-9; cum += v; items.push(it); return it; };
+  const addStack = (it, n) => { it.n = n; it.pc = clamp(Math.round(put - cum), 0, n); cum += n; items.push(it); };
+  const T = Math.floor(total + 1e-7);
+  if(tier === 0){
+    for(let i = 0; i < Math.min(9, T); i++){ const [x, row] = COIN_SLOTS[i]; add({ t:'coin', x, y:0, lift:row * 18.5, r:10, rot:Math.sin(i * 1.7) * .25, hw:10, ht:22.5 }, 1); }
+  } else if(tier === 1){
+    const st = Math.min(9, Math.floor(T / 10)), lo = T % 10;
+    rowPositions(st, 21, 5).forEach(p => addStack({ t:'stack', x:p.x + (p.y ? 0 : 0), y:p.y * 9, hw:10, ht:10 * 9 * FLAT_T + 2 * 9 * FLAT_RY }, 10));
+    for(let i = 0; i < lo; i++) add({ t:'flat', x:(i - (lo - 1) / 2) * 12.5, y:22, r:5.6, hw:6.5, ht:6 }, 1);
+  } else if(tier === 2){
+    const b = Math.min(9, Math.floor(T / 100)), st = Math.floor((T % 100) / 10);
+    rowPositions(b, 34, 5).forEach(p => add({ t:'bag', x:p.x, y:p.y * 11, hw:17.5, ht:39 }, 100));
+    for(let i = 0; i < st; i++) addStack({ t:'stack', x:(i - (st - 1) / 2) * 17, y:26, s:.78, hw:8, ht:24 }, 10);
+  } else if(tier === 3){
+    const ch = Math.min(9, Math.floor(T / 1000)), bg = Math.floor((T % 1000) / 100);
+    rowPositions(ch, 44, 5).forEach((p, i) => add({ t:'chest', x:p.x, y:p.y * 13, open:true, glow:i < 6, hw:23, ht:45 }, 1000));
+    for(let i = 0; i < bg; i++) add({ t:'bag', x:(i - (bg - 1) / 2) * 21, y:30, s:.6, hw:11, ht:24 }, 100);
+  } else if(tier === 4){
+    const n = total / 1e4, k = clamp(Math.round(2 + n * 1.35), 3, 15);
+    let b = 1; while(b * (b + 1) / 2 < k) b++;
+    const pf = total > 0 ? put / total : 1;
+    items.push({ t:'mound', x:0, y:4, w:b * 36 + 34, h:15, pf, hw:(b * 36 + 34) / 2, ht:15 });
+    let left = k, row = 0, j = 0;
+    while(left > 0){ const len = Math.min(left, b - row); for(let i = 0; i < len; i++){ const last = left - len === 0 && i === len - 1 && len === 1;
+      items.push({ t:'chest', x:(i - (len - 1) / 2) * 36, y:0, lift:row * 29, open:last, g:(j + .5) / k > pf, hw:20, ht:32 }); j++; }
+      left -= len; row++; }
+    const lastC = items[items.length - 1]; if(!lastC.open && row > 0){ lastC.open = true; }
+  } else {
+    const kind = ['cave', 'hoard', 'mountain', 'moon', 'galaxy'][tier - 5];
+    const span = tier === 5 ? 1 : tier === 9 ? 20 : 3;
+    const f = clamp(Math.log10(Math.max(1, total / TIERS[tier].min)) / span, 0, 1);
+    const E = { cave:[175, 66, 16], hoard:[190, 104, 16], mountain:[200, 128, 8], moon:[180, 165, 2], galaxy:[200, 150, 2] }[kind];
+    items.push({ t:kind, x:0, y:0, f, pf: total > 0 ? put / total : 1, hw:E[0] / 2, ht:E[1] + 2 });
+    return { items, w:E[0], top:E[1] * (kind === 'cave' ? 1 + .7 * f : kind === 'hoard' ? 1 + .25 * f : 1), bot:E[2], h:0, fixed:true };
+  }
+  let mw = 0, top = 0, bot = 0;
+  for(const it of items){ const s = it.s || 1; mw = Math.max(mw, Math.abs(it.x) + it.hw * s); top = Math.max(top, it.ht * s + (it.lift || 0) - it.y); bot = Math.max(bot, it.y + 3); }
+  return { items, w:Math.max(2 * mw + 10, tier === 0 ? 92 : 110), top:Math.max(top + 6, tier === 0 ? 52 : 60), bot:Math.max(bot, 5) };
+}
+function drawLayout(c, L, cx, base, sc, t){
+  for(const it of L.items){
+    c.save(); c.translate(cx + it.x * sc, base + (it.y - (it.lift || 0)) * sc); const s = sc * (it.s || 1); c.scale(s, s);
+    DRAW[it.t](c, it, t);
+    c.restore();
+  }
+}
+
+// ================= backgrounds =================
+function sceneRoom(c, w, h, fy, gx, gw){
+  let g = c.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, '#120e3a'); g.addColorStop(1, '#2b1f62'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  c.strokeStyle = 'rgba(255,255,255,.05)'; c.lineWidth = 1;
+  for(let y = fy - 30, r = 0; y > 0; y -= 30, r++){ c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); for(let x = (r % 2) * 32; x < w; x += 64){ c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 30); c.stroke(); } }
+  g = c.createLinearGradient(0, fy, 0, h); g.addColorStop(0, '#5a3a1e'); g.addColorStop(1, '#1e1208'); c.fillStyle = g; c.fillRect(0, fy, w, h - fy);
+  c.strokeStyle = 'rgba(0,0,0,.25)'; for(let i = 1; i < 7; i++){ const y = fy + (h - fy) * Math.pow(i / 7, 1.6); c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+  c.fillStyle = 'rgba(255,220,150,.12)'; c.fillRect(0, fy, w, 2);
+  g = c.createRadialGradient(gx, fy, 4, gx, fy, Math.max(120, gw * .8)); g.addColorStop(0, 'rgba(255,200,80,.32)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+}
+function sceneCave(c, w, h, fy, gx, gw, now){
+  let g = c.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, '#0d0816'); g.addColorStop(1, '#2a1a30'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  g = c.createRadialGradient(gx, fy - 20, 10, gx, fy - 20, Math.max(180, gw)); g.addColorStop(0, `rgba(255,190,70,${.36 + .04 * Math.sin(now / 400)})`); g.addColorStop(1, 'rgba(255,190,70,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#07040c';
+  c.beginPath(); c.moveTo(0, 0); for(const s of STAL){ c.lineTo((s.x - s.w) * w, 0); c.lineTo(s.x * w, s.h * h); c.lineTo((s.x + s.w) * w, 0); } c.lineTo(w, 0); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(w * .1, fy * .5, 0, fy); c.lineTo(0, 0); c.fill();
+  c.beginPath(); c.moveTo(w, 0); c.quadraticCurveTo(w * .9, fy * .55, w, fy); c.lineTo(w, 0); c.fill();
+  g = c.createLinearGradient(0, fy, 0, h); g.addColorStop(0, '#3a2a30'); g.addColorStop(1, '#120a10'); c.fillStyle = g; c.fillRect(0, fy, w, h - fy);
+  for(let i = 0; i < 5; i++){ const x = w * (.1 + i * .2); drawGem(c, x, fy + 10 + (i % 2) * 14, 1.1, GEMS[i % 4]); }
+}
+function sceneSky(c, w, h, fy, now){
+  let g = c.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, '#172463'); g.addColorStop(.6, '#6a4a9a'); g.addColorStop(1, '#f09a6a'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  for(const s of STARS){ if(s.y > .4) continue; c.fillStyle = `rgba(255,255,255,${.3 + .4 * Math.abs(Math.sin(now / 900 + s.t))})`; c.fillRect(s.x * w, s.y * fy, s.r, s.r); }
+  c.fillStyle = '#3a2f6a'; c.beginPath(); c.moveTo(0, fy); for(let i = 0; i <= 8; i++) c.lineTo(i / 8 * w, fy - 18 - 14 * Math.abs(Math.sin(i * 1.9))); c.lineTo(w, fy); c.closePath(); c.fill();
+  g = c.createLinearGradient(0, fy, 0, h); g.addColorStop(0, '#2c4a3a'); g.addColorStop(1, '#0f1d17'); c.fillStyle = g; c.fillRect(0, fy, w, h - fy);
+}
+function sceneSpace(c, w, h, now){
+  let g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#02031a'); g.addColorStop(1, '#0d0a34'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  g = c.createRadialGradient(w * .75, h * .3, 5, w * .75, h * .3, w * .7); g.addColorStop(0, 'rgba(140,70,220,.22)'); g.addColorStop(1, 'rgba(140,70,220,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+  for(const s of STARS){ c.fillStyle = `rgba(255,255,255,${.35 + .65 * Math.abs(Math.sin(now / 900 + s.t))})`; c.beginPath(); c.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2); c.fill(); }
+}
+function paintBg(c, w, h, bt, fy, gx, gw, now){
+  const scene = k => { if(k === 0) sceneRoom(c, w, h, fy, gx, gw); else if(k === 1) sceneCave(c, w, h, fy, gx, gw, now); else if(k === 2) sceneSky(c, w, h, fy, now); else sceneSpace(c, w, h, now); };
+  // anchors: room up to tier 4, cave 5-6, sky 7, space 8+
+  let a, b, t;
+  if(bt <= 4){ a = b = 0; t = 0; } else if(bt < 5){ a = 0; b = 1; t = bt - 4; } else if(bt <= 6){ a = b = 1; t = 0; }
+  else if(bt < 7){ a = 1; b = 2; t = bt - 6; } else if(bt <= 7.2){ a = b = 2; t = 0; } else if(bt < 8){ a = 2; b = 3; t = (bt - 7.2) / .8; } else { a = b = 3; t = 0; }
+  scene(a);
+  if(t > .01 && a !== b){ c.globalAlpha = t; scene(b); c.globalAlpha = 1; }
+}
+
+// ================= viewer: draws one treasure scene with a smooth camera =================
+const ease = x => 1 - Math.pow(1 - x, 3);
+const backOut = x => { const s = 1.7; x -= 1; return x * x * ((s + 1) * x + s) + 1; };
+class Viewer {
+  constructor(main){ this.main = main; this.reset(); }
+  reset(){ this.tier = -1; this.prev = null; this.trans = 1; this.scale = 0; this.bg = null; this.shake = 0; this.sparks = []; this.last = null; this.content = { cx:0, base:0, top:0, w:0 }; }
+  draw(c, w, h, box, total, put, now, dt){
+    const tier = tierFor(total);
+    if(tier !== this.tier){
+      if(this.tier >= 0 && this.last){ this.prev = { L:this.last, scale:this.scale, tier:this.tier }; this.trans = 0; this.scale = 0; if(this.main && this.onTier) this.onTier(tier, this.tier); if(!reduced && tier > this.tier) this.shake = 1; }
+      this.tier = tier;
+    }
+    if(this.bg === null) this.bg = tier;
+    const L = layout(tier, total, put); this.last = L;
+    const bw = box.x1 - box.x0, bh = Math.max(40, box.gy - box.top);
+    const fit = Math.min(bw * .94 / L.w, bh * .94 / (L.top + L.bot));
+    if(!this.scale) this.scale = fit;
+    this.scale += (fit - this.scale) * Math.min(1, dt * 5);
+    this.bg += (tier - this.bg) * Math.min(1, dt * 2.2);
+    const cx = (box.x0 + box.x1) / 2, base = box.gy - L.bot * this.scale;
+    paintBg(c, w, h, this.bg, base, cx, L.w * this.scale, now);
+    c.save();
+    if(this.shake > .01){ c.translate((Math.random() - .5) * 6 * this.shake, (Math.random() - .5) * 4 * this.shake); this.shake *= Math.pow(.02, dt); }
+    const t = now / 1000;
+    if(this.prev && this.trans < 1){
+      this.trans = Math.min(1, this.trans + dt / .75); const e = ease(this.trans);
+      const ps = this.prev.scale * (1 - .55 * e), pb = box.gy - this.prev.L.bot * ps;
+      c.globalAlpha = 1 - e; drawLayout(c, this.prev.L, cx, pb, ps, t);
+      c.globalAlpha = Math.min(1, this.trans * 1.6); drawLayout(c, L, cx, base, this.scale * (.75 + .25 * backOut(this.trans)), t);
+      c.globalAlpha = 1;
+    } else drawLayout(c, L, cx, base, this.scale, t);
+    c.restore();
+    this.content = { cx, base, top:base - L.top * this.scale, w:L.w * this.scale, sc:this.scale };
+    // twinkles over the treasure
+    const max = reduced ? 3 : (this.main ? 9 : 4);
+    if(total >= 1 && this.sparks.length < max && Math.random() < dt * 6) this.sparks.push({ u:Math.random() - .5, v:Math.random(), life:0, dur:.6 + Math.random() * .7, r:3 + Math.random() * 5 });
+    c.fillStyle = '#fff';
+    for(let i = this.sparks.length - 1; i >= 0; i--){ const s = this.sparks[i]; s.life += dt; if(s.life > s.dur){ this.sparks.splice(i, 1); continue; }
+      const a = Math.sin(s.life / s.dur * Math.PI); sparkleStar(c, cx + s.u * this.content.w * .8, base - s.v * (base - this.content.top) * .9, s.r * a, a * .9); }
+    return L;
+  }
+}
+const mainV = new Viewer(true);
+
+// ================= particles (main view only) =================
+const parts = [];
+function partCap(){ return reduced ? 10 : 36; }
+function dropCoin(k){ if(parts.length >= partCap()) return; const C = mainV.content; const tx = C.cx + (Math.random() - .5) * C.w * .5;
+  parts.push({ type:'drop', k, x:tx + (Math.random() - .5) * 30, y:Math.max(topH, C.top - 120) - Math.random() * 30, tx, ty:C.top + (C.base - C.top) * (.25 + Math.random() * .3), vy:0, r:clamp(C.sc * 6, 7, 14), spin:Math.random() * 6, life:1 }); }
+function popCoin(){ if(parts.length >= partCap()) return; const C = mainV.content;
+  parts.push({ type:'pop', k:'grow', x:C.cx + (Math.random() - .5) * C.w * .5, y:C.top + (C.base - C.top) * .3, vx:(Math.random() - .5) * 90, vy:-160 - Math.random() * 120, r:clamp(C.sc * 5, 6, 12), spin:Math.random() * 6, life:1 }); }
+function burst(n){ n = reduced ? Math.min(4, n) : n; for(let i = 0; i < n; i++){ if(parts.length >= partCap() + 12) break; const C = mainV.content, a = Math.random() * Math.PI * 2, v = 80 + Math.random() * 220;
+  parts.push({ type:'spark', x:C.cx, y:(C.top + C.base) / 2, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 120, r:2 + Math.random() * 4, life:1, hue:40 + Math.random() * 50 }); } }
+function drawParts(c, dt, now){
+  for(let i = parts.length - 1; i >= 0; i--){ const p = parts[i];
+    if(p.type === 'drop'){ p.vy += 1400 * dt; p.y += p.vy * dt; p.x += (p.tx - p.x) * Math.min(1, dt * 6); p.spin += dt * 9;
+      if(p.y >= p.ty){ parts.splice(i, 1); mainV.sparks.length < 12 && mainV.sparks.push({ u:(p.x - mainV.content.cx) / Math.max(1, mainV.content.w * .8), v:(mainV.content.base - p.y) / Math.max(1, mainV.content.base - mainV.content.top) / .9, life:0, dur:.4, r:6 }); continue; }
+      coinF(c, p.x, p.y, p.r, p.k, 0, Math.cos(p.spin)); }
+    else if(p.type === 'pop'){ p.vy += 700 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt * 1.1; p.spin += dt * 10; if(p.life <= 0){ parts.splice(i, 1); continue; }
+      c.globalAlpha = Math.min(1, p.life * 2); coinF(c, p.x, p.y, p.r, 'grow', 0, Math.cos(p.spin)); c.globalAlpha = 1; }
+    else { p.vy += 400 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt * 1.2; if(p.life <= 0){ parts.splice(i, 1); continue; }
+      c.fillStyle = `hsla(${p.hue},100%,70%,1)`; sparkleStar(c, p.x, p.y, p.r * 1.6, p.life); }
+  }
+}
+
+// ================= banners =================
+const bq = []; let bBusy = false;
+function queueBanner(text, kind){ for(let i = bq.length - 1; i >= 0; i--) if(bq[i].kind === 'tier' && kind === 'tier') bq.splice(i, 1); bq.push({ text, kind }); if(!bBusy) nextBanner(); }
+function nextBanner(){ const b = $('banner'), n = bq.shift(); if(!n){ bBusy = false; return; } bBusy = true;
+  b.textContent = n.text; b.classList.toggle('lesson', n.kind === 'lesson'); b.classList.add('show');
+  setTimeout(() => { b.classList.remove('show'); setTimeout(nextBanner, 280); }, n.kind === 'lesson' ? 2300 : 1300); }
+
+// ================= readout =================
+let lastCountStr = '';
+function fitCount(force){ const s = $('count').textContent; if(!force && s.length === lastCountStr.length) return; lastCountStr = s;
+  const fs = clamp((W - 26) / (s.length * .6 + 6.3), 22, 54); $('countRow').style.fontSize = fs.toFixed(1) + 'px'; }
+const R = { count:'', put:'', grew:'', x:'', when:'', title:'' };
+function setText(id, key, v){ if(R[key] !== v){ R[key] = v; $(id).textContent = v; } }
+function readout(total, put, day, D, final){
+  setText('count', 'count', fmtCoins(total)); fitCount();
+  setText('putOut', 'put', fmtCoins(put));
+  setText('grewOut', 'grew', fmtCoins(Math.max(0, total - put)));
+  setText('xline', 'x', put > 0 && total > 0 ? `×${fmtX(total / put)} what you put in` : (total <= 0 ? 'Put in some coins to start!' : ''));
+  const tr = TIERS[tierFor(total)];
+  setText('when', 'when', (final ? `After ${niceDur(D)}` : day == null ? 'Ready to grow' : timeTxt(day, D)) + ` · ${tr.e} ${total < 1 ? 'no coins yet' : tr.name}`);
+}
+function whose(){ return S.name ? `${S.name}'s` : 'your'; }
+function titleText(){ return S.name ? `${S.name}'s treasure 💰` : 'Treasure Coins 💰'; }
+
+// ================= UI wiring =================
+const F = { start:$('startNum'), rate:$('rateNum'), years:$('yearsNum'), weekly:$('weeklyNum'), name:$('nameIn') };
+function yearsVal(d){ return d % 365 === 0 ? String(d / 365) : String(Math.round(d / 365 * 100) / 100); }
+function syncUI(rewrite){
+  if(rewrite){ F.start.value = S.start; F.rate.value = S.rate; F.years.value = yearsVal(S.days); F.weekly.value = S.weekly; if(F.name.value !== S.name) F.name.value = S.name; }
+  document.querySelectorAll('.chips').forEach(ch => { const f = ch.dataset.for; ch.querySelectorAll('button').forEach(b => { let on;
+    if(f === 'preset') on = +b.dataset.r === S.rate && b.dataset.p === S.period;
+    else if(f === 'period') on = b.dataset.v === S.period;
+    else if(f === 'sound') on = (b.dataset.v === '1') === S.sound;
+    else on = +b.dataset.v === S[f];
+    b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }); });
+  $('rateOut').textContent = rateTxt(S) + (S.rate === 1 && S.period === 'day' ? ' ✨' : '');
+  $('daysOut').textContent = S.days % 365 === 0 ? (S.days === 365 ? 'year' : 'years') : `years (${niceDur(S.days)})`;
+  $('sound').textContent = S.sound ? '🔊' : '🔇';
+  setText('title', 'title', titleText());
+  if(!run) readout(S.start, S.start, null, S.days, false);
+  save();
+}
+function bindNum(el, apply){
+  el.addEventListener('input', () => { const v = parseFloat(el.value); if(Number.isFinite(v)){ apply(v); S = sanitize(S); syncUI(false); } });
+  el.addEventListener('change', () => syncUI(true));
+}
+bindNum(F.start, v => S.start = v);
+bindNum(F.rate, v => S.rate = v);
+bindNum(F.years, v => S.days = Math.max(1, Math.round(v * 365)));
+bindNum(F.weekly, v => S.weekly = v);
+F.name.addEventListener('input', () => { S.name = F.name.value; S = sanitize(S); syncUI(false); });
+document.querySelectorAll('.chips').forEach(ch => ch.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return; const f = ch.dataset.for;
+  if(f === 'preset'){ S.rate = +b.dataset.r; S.period = b.dataset.p; }
+  else if(f === 'period') S.period = b.dataset.v;
+  else if(f === 'sound') S.sound = b.dataset.v === '1';
+  else S[f] = +b.dataset.v;
+  S = sanitize(S); syncUI(true); beep(700, .05, 'sine', .05);
+}));
+$('moreBtn').onclick = () => { const box = $('moreBox'), open = box.classList.toggle('open'); $('moreBtn').textContent = open ? 'Less ▴' : 'More ▾'; $('moreBtn').setAttribute('aria-expanded', open); };
+$('sound').onclick = () => { S.sound = !S.sound; syncUI(false); };
+$('infoBtn').onclick = () => $('info').classList.add('show');
+$('infoClose').onclick = () => $('info').classList.remove('show');
+
+// ================= grow (main view) =================
+let run = null, panelShown = true, resultShown = false;
+function setPanels(p, r){ panelShown = p; resultShown = r; $('panel').classList.toggle('hide', !p); $('result').classList.toggle('show', r); }
+mainV.onTier = (k) => { if(run && !run.done && k > run.maxTier){ run.maxTier = k; queueBanner(TIERS[k].banner, 'tier'); chord(440 + k * 40); burst(24); } };
+function play(){
+  const o = plan(S), sim = simulate(o);
+  const dur = clamp(3200 + (o.days / 365) * 170, 3000, 11000) * S.speed;
+  run = { o, sim, t0:performance.now(), dur, day:0, done:false, maxTier:tierFor(o.start), lesson:false, lastPop:0, lastDrop:0 };
+  setPanels(false, false); mainV.reset(); parts.length = 0; bq.length = 0;
+  beep(520, .1, 'triangle', .06);
+}
+function step(now){
+  const r = run, D = r.o.days;
+  const p = Math.min(1, (now - r.t0) / r.dur), day = Math.round(p * D);
+  if(day > r.day){
+    const weeks = Math.floor(day / 7) - Math.floor(r.day / 7);
+    if(weeks > 0 && r.o.weekly > 0 && now - r.lastDrop > (reduced ? 260 : 120)){ r.lastDrop = now; dropCoin('mine'); if(weeks > 3 && !reduced) dropCoin('mine'); ding(now); }
+    const gNow = r.sim.bal[day] - r.sim.put[day], gWas = r.sim.bal[r.day] - r.sim.put[r.day];
+    if(r.o.rate > 0 && gNow > gWas && now - r.lastPop > (reduced ? 500 : Math.max(90, 420 - 330 * clamp(gNow / Math.max(1, r.sim.put[day]), 0, 1)))){ r.lastPop = now; popCoin(); }
+    r.day = day;
+  }
+  const total = r.sim.bal[day], put = r.sim.put[day];
+  if(!r.lesson && put > 0 && total - put > put){ r.lesson = true; queueBanner('Now your treasure earns more than you put in! 🌱', 'lesson'); chord(660); burst(30); }
+  if(p >= 1 && !r.done){ r.done = true; setTimeout(() => { if(run === r) showResult(); }, 750); }
+  return { total, put, day, final:r.done };
+}
+function showResult(){
+  const r = run, D = r.o.days, total = r.sim.bal[D], put = r.sim.put[D], grew = Math.max(0, total - put);
+  const t = fmtCoins(total), pi = fmtCoins(put), gr = fmtCoins(grew), dur = niceDur(D);
+  let big;
+  const what = S.start > 0 && S.weekly > 0 ? `${whose()} ${fmtCoins(S.start)} coins plus ${fmtWeekly(S.weekly)} a week` : S.start > 0 ? `${whose()} ${fmtCoins(S.start)} coins` : `${fmtWeekly(S.weekly)} coins a week`;
+  if(total <= 0) big = `With no coins, nothing can grow. Put in at least <b>1 coin</b> and try again!`;
+  else if(r.o.rate === 0) big = `In ${dur}, ${what} became <b>${t} coins</b>. You put in <b>${pi}</b>, and a piggy bank grew it by <b>0</b>.`;
+  else big = `In ${dur}, ${what} grew to <b>${t} coins</b>! You put in <b>${pi}</b> and the treasure grew <b>${gr}</b> all by itself.`;
+  $('resBig').innerHTML = big;
+  // comparison list
+  const rows = [];
+  const presetRates = [[0, '🐷 Piggy bank, 0%'], [4, '🏦 Savings, 4% a year'], [7, '📈 Investing, 7% a year'], [10, '🚀 Super, 10% a year']];
+  const isPreset = S.period === 'year' && presetRates.some(([x]) => x === S.rate) || (S.rate === 0);
+  if(!isPreset) rows.push({ l:`⭐ Your plan, ${rateTxt(S)}`, v:total, me:true });
+  for(const [x, l] of presetRates){ const s = simulate(plan(S, { rate:x / 100, pd:365 })); rows.push({ l, v:s.bal[D], me:isPreset && (x === S.rate) && (S.period === 'year' || S.rate === 0) }); }
+  const late = simulate(plan(S, { delay:3650 }));
+  rows.push({ l:'⏰ If you started 10 years later', v:late.bal[D], late:D <= 3650 });
+  $('resCmp').innerHTML = rows.map(o => `<div class="${o.me ? 'me' : ''}"><span>${o.l}</span><b>${o.late ? 'not started yet' : fmtCoins(o.v) + ' coins'}</b></div>`).join('');
+  let lesson;
+  if(total <= 0) lesson = 'Coins can only grow if you have some!';
+  else if(r.o.rate === 0) lesson = 'A piggy bank keeps coins safe, but they never grow. Coins that earn interest make more coins!';
+  else if(grew > put) lesson = 'Your coins made more coins than you put in. Start early, keep adding, and let it grow! 🌱';
+  else { const yrs = Math.LN2 / Math.log(1 + r.o.rate) * r.o.pd / 365; lesson = `Growth starts slow, then speeds up. At this speed money doubles about every ${yrs >= 1 ? Math.round(yrs) + ' years' : Math.max(1, Math.round(yrs * 365)) + ' days'}. Keep going!`; }
+  $('resLesson').textContent = lesson;
+  setPanels(false, true); $('result').scrollTop = 0;
+  requestAnimationFrame(() => { measure(); prepChart(r.sim); });
+  chord(); burst(40);
+}
+$('go').onclick = play; $('again').onclick = play;
+$('change').onclick = () => { run = null; setPanels(true, false); syncUI(true); };
+
+// ================= result chart (stacked area: put in vs growth) =================
+const chartCv = $('chart'); let chartC = chartCv.getContext('2d'), CH = null;
+function prepChart(sim){
+  const w = chartCv.clientWidth || 300, h = chartCv.clientHeight || 160;
+  chartCv.width = Math.round(w * DPR); chartCv.height = Math.round(h * DPR); chartC.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const D = sim.days, N = Math.min(D, 180), xs = [], bal = [], put = [];
+  for(let i = 0; i <= N; i++){ const d = Math.round(i / N * D); xs.push(d); bal.push(sim.bal[d]); put.push(sim.put[d]); }
+  CH = { w, h, D, xs, bal, put }; drawChart(null);
+}
+function niceMax(x){ if(x <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(x))); for(const m of [1, 1.2, 1.6, 2, 2.4, 3.2, 4, 6, 8, 10]) if(m * e >= x * (1 - 1e-12)) return m * e; return 10 * e; }
+function drawChart(hx){
+  if(!CH) return; const c = chartC, { w, h, D, xs, bal, put } = CH;
+  c.clearRect(0, 0, w, h);
+  const mx = Math.max(4, niceMax(Math.max(...bal)));
+  c.font = '700 11px Nunito, system-ui, sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'right';
+  let lw = 0; for(let i = 0; i <= 4; i++) lw = Math.max(lw, c.measureText(fmtAxis(mx * i / 4)).width);
+  const padL = Math.ceil(lw) + 12, padR = 10, padT = 10, padB = 22, pw = w - padL - padR, ph = h - padT - padB;
+  const X = d => padL + d / Math.max(1, D) * pw, Y = v => padT + ph - v / mx * ph;
+  for(let i = 0; i <= 4; i++){ const v = mx * i / 4, y = Y(v); c.strokeStyle = i ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(padL, y); c.lineTo(w - padR, y); c.stroke(); c.fillStyle = 'rgba(255,255,255,.7)'; c.fillText(fmtAxis(v), padL - 6, y); }
+  // x ticks in years (months for short plans)
+  c.textAlign = 'center'; c.textBaseline = 'top';
+  const yrs = D / 365; let ticks = [], lab;
+  if(yrs >= 1.5){ const st = [1, 2, 5, 10, 20, 25, 50].find(s => yrs / s <= 5) || 50; for(let y = 0; y <= yrs + 1e-9; y += st) ticks.push(y * 365); lab = d => Math.round(d / 365) + (d === 0 ? '' : ' yr'); }
+  else if(D > 45){ const mo = D / 30.42, st = mo > 8 ? 3 : mo > 4 ? 2 : 1; for(let m = 0; m <= mo + 1e-9; m += st) ticks.push(m * 30.42); lab = d => Math.round(d / 30.42) + (d === 0 ? '' : ' mo'); }
+  else { for(let wk = 0; wk * 7 <= D; wk++) ticks.push(wk * 7); lab = d => Math.round(d / 7) + (d === 0 ? '' : ' wk'); }
+  c.fillStyle = 'rgba(255,255,255,.7)'; for(const d of ticks) c.fillText(lab(d), clamp(X(d), padL + 8, w - padR - 14), h - padB + 6);
+  // put-in area
+  c.beginPath(); c.moveTo(X(0), Y(0)); xs.forEach((d, i) => c.lineTo(X(d), Y(put[i]))); c.lineTo(X(D), Y(0)); c.closePath(); c.fillStyle = '#e8960f'; c.fill();
+  // growth area on top
+  c.beginPath(); xs.forEach((d, i) => i ? c.lineTo(X(d), Y(bal[i])) : c.moveTo(X(d), Y(bal[i]))); for(let i = xs.length - 1; i >= 0; i--) c.lineTo(X(xs[i]), Y(put[i])); c.closePath(); c.fillStyle = '#c9ef5a'; c.fill();
+  // 2px surface gap between the two fills
+  c.beginPath(); xs.forEach((d, i) => i ? c.lineTo(X(d), Y(put[i])) : c.moveTo(X(d), Y(put[i]))); c.strokeStyle = '#151240'; c.lineWidth = 2; c.stroke();
+  // direct labels (ink colour, not series colour)
+  // label each band only where it is thick enough across the whole label width
+  const n = xs.length - 1;
+  c.font = '800 12px Nunito, system-ui, sans-serif'; c.textAlign = 'right'; c.textBaseline = 'middle';
+  const lx = w - padR - 6, at = px => { let i = 0; while(i < n && X(xs[i + 1]) <= px) i++; return i; };
+  const place = (text, lo, hi, color) => { const tw = c.measureText(text).width, i0 = at(lx - tw), i1 = n;
+    const top = Math.max(Y(hi[i0]), Y(hi[i1])), bot = Math.min(Y(lo ? lo[i0] : 0), Y(lo ? lo[i1] : 0));
+    if(bot - top > 17){ c.fillStyle = color; c.fillText(text, lx, (top + bot) / 2); } };
+  place('You put in', null, put, '#2a1600');
+  place('Grew', put, bal, '#1d2a00');
+  // hover crosshair + tooltip
+  if(hx != null){
+    const d = clamp(Math.round((hx - padL) / pw * D), 0, D); let i = 0; while(i < n && xs[i + 1] <= d) i++;
+    const x = X(xs[i]); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x, padT); c.lineTo(x, Y(0)); c.stroke();
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(x, Y(bal[i]), 4, 0, Math.PI * 2); c.fill();
+    const lines = [timeTxt(xs[i], D), `Total: ${fmtCoins(bal[i])}`, `Put in: ${fmtCoins(put[i])}`, `Grew: ${fmtCoins(Math.max(0, bal[i] - put[i]))}`];
+    c.font = '800 12px Nunito, system-ui, sans-serif'; const bw = Math.max(...lines.map(l => c.measureText(l).width)) + 16, bh = lines.length * 15 + 8;
+    const bx = x + 10 + bw > w ? x - 10 - bw : x + 10; c.fillStyle = 'rgba(8,10,40,.94)'; rr(c, bx, padT, bw, bh, 8); c.fill(); c.strokeStyle = 'rgba(255,255,255,.3)'; c.stroke();
+    c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; lines.forEach((l, k) => c.fillText(l, bx + 8, padT + 5 + k * 15));
+  }
+}
+chartCv.addEventListener('pointermove', e => { const r = chartCv.getBoundingClientRect(); drawChart(e.clientX - r.left); });
+chartCv.addEventListener('pointerdown', e => { const r = chartCv.getBoundingClientRect(); drawChart(e.clientX - r.left); });
+chartCv.addEventListener('pointerleave', () => drawChart(null));
+
+// ================= race =================
+const MODES = {
+  early: { title:'Start early vs start late', lanes:['emma', 'leo'], long:true },
+  save:  { title:'Save all vs spend half', lanes:['sam', 'hal'] },
+  piggy: { title:'Piggy bank vs growing', lanes:['pip', 'grace'] },
+  all:   { title:'All 3 races at once', lanes:['emma', 'leo', 'hal', 'pip'], long:true },
+};
+const raceHorizon = (mode, s) => MODES[mode].long ? Math.max(s.days, 7300) : s.days;
+function racer(k, s, H){
+  const base = plan(s, { days:H }), w = fmtWeekly(s.weekly), hw = fmtWeekly(s.weekly / 2);
+  switch(k){
+    case 'emma':  return { icon:'👧', name:'Early Emma', sub:'starts now', o:base };
+    case 'leo':   return { icon:'👦', name:'Late Leo', sub:'waits 10 years', o:Object.assign({}, base, { delay:Math.min(3650, H) }) };
+    case 'sam':   return { icon:'🧒', name:'Saving Sam', sub:`saves ${w} a week`, o:base };
+    case 'hal':   return { icon:'🍭', name:'Half Hal', sub:`spends half, saves ${hw}`, o:Object.assign({}, base, { weekly:s.weekly / 2 }) };
+    case 'pip':   return { icon:'🐷', name:'Piggy Pip', sub:'piggy bank, 0%', o:Object.assign({}, base, { rate:0 }) };
+    case 'grace': return { icon:'🌱', name:'Growing Grace', sub:`grows ${rateTxt(s)}`, o:base };
+  }
+}
+let raceMode = 'early', RS = null, minis = [];
+function raceSub(mode, H){
+  const w = fmtWeekly(S.weekly), r = rateTxt(S), y = Math.round(H / 365 * 10) / 10;
+  if(mode === 'early') return `Twins! Both save ${w} coins a week at ${r}. Early Emma starts now. Late Leo waits 10 years. Race to year ${y}.`;
+  if(mode === 'save') return `Both start with ${fmtCoins(S.start)} coins at ${r}. Saving Sam saves ${w} a week; Half Hal spends half and saves ${fmtWeekly(S.weekly / 2)}.`;
+  if(mode === 'piggy') return `Same coins in for both. Piggy Pip keeps them in a piggy bank. Growing Grace lets them grow at ${r}.`;
+  return `Early Emma starts now, saves it all, and grows at ${r}. Leo waits 10 years, Hal saves half, Pip uses a piggy bank. Race to year ${y}.`;
+}
+function buildLanes(){
+  const m = MODES[raceMode], split = $('split'), H = raceHorizon(raceMode, S);
+  const lanes = m.lanes.map(k => racer(k, S, H));
+  split.className = 'split ' + (lanes.length > 2 ? 'four' : 'two');
+  split.style.gridTemplateColumns = 'repeat(2, 1fr)';
+  split.innerHTML = lanes.map(l => `<div class="col"><div class="lab">${l.icon} ${l.name}<br><small>${l.sub}</small></div><canvas role="img" aria-label="${l.name}'s treasure"></canvas><div class="val"></div></div>`).join('');
+  minis = [...split.querySelectorAll('.col')].map((col, i) => ({ col, cv:col.querySelector('canvas'), val:col.querySelector('.val'), v:new Viewer(false), lane:lanes[i] }));
+  sizeMinis();
+  return { lanes, H };
+}
+function sizeMinis(){ for(const mi of minis){ const r = mi.cv.getBoundingClientRect(); if(!r.width) continue; mi.w = r.width; mi.h = r.height; mi.cv.width = Math.round(r.width * DPR); mi.cv.height = Math.round(r.height * DPR); mi.c = mi.cv.getContext('2d'); mi.c.setTransform(DPR, 0, 0, DPR, 0, 0); } }
+function laneVal(mi, total, put){ const tr = TIERS[tierFor(total)]; mi.val.innerHTML = `${fmtCoins(total)} coins<small>put in ${fmtCoins(put)} · ${tr.e} ${total < 1 ? 'nothing yet' : tr.name}</small>`; }
+function resetRace(){
+  document.querySelectorAll('#raceMode button').forEach(b => { const on = b.dataset.m === raceMode; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
+  const { lanes, H } = buildLanes();
+  $('raceTitle').textContent = MODES[raceMode].title; $('raceSub').textContent = raceSub(raceMode, H);
+  RS = { idle:true, H, sims:lanes.map(l => simulate(l.o)), day:0, t0:0, dur:1, done:false, lastTick:-1 };
+  minis.forEach((mi, i) => { laneVal(mi, RS.sims[i].bal[0], RS.sims[i].put[0]); mi.col.classList.remove('lead'); });
+  $('raceDay').textContent = timeTxt(0, H); $('verdict').innerHTML = '';
+}
+function openRace(){ $('race').classList.add('show'); resetRace(); }
+$('raceBtn').onclick = openRace; $('raceBtn2').onclick = openRace;
+$('raceClose').onclick = () => { RS = null; $('race').classList.remove('show'); };
+$('raceMode').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; raceMode = b.dataset.m; resetRace(); });
+$('raceGo').onclick = () => { resetRace(); RS.idle = false; RS.t0 = performance.now(); RS.dur = clamp(4500 + RS.H / 365 * 110, 4500, 10000) * S.speed; beep(520, .1, 'triangle', .06); };
+function drawRace(now, dt){
+  const s = RS; if(!s) return;
+  if(!s.idle){
+    const p = Math.min(1, (now - s.t0) / s.dur); s.day = Math.round(p * s.H);
+    $('raceDay').textContent = s.done ? `After ${niceDur(s.H)}` : timeTxt(s.day, s.H);
+    const tick = Math.floor(p * 30); if(tick !== s.lastTick){ s.lastTick = tick; beep(300 + tick * 12, .04, 'square', .02); }
+    const vals = s.sims.map(sim => sim.bal[s.day]), mx = Math.max(...vals), lead = vals.filter(v => mx - v < .5).length === 1 && mx >= 1 ? vals.indexOf(mx) : -1;
+    minis.forEach((mi, i) => { laneVal(mi, vals[i], s.sims[i].put[s.day]); mi.col.classList.toggle('lead', i === lead); });
+    if(p >= 1 && !s.done){ s.done = true; finishRace(); }
+  }
+  minis.forEach((mi, i) => { if(!mi.c) return; const total = s.sims[i].bal[s.day], put = s.sims[i].put[s.day];
+    mi.v.draw(mi.c, mi.w, mi.h, { x0:4, x1:mi.w - 4, top:8, gy:mi.h - 6 }, total, put, now, dt); });
+}
+function finishRace(){
+  const s = RS, H = s.H, res = minis.map((mi, i) => ({ l:mi.lane, v:s.sims[i].bal[H], p:s.sims[i].put[H] }));
+  const by = k => res.find(r => r.l.name.startsWith(k));
+  const order = res.slice().sort((a, b) => b.v - a.v), A = order[0], B = order[1];
+  chord();
+  const c = fmtCoins; let html;
+  if(A.v - B.v < .5) html = `It's a tie! Both have <b>${c(A.v)} coins</b>.<br><span>${raceMode === 'save' ? 'Set weekly coins above 0 to see a difference.' : raceMode === 'piggy' ? 'Pick a growth rate above 0% to see a difference.' : 'Put in some coins to see a difference.'}</span>`;
+  else if(raceMode === 'early'){ const e = by('Early'), l = by('Late'); html = `👧 Early Emma wins with <b>${c(e.v)} coins</b>! Late Leo has <b>${c(l.v)}</b>.<br><span>Emma put in ${c(e.p - l.p)} more coins, but ended with ${c(e.v - l.v)} more. Starting early wins!</span>`; }
+  else if(raceMode === 'save'){ const a = by('Saving'), b = by('Half'); html = `🧒 Saving Sam wins with <b>${c(a.v)} coins</b>! Half Hal has <b>${c(b.v)}</b>.<br><span>Saving ${c(a.p - b.p)} more coins turned into ${c(a.v - b.v)} more treasure.</span>`; }
+  else if(raceMode === 'piggy'){ const g = by('Growing'), p = by('Piggy'); html = `🌱 Growing Grace wins with <b>${c(g.v)} coins</b>! Piggy Pip has <b>${c(p.v)}</b>, just what she put in.<br><span>Growth added ${c(g.v - p.v)} free coins.</span>`; }
+  else html = `🏆 ${A.l.name} wins with <b>${c(A.v)} coins</b>!<br><span>${order.slice(1).map(o => `${o.l.icon} ${o.l.name}: ${c(o.v)}`).join(' · ')}</span>`;
+  $('verdict').innerHTML = html;
+}
+
+// ================= main loop =================
+let gyCur = null, lastT = performance.now(), preview = null;   // preview: test hook to show any count at idle
+function gyTarget(){ const cover = panelShown ? panelH : resultShown ? resultH + 10 : 0; return Math.max(topH + 100, Math.min(H - cover - 30, topH + 70 + Math.min(W, 560) * 1.05)); }   // tall screens: keep the treasure near the middle, floor below
+function frame(now){
+  const dt = Math.min(.05, Math.max(0, (now - lastT) / 1000)); lastT = now;
+  if($('race').classList.contains('show') && RS){ drawRace(now, dt); requestAnimationFrame(frame); return; }
+  let total, put, day = null, D = S.days, final = false;
+  if(run){ const st = step(now); total = st.total; put = st.put; day = st.day; D = run.o.days; final = st.final; readout(total, put, day, D, final); }
+  else if(preview){ total = preview.total; put = preview.put; readout(total, put, null, D, false); }
+  else { total = S.start; put = S.start; }
+  const gt = gyTarget(); gyCur = gyCur == null ? gt : gyCur + (gt - gyCur) * Math.min(1, dt * 7);
+  mainV.draw(ctx, W, H, { x0:12, x1:W - 12, top:topH + 6, gy:gyCur }, total, put, now, dt);
+  const tr = mainV.tier;
+  if(TIERS[tr] && TIERS[tr].each && total >= 10){ ctx.font = '800 13px Nunito, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(TIERS[tr].each, W / 2, gyCur + 15); }
+  drawParts(ctx, dt, now);
+  requestAnimationFrame(frame);
+}
+
+window.TC = { simulate, closedForm, plan, racer, raceHorizon, fmtCoins, sanitize, tierFor, layout, MODES, panels(p, r){ setPanels(p, r); }, preview(total, put){ preview = total == null ? null : { total, put }; if(!preview) syncUI(false); }, get S(){ return S; }, set S(v){ S = sanitize(v); syncUI(true); } };
+resize(); syncUI(true);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
