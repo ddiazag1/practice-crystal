@@ -25,7 +25,7 @@
   .count small { font-size:.46em; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.4); }
   .xline { font-weight:800; font-size:clamp(13px,3.4vw,16px); opacity:.9; min-height:1.2em; text-shadow:0 1px 3px rgba(0,0,0,.6); }
   .read { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; font-weight:800; font-size:clamp(13px,3.5vw,16px); margin:0 -48px; }
-  .read span { background:rgba(0,0,0,.38); padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .read > span { background:rgba(0,0,0,.38); padding:3px 9px; border-radius:999px; white-space:nowrap; }
   .read b { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; }
   .dot { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.25), 0 0 0 1.5px rgba(255,255,255,.5); }
   .dot.mine { background:var(--mine); } .dot.grow { background:var(--grow); }
@@ -99,8 +99,9 @@
   .col.lead { outline-color:var(--gold); }
   .col .lab { font-weight:800; font-size:clamp(13px,3.4vw,17px); padding:6px 6px 3px; line-height:1.15; text-align:center; }
   .col .lab small { font-weight:600; opacity:.8; font-size:.85em; }
-  .col canvas { width:100%; height:clamp(190px,30vh,320px); display:block; }
-  .split.four .col canvas { height:clamp(120px,20vh,230px); }
+  .col canvas { width:100%; height:clamp(170px,25vh,300px); display:block; }
+  .split.four .col canvas { height:clamp(110px,17vh,210px); }
+  .overlay > * { flex-shrink:0; }
   .col .val { font-family:'Fredoka',system-ui,sans-serif; font-weight:700; color:#fff; padding:5px 4px 7px; font-size:clamp(15px,4.2vw,22px); text-align:center; line-height:1.15; font-variant-numeric:tabular-nums; }
   .col.lead .val { color:var(--gold); }
   .col .val small { display:block; color:#fff; opacity:.82; font-family:'Nunito',sans-serif; font-weight:800; font-size:.62em; }
@@ -111,17 +112,54 @@
   .switch a { font-family:'Fredoka',sans-serif; font-weight:700; text-decoration:none; color:#fff; padding:6px 16px; border-radius:999px; font-size:clamp(14px,3.6vw,17px); }
   .switch a.on { background:#ffcf3f; color:#3a2600; }
   .switch a:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+  .planHead { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .planHead .t, .secHead > span { font-weight:800; font-size:clamp(14px,3.7vw,17px); }
+  .seg { display:inline-flex; background:rgba(0,0,0,.35); border-radius:999px; padding:3px; gap:2px; flex:none; }
+  .seg button { font-size:14px; padding:5px 11px; background:transparent; }
+  .seg button.sel { background:var(--gold); color:#3a2600; }
+  .summary { display:flex; flex-wrap:wrap; gap:5px; }
+  .summary button { font-family:'Nunito',system-ui,sans-serif; font-weight:800; font-size:13px; padding:4px 9px; background:rgba(255,207,63,.12); border:1px solid rgba(255,207,63,.45); color:#ffe9a6; }
+  .secHead { display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:32px; }
+  .addBtn { font-size:15px; padding:6px 13px; background:linear-gradient(#5fd38a,#2f9a5a); box-shadow:0 3px 0 #1f6b3e; flex:none; }
+  .addBtn:disabled { opacity:.4; cursor:default; box-shadow:none; }
+  .addMenu { display:none; flex-wrap:wrap; gap:6px; background:rgba(95,211,138,.1); border-radius:14px; padding:8px; }
+  .addMenu.open { display:flex; }
+  .addMenu button { font-size:13px; padding:6px 10px; background:rgba(95,211,138,.25); }
+  .mrows { display:flex; flex-direction:column; gap:6px; }
+  .mrow { background:rgba(255,255,255,.07); border-radius:14px; padding:6px 8px 7px; display:flex; flex-direction:column; gap:5px; scroll-margin:12px; }
+  .mtop { display:flex; align-items:center; gap:4px; }
+  .mtop .ic { font-size:18px; width:24px; text-align:center; }
+  .mtop input { flex:1; min-width:0; font-family:'Nunito',system-ui,sans-serif; font-weight:800; font-size:16px; padding:3px 6px; border-radius:8px; border:1px dashed rgba(255,255,255,.22); background:transparent; color:#fff; }
+  .mtop input:focus { background:rgba(255,255,255,.08); border-style:solid; }
+  .x { width:30px; height:30px; font-size:14px; background:rgba(255,255,255,.12); flex:none; }
+  .mbot { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-weight:800; font-size:15px; }
+  .mbot .num input { width:86px; }
+  .mbot .num input.wide { width:112px; }
+  .mbot .num input.tiny { width:58px; }
+  .freq { display:inline-flex; background:rgba(0,0,0,.3); border-radius:999px; padding:2px; }
+  .freq button { font-size:13px; padding:5px 8px; background:transparent; }
+  .freq button.sel { background:var(--gold); color:#3a2600; }
+  .mnote { font-size:13px; opacity:.8; font-weight:700; }
+  .mrow .chips button { font-size:13px; padding:5px 10px; }
+  .empty { font-size:14px; opacity:.75; text-align:center; padding:6px; }
+  .panel .gorow { position:sticky; bottom:calc(-12px - env(safe-area-inset-bottom)); margin:0 calc(-14px - env(safe-area-inset-right)) calc(-12px - env(safe-area-inset-bottom)) calc(-14px - env(safe-area-inset-left)); padding:10px 14px calc(14px + env(safe-area-inset-bottom)); background:#120f3c; box-shadow:0 -14px 14px -4px #120f3c; z-index:1; }
+  input[type=number] { -moz-appearance:textfield; appearance:textfield; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+  .result .brk { font-size:clamp(14px,3.6vw,16px); text-align:center; opacity:.95; line-height:1.35; }
+  .result .brk b { color:#ffd27a; white-space:nowrap; }
+  .result .salLine { text-align:center; font-weight:800; background:rgba(255,207,63,.12); border-radius:12px; padding:8px 10px; font-size:clamp(14px,3.6vw,17px); line-height:1.3; }
+  .result .salLine b { color:var(--gold); white-space:nowrap; }
 </style>
 </head>
 <body>
 <canvas id="c" role="img" aria-label="Your treasure"></canvas>
 
 <div class="top" id="top">
-  <div class="title" id="title">Treasure Coins</div>
+  <div class="title" id="title">Money Treasure</div>
   <div class="when" id="when">Start</div>
-  <div class="count" id="countRow"><span class="lbl">Total: </span><span id="count">0</span><small> coins</small></div>
+  <div class="count" id="countRow"><span class="lbl">Total: </span><span id="count">0</span><small id="countSuf"></small></div>
   <div class="xline" id="xline"></div>
-  <div class="read"><span><i class="dot mine"></i>You put in: <b id="putOut">0</b></span><span><i class="dot grow"></i>Treasure grew: <b id="grewOut">0</b></span></div>
+  <div class="read"><span><i class="dot mine"></i><span id="putLab">You saved: </span><b id="putOut">0</b></span><span><i class="dot grow"></i><span id="grewLab">Your money grew: </span><b id="grewOut">0</b></span></div>
 </div>
 <div class="banner" id="banner" aria-live="polite"></div>
 <button class="corner" id="infoBtn" aria-label="For grown-ups">?</button>
@@ -129,11 +167,16 @@
 
 <div class="panel" id="panel" role="region" aria-label="Treasure settings">
   <nav class="switch" aria-label="Switch game"><a href="index.html">💎 Crystal</a><a class="on" href="coins.html" aria-current="page">💰 Coins</a></nav>
-  <div class="q">
-    <label for="startNum">Starting coins <span class="num"><input type="number" id="startNum" inputmode="numeric" min="0" max="1000000000" step="1" value="100"></span></label>
-    <div class="chips" data-for="start" role="group" aria-label="Starting coins"><button data-v="1">1</button><button data-v="10">10</button><button data-v="100">100</button><button data-v="1000">1,000</button></div>
+  <div class="planHead"><span class="t">Your plan</span><div class="seg" id="units" role="group" aria-label="Count in"><button data-u="usd">💵 Dollars</button><button data-u="coins">🟡 Coins</button></div></div>
+  <div class="summary" id="summary" role="group" aria-label="Plan summary, tap to edit"></div>
+  <div class="secHead"><span id="inLab">Money coming in</span><button class="addBtn" id="addBtn" aria-expanded="false" aria-controls="addMenu">+ Add more</button></div>
+  <div class="addMenu" id="addMenu" role="group" aria-label="Add money coming in"></div>
+  <div class="mrows" id="mrows"></div>
+  <div class="q" id="qStart">
+    <label for="startNum"><span id="startLab">Starting money</span> <span class="num"><span id="startCur">$</span><input type="number" id="startNum" inputmode="decimal" min="0" max="10000000" step="any" value="100"></span></label>
+    <div class="chips" data-for="start" role="group" aria-label="Starting amount"><button data-v="0">0</button><button data-v="10">10</button><button data-v="100">100</button><button data-v="1000">1,000</button><button data-v="10000">10,000</button></div>
   </div>
-  <div class="q">
+  <div class="q" id="qRate">
     <div class="lab">How fast it grows <b class="out" id="rateOut">7% a year</b></div>
     <div class="chips scroll" data-for="preset" role="group" aria-label="Growth presets">
       <button data-r="7" data-p="year">📈 Grown-up investing 7%/yr</button>
@@ -145,13 +188,9 @@
     <div class="rateRow"><span class="num"><input class="short" type="number" id="rateNum" inputmode="decimal" min="0" max="100" step="0.1" value="7" aria-label="Growth percent">%</span>
       <div class="chips" data-for="period" role="group" aria-label="Growth period"><button data-v="day">per day</button><button data-v="week">week</button><button data-v="month">month</button><button data-v="year">year</button></div></div>
   </div>
-  <div class="q">
+  <div class="q" id="qLong">
     <label for="yearsNum">How long <span class="num"><input class="short" type="number" id="yearsNum" inputmode="decimal" min="0.01" max="100" step="1" value="10"><b class="out" id="daysOut">years</b></span></label>
     <div class="chips scroll" data-for="days" role="group" aria-label="How long"><button data-v="30">1 month</button><button data-v="365">1 year</button><button data-v="1825">5 years</button><button data-v="3650">10 years</button><button data-v="7300">20 years</button><button data-v="10950">30 years</button><button data-v="18250">50 years</button></div>
-  </div>
-  <div class="q">
-    <label for="weeklyNum">Add coins every week <span class="num"><input class="short" type="number" id="weeklyNum" inputmode="numeric" min="0" max="1000000" step="1" value="5"></span></label>
-    <div class="chips" data-for="weekly" role="group" aria-label="Coins added every week"><button data-v="0">0</button><button data-v="1">1</button><button data-v="5">5</button><button data-v="10">10</button><button data-v="20">20</button></div>
   </div>
   <div class="moreBox" id="moreBox">
     <div class="q">
@@ -172,8 +211,10 @@
 
 <div class="result" id="result" role="region" aria-label="Result">
   <div class="big" id="resBig"></div>
+  <div class="brk" id="resBrk"></div>
+  <div class="salLine" id="resSal" hidden></div>
   <div class="chartWrap"><canvas id="chart" role="img" aria-label="Chart of your treasure over time"></canvas></div>
-  <div class="legend"><span><i class="dot mine"></i>You put in</span><span><i class="dot grow"></i>Treasure grew</span></div>
+  <div class="legend"><span><i class="dot mine"></i><span id="legPut">You saved</span></span><span><i class="dot grow"></i><span id="legGrow">Your money grew</span></span></div>
   <div class="cmpH">The same plan…</div>
   <div class="cmp" id="resCmp"></div>
   <div class="lesson" id="resLesson"></div>
@@ -197,10 +238,12 @@
 
 <div class="overlay" id="info" role="dialog" aria-label="For grown-ups">
   <h2>For grown-ups</h2>
-  <p class="note"><b>Compound interest</b> means the coins you earn start earning too. In year one, interest is paid on what you saved. In year two it's paid on your savings <i>plus</i> last year's interest, and so on. Growth builds on growth, so the curve looks flat for years and then bends sharply upward.</p>
+  <p class="note"><b>Compound interest</b> means the money you earn starts earning too. In year one, interest is paid on what you saved. In year two it's paid on your savings <i>plus</i> last year's interest, and so on. Growth builds on growth, so the curve looks flat for years and then bends sharply upward.</p>
   <p class="note"><b>Rule of 72:</b> divide 72 by the yearly rate to get roughly how many years it takes money to double. 7% a year ≈ every 10 years; 4% ≈ every 18; 10% ≈ every 7.</p>
   <p class="note"><b>7% a year</b> is a rough long-run average for the stock market after inflation. Real returns bounce around a lot from year to year, some years are negative, and nothing is guaranteed. <b>4%</b> is roughly a good savings rate. <b>“Magic 1% a day”</b> is pretend; no real investment does that. It's there to show how fast compounding can run away.</p>
-  <p class="note"><b>How the math works here:</b> each period's interest is spread evenly across its days, so the treasure grows smoothly and the starting coins match “compound once per period” exactly at every period boundary. Weekly coins are added at the end of each week. Results match the standard future-value formula (lump sum plus an ordinary annuity).</p>
+  <p class="note"><b>Money coming in:</b> each row adds money on its own schedule, at the end of each day, week, month or year. <b>Paychecks</b> take your yearly salary × the share you save, paid as 12 monthly paychecks; the salary goes up by the raise % every year. Amounts are in today's dollars if you use an after-inflation growth rate like 7%.</p>
+  <p class="note"><b>The 4% rule:</b> a common retirement rule of thumb says you can spend about 4% of your savings in the first year (then adjust for inflation) and the money has historically lasted about 30 years. So $1,000,000 ≈ $40,000 a year. It's a rough guide, not a promise.</p>
+  <p class="note"><b>How the math works here:</b> each period's interest is spread evenly across its days, so the treasure grows smoothly and matches “compound once per period” at every period boundary. Results match the standard future-value formulas: lump sum, an ordinary annuity for each row, and a growing annuity for paychecks.</p>
   <p class="note">The lesson for kids: start early, add a little often, and leave it alone to grow. This is a teaching toy, not financial advice.</p>
   <div class="row"><button id="infoClose">✕ Back</button></div>
 </div>
@@ -216,53 +259,108 @@ if(RMQ.addEventListener) RMQ.addEventListener('change', e => { reduced = e.match
 // ================= settings =================
 const PERIOD_DAYS = { day:1, week:7, month:365/12, year:365 };
 const PERIOD_WORD = { day:'day', week:'week', month:'month', year:'year' };
-const KEY = 'treasureCoins.v1';
-const DEF = { start:100, rate:7, period:'year', days:3650, weekly:5, name:'', speed:1, sound:true };
+const PERIOD_SHORT = { day:'day', week:'wk', month:'mo', year:'yr' };
+const KEY = 'treasureCoins.v2', OLD_KEY = 'treasureCoins.v1', MAX_ROWS = 5;
+const PRESETS = {
+  lemon:  { icon:'🍋', label:'Lemonade stand', amt:2,  freq:'day' },
+  allow:  { icon:'💵', label:'Allowance',      amt:5,  freq:'week' },
+  chores: { icon:'🧹', label:'Chores',         amt:20, freq:'month' },
+  bday:   { icon:'🎂', label:'Birthday money', amt:50, freq:'year' },
+  salary: { icon:'💼', label:'Paychecks', kind:'salary', salary:60000, save:10, raise:3 },
+  other:  { icon:'✨', label:'Other money',    amt:10, freq:'month' },
+};
+const SALARY_PRESETS = [['🌱','First job',35000],['🍎','Teacher',60000],['🩺','Nurse',85000],['🛠️','Engineer',110000],['⚖️','Lawyer',160000],['💻','Big Tech engineer',200000],['📈','Quant trader',350000],['🏢','CEO',1000000]];
+const newRow = k => Object.assign({ kind:'flow' }, PRESETS[k]);
+const DEF = { units:'usd', start:100, rate:7, period:'year', days:3650, rows:[newRow('allow'), newRow('bday')], name:'', speed:1, sound:true };
 const numOr = (x, d) => { x = Number(x); return Number.isFinite(x) ? x : d; };
+const cleanTxt = (s, n) => String(s == null ? '' : s).replace(/[<>&"]/g, '').slice(0, n);
+const r2 = x => Math.round(x * 100) / 100;
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+function sanitizeRow(r){
+  if(!r || typeof r !== 'object') return null;
+  const icon = cleanTxt(r.icon, 4) || '✨';
+  if(r.kind === 'salary') return { kind:'salary', icon, label:cleanTxt(r.label, 18) || 'Paychecks', salary:Math.round(clamp(numOr(r.salary, 60000), 0, 1e7)), save:r2(clamp(numOr(r.save, 10), 0, 100)), raise:r2(clamp(numOr(r.raise, 3), 0, 20)) };
+  return { kind:'flow', icon, label:cleanTxt(r.label, 18) || 'Money', amt:r2(clamp(numOr(r.amt, 0), 0, 1e6)), freq:has(PERIOD_DAYS, r.freq) ? r.freq : 'week' };
+}
 function sanitize(o){
+  o = o || {};
   return {
-    start:  Math.round(clamp(numOr(o.start, DEF.start), 0, 1e9)),
-    rate:   Math.round(clamp(numOr(o.rate, DEF.rate), 0, 100) * 100) / 100,
-    period: Object.prototype.hasOwnProperty.call(PERIOD_DAYS, o.period) ? o.period : 'year',
+    units:  o.units === 'coins' ? 'coins' : 'usd',
+    start:  r2(clamp(numOr(o.start, DEF.start), 0, 1e7)),
+    rate:   r2(clamp(numOr(o.rate, DEF.rate), 0, 100)),
+    period: has(PERIOD_DAYS, o.period) ? o.period : 'year',
     days:   Math.round(clamp(numOr(o.days, DEF.days), 1, 36500)),
-    weekly: Math.round(clamp(numOr(o.weekly, DEF.weekly), 0, 1e6) * 100) / 100,
-    name:   String(o.name == null ? '' : o.name).replace(/[<>&"]/g, '').slice(0, 14),
+    rows:   (Array.isArray(o.rows) ? o.rows : DEF.rows).map(sanitizeRow).filter(Boolean).slice(0, MAX_ROWS),
+    name:   cleanTxt(o.name, 14),
     speed:  [1.8, 1, 0.5].includes(+o.speed) ? +o.speed : 1,
     sound:  o.sound !== false,
   };
 }
 let S = sanitize(DEF);
-try { const j = JSON.parse(localStorage.getItem(KEY) || 'null'); if(j && typeof j === 'object') S = sanitize(Object.assign({}, DEF, j)); } catch(e) {}
+try {
+  const j = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if(j && typeof j === 'object') S = sanitize(Object.assign({}, DEF, j));
+  else { // v1 stored a coins-only plan: keep the preferences, start the money plan fresh
+    const old = JSON.parse(localStorage.getItem(OLD_KEY) || 'null');
+    if(old && typeof old === 'object') S = sanitize(Object.assign({}, DEF, { name:old.name, speed:old.speed, sound:old.sound }));
+  }
+} catch(e) {}
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
 
 // ================= the money model (pure) =================
-// o = { start, rate (fraction per period), pd (days per period), days, weekly, delay (days before saving starts) }
+// o = { start, rate (fraction per period), pd (days per period), days, delay (days before saving starts), rows }
+// rows: { kind:'flow', amt, freq:'day'|'week'|'month'|'year' } or { kind:'salary', salary, save %, raise % }
 const CAP = 1e300;
-function plan(s, over){ return Object.assign({ start:s.start, rate:s.rate/100, pd:PERIOD_DAYS[s.period], days:s.days, weekly:s.weekly, delay:0 }, over || {}); }
+function plan(s, over){ return Object.assign({ start:s.start, rate:s.rate / 100, pd:PERIOD_DAYS[s.period], days:s.days, delay:0, rows:s.rows.map(r => Object.assign({}, r)) }, over || {}); }
+const monthsIn = t => Math.floor(t * 12 / 365 + 1e-9);            // whole months completed after t days
+const salaryAt = (r, m) => r.salary * Math.pow(1 + r.raise / 100, Math.floor((m - 1) / 12));   // yearly salary during month m (1-based)
 function simulate(o){
-  const D = Math.max(0, Math.floor(o.days)), sd = Math.max(0, Math.floor(o.delay || 0));
-  const bal = new Float64Array(D + 1), put = new Float64Array(D + 1);
+  const D = Math.max(0, Math.floor(o.days)), sd = Math.max(0, Math.floor(o.delay || 0)), rows = o.rows || [], nr = rows.length;
+  const bal = new Float64Array(D + 1), put = new Float64Array(D + 1), by = new Float64Array(nr + 1);   // by[0] = starting money
   const g = Math.pow(1 + Math.max(0, o.rate), 1 / o.pd);   // daily factor: compounds to exactly (1+rate) per period
   let b = 0, p = 0, capped = false;
-  if(sd === 0){ b = o.start; p = o.start; }
+  if(sd === 0){ b = o.start; p = o.start; by[0] = o.start; }
   bal[0] = b; put[0] = p;
   for(let d = 1; d <= D; d++){
     b *= g;
-    if(d === sd){ b += o.start; p += o.start; }
-    if(d > sd && (d - sd) % 7 === 0){ b += o.weekly; p += o.weekly; }
+    if(d === sd){ b += o.start; p += o.start; by[0] += o.start; }
+    const t = d - sd;
+    if(t >= 1){
+      const m = monthsIn(t), mEnd = m > monthsIn(t - 1);
+      for(let k = 0; k < nr; k++){
+        const r = rows[k]; let a = 0;
+        if(r.kind === 'salary'){ if(mEnd) a = salaryAt(r, m) * r.save / 100 / 12; }
+        else if(r.freq === 'day') a = r.amt;
+        else if(r.freq === 'week'){ if(t % 7 === 0) a = r.amt; }
+        else if(r.freq === 'month'){ if(mEnd) a = r.amt; }
+        else if(t % 365 === 0) a = r.amt;
+        if(a > 0){ b += a; p += a; by[k + 1] += a; }
+      }
+    }
     if(!(b < CAP)){ b = CAP; capped = true; }
     bal[d] = b; put[d] = p;
   }
-  return { bal, put, days:D, capped };
+  return { bal, put, by, days:D, capped };
 }
-// closed form: lump sum + ordinary annuity of weekly deposits (with effective weekly rate), carried to the last day
+// closed form: lump sum + an ordinary annuity per row (effective rate per deposit period) + a growing annuity for paychecks
 function closedForm(o){
   const D = Math.floor(o.days), sd = Math.floor(o.delay || 0);
   if(D < sd) return 0;
-  const n = D - sd, f = Math.pow(1 + o.rate, 1 / o.pd);
-  const W = Math.floor(n / 7), i = Math.pow(f, 7) - 1;
-  const ann = i === 0 ? o.weekly * W : o.weekly * (Math.pow(1 + i, W) - 1) / i;
-  return o.start * Math.pow(f, n) + ann * Math.pow(f, n - 7 * W);
+  const n = D - sd, f = Math.pow(1 + o.rate, 1 / o.pd), F = x => Math.pow(f, x);
+  const ann = (amt, i, N) => i === 0 ? amt * N : amt * (Math.pow(1 + i, N) - 1) / i;   // value right after the N-th deposit
+  let v = o.start * F(n);
+  for(const r of o.rows || []){
+    if(r.kind === 'salary'){
+      const M = monthsIn(n), Y = Math.floor(M / 12), rem = M - 12 * Y, im = F(365 / 12) - 1, ry = F(365) - 1, gr = r.raise / 100;
+      const c0 = r.salary * r.save / 100 / 12, A = ann(1, im, 12);
+      const full = Math.abs(ry - gr) < 1e-12 ? c0 * A * Y * Math.pow(1 + ry, Math.max(0, Y - 1)) : c0 * A * (Math.pow(1 + ry, Y) - Math.pow(1 + gr, Y)) / (ry - gr);
+      v += (full * Math.pow(1 + im, rem) + ann(c0 * Math.pow(1 + gr, Y), im, rem)) * F(n - M * 365 / 12);
+    } else {
+      const P = PERIOD_DAYS[r.freq], N = Math.floor(n / P + 1e-9);
+      v += ann(r.amt, F(P) - 1, N) * F(n - N * P);
+    }
+  }
+  return v;
 }
 
 // ================= number formatting =================
@@ -279,6 +377,18 @@ function fmtCoins(x){
   if(!Number.isFinite(x) || x < 0) x = x === Infinity ? CAP : 0;
   return x < 1e15 ? Math.floor(x + 1e-7).toLocaleString('en-US') : named(x);
 }
+const isUSD = () => S.units === 'usd';
+const fmtMoney = x => (isUSD() ? '$' : '') + fmtCoins(x);                            // "$12,847" or "12,847"
+const fmtAmt = x => isUSD() ? '$' + fmtCoins(x) : fmtCoins(x) + ' coins';            // "$12,847" or "12,847 coins"
+const bigAmt = x => x >= 1e6 ? (isUSD() ? '$' + named(x) : named(x) + ' coins') : fmtAmt(x);
+const fmtNum = a => Number.isInteger(a) ? a.toLocaleString('en-US') : a.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const amtTxt = a => isUSD() ? '$' + fmtNum(a) : fmtNum(a) + (a === 1 ? ' coin' : ' coins');
+const kTxt = v => v >= 1e6 && v % 1e5 === 0 ? (v / 1e6) + 'M' : v >= 1000 && v % 100 === 0 ? (v / 1000) + 'k' : fmtNum(v);
+const shortAmt = v => isUSD() ? '$' + kTxt(v) : kTxt(v) + ' coins';
+const diffOf = (a, b) => a < 1e15 ? Math.max(0, Math.floor(a + 1e-7) - Math.floor(b + 1e-7)) : Math.max(0, a - b);   // keeps saved + grew = total on screen
+function words(){ return isUSD()
+  ? { put:'You saved', grew:'Your money grew', putShort:'saved', thing:'money', startLab:'Starting money', inLab:'Money coming in' }
+  : { put:'You put in', grew:'Treasure grew', putShort:'put in', thing:'coins', startLab:'Starting coins', inLab:'Coins coming in' }; }
 function fmtX(x){
   if(!Number.isFinite(x)) return '—';
   if(x < 10) return (Math.floor(x * 10) / 10).toFixed(1);
@@ -304,21 +414,26 @@ function timeTxt(d, D){
   return y === 0 ? `Week ${w}` : `Year ${y}` + (w ? `, week ${w}` : '');
 }
 function rateTxt(s){ return `${s.rate}% a ${PERIOD_WORD[s.period]}`; }
-const fmtWeekly = w => Number.isInteger(w) ? w.toLocaleString('en-US') : String(Math.round(w * 100) / 100);
+function rowShort(r){ return r.kind === 'salary' ? `${shortAmt(r.salary)}/yr, save ${r.save}%` : `${amtTxt(r.amt)}/${PERIOD_SHORT[r.freq]}`; }
+function lower(s){ return s.length > 1 && s[1] === s[1].toUpperCase() && /[A-Z]/.test(s[1]) ? s : s.charAt(0).toLowerCase() + s.slice(1); }
+function planTxt(rows){ if(!rows.length) return 'nothing coming in'; const t = rows.slice(0, 3).map(r => `${lower(r.label)} ${rowShort(r)}`).join(' + '); return rows.length > 3 ? t + ' + more' : t; }
 
 // ================= tiers =================
 const TIERS = [
   { min:0,    e:'🟡', name:'coins',             unit:1 },
-  { min:10,   e:'🟡', name:'stacks of 10',      unit:10,  banner:'A stack of 10 coins!',        each:'each stack = 10 coins' },
-  { min:100,  e:'💰', name:'coin bags',         unit:100, banner:'A bag of 100 coins! 💰',       each:'each bag = 100 coins' },
-  { min:1e3,  e:'🧰', name:'treasure chests',   unit:1e3, banner:'A treasure chest! 1,000 coins', each:'each chest = 1,000 coins' },
-  { min:1e4,  e:'🧰', name:'a pile of chests',  unit:1e4, banner:'A pile of chests! 10,000 coins' },
-  { min:1e5,  e:'⛏️', name:'a cave of gold',    unit:1e5, banner:'A cave of gold! 100,000 coins' },
-  { min:1e6,  e:'🐉', name:"a dragon's hoard",  unit:1e6, banner:"A dragon's hoard! 1 million 🐉" },
-  { min:1e9,  e:'⛰️', name:'a gold mountain',   unit:1e9, banner:'A gold mountain! 1 billion ⛰️' },
-  { min:1e12, e:'🌕', name:'a gold moon',       unit:1e12, banner:'A gold moon! 1 trillion 🌕' },
-  { min:1e15, e:'✨', name:'beyond the stars',  unit:1e15, banner:'Beyond the stars! ✨' },
+  { min:10,   e:'🟡', name:'stacks of 10',      unit:10,  b:'A stack of {v}!',       each:'stack' },
+  { min:100,  e:'💰', name:'coin bags',         unit:100, b:'A bag of {v}! 💰',      each:'bag' },
+  { min:1e3,  e:'🧰', name:'treasure chests',   unit:1e3, b:'A treasure chest! {v}', each:'chest' },
+  { min:1e4,  e:'🧰', name:'a pile of chests',  unit:1e4, b:'A pile of chests! {v}' },
+  { min:1e5,  e:'⛏️', name:'a cave of gold',    unit:1e5, b:'A cave of gold! {v}' },
+  { min:1e6,  e:'🐉', name:"a dragon's hoard",  unit:1e6, b:"A dragon's hoard! {v} 🐉" },
+  { min:1e9,  e:'⛰️', name:'a gold mountain',   unit:1e9, b:'A gold mountain! {v} ⛰️' },
+  { min:1e12, e:'🌕', name:'a gold moon',       unit:1e12, b:'A gold moon! {v} 🌕' },
+  { min:1e15, e:'✨', name:'beyond the stars',  unit:1e15, b:'Beyond the stars! ✨' },
 ];
+// labels follow the units switch: "A bag of $100!" / "each chest = 1,000 coins"
+const tierBanner = k => TIERS[k] && TIERS[k].b ? TIERS[k].b.replace('{v}', bigAmt(TIERS[k].min)) : '';
+const tierEach = k => TIERS[k] && TIERS[k].each ? `each ${TIERS[k].each} = ${fmtAmt(TIERS[k].unit)}` : '';
 function tierFor(x){ let k = 0; for(let i = 1; i < TIERS.length; i++) if(x >= TIERS[i].min * (1 - 1e-12)) k = i; return k; }
 
 // ================= sound =================
@@ -811,36 +926,69 @@ function nextBanner(){ const b = $('banner'), n = bq.shift(); if(!n){ bBusy = fa
 
 // ================= readout =================
 let lastCountStr = '';
-function fitCount(force){ const s = $('count').textContent; if(!force && s.length === lastCountStr.length) return; lastCountStr = s;
-  const fs = clamp((W - 26) / (s.length * .6 + 6.3), 22, 54); $('countRow').style.fontSize = fs.toFixed(1) + 'px'; }
-const R = { count:'', put:'', grew:'', x:'', when:'', title:'' };
+function fitCount(force){ const s = $('count').textContent + $('countSuf').textContent; if(!force && s.length === lastCountStr.length) return; lastCountStr = s;
+  const fs = clamp((W - 26) / (s.length * .6 + 2.6), 22, 54); $('countRow').style.fontSize = fs.toFixed(1) + 'px'; }
+const R = { count:'', put:'', grew:'', x:'', when:'', title:'', suf:'', putLab:'', grewLab:'' };
 function setText(id, key, v){ if(R[key] !== v){ R[key] = v; $(id).textContent = v; } }
 function readout(total, put, day, D, final){
-  setText('count', 'count', fmtCoins(total)); fitCount();
-  setText('putOut', 'put', fmtCoins(put));
-  setText('grewOut', 'grew', fmtCoins(Math.max(0, total - put)));
-  setText('xline', 'x', put > 0 && total > 0 ? `×${fmtX(total / put)} what you put in` : (total <= 0 ? 'Put in some coins to start!' : ''));
+  const w = words();
+  setText('countSuf', 'suf', isUSD() ? '' : ' coins');
+  setText('count', 'count', fmtMoney(total)); fitCount();
+  setText('putLab', 'putLab', w.put + ': '); setText('putOut', 'put', fmtMoney(put));
+  setText('grewLab', 'grewLab', w.grew + ': '); setText('grewOut', 'grew', fmtMoney(diffOf(total, put)));
+  setText('xline', 'x', put > 0 && total > 0 ? `×${fmtX(total / put)} what you ${w.putShort}` : (total <= 0 ? (isUSD() ? 'Add some money to start!' : 'Put in some coins to start!') : ''));
   const tr = TIERS[tierFor(total)];
-  setText('when', 'when', (final ? `After ${niceDur(D)}` : day == null ? 'Ready to grow' : timeTxt(day, D)) + ` · ${tr.e} ${total < 1 ? 'no coins yet' : tr.name}`);
+  setText('when', 'when', (final ? `After ${niceDur(D)}` : day == null ? 'Ready to grow' : timeTxt(day, D)) + ` · ${tr.e} ${total < 1 ? (isUSD() ? 'no money yet' : 'no coins yet') : tr.name}`);
 }
 function whose(){ return S.name ? `${S.name}'s` : 'your'; }
-function titleText(){ return S.name ? `${S.name}'s treasure 💰` : 'Treasure Coins 💰'; }
+function titleText(){ return isUSD() ? (S.name ? `${S.name}'s money treasure 💰` : 'Money Treasure 💰') : (S.name ? `${S.name}'s treasure 💰` : 'Treasure Coins 💰'); }
 
 // ================= UI wiring =================
-const F = { start:$('startNum'), rate:$('rateNum'), years:$('yearsNum'), weekly:$('weeklyNum'), name:$('nameIn') };
+const F = { start:$('startNum'), rate:$('rateNum'), years:$('yearsNum'), name:$('nameIn') };
 function yearsVal(d){ return d % 365 === 0 ? String(d / 365) : String(Math.round(d / 365 * 100) / 100); }
+const cur = () => isUSD() ? '$' : '';
+const coinSuf = () => isUSD() ? '' : ' coins';
+function salaryNote(r){ return `Saves ${amtTxt(r2(r.salary * r.save / 100 / 12))} from each monthly paycheck in year 1.`; }
+function rowHTML(r, i){
+  const top = `<div class="mtop"><span class="ic" aria-hidden="true">${r.icon}</span><input data-k="label" maxlength="18" value="${r.label}" aria-label="Name of money row ${i + 1}"><button class="x" data-act="del" aria-label="Remove ${r.label}">✕</button></div>`;
+  if(r.kind === 'salary') return `<div class="mrow sal" id="mrow${i}" data-i="${i}">${top}
+    <div class="mbot">I earn <span class="num">${cur()}<input class="wide" type="number" data-k="salary" inputmode="decimal" min="0" max="10000000" step="1000" value="${r.salary}" aria-label="Yearly salary">${coinSuf()}</span> a year</div>
+    <div class="mbot">save <span class="num"><input class="tiny" type="number" data-k="save" inputmode="decimal" min="0" max="100" step="1" value="${r.save}" aria-label="Percent of salary saved">%</span> · raise <span class="num"><input class="tiny" type="number" data-k="raise" inputmode="decimal" min="0" max="20" step="0.5" value="${r.raise}" aria-label="Raise percent each year">%</span> a year</div>
+    <div class="chips scroll" role="group" aria-label="Salary examples">${SALARY_PRESETS.map(([ic, n, v]) => `<button data-sal="${v}" class="${r.salary === v ? 'sel' : ''}">${ic} ${n} ${shortAmt(v)}</button>`).join('')}</div>
+    <div class="mnote">${salaryNote(r)}</div></div>`;
+  return `<div class="mrow" id="mrow${i}" data-i="${i}">${top}
+    <div class="mbot"><span class="num">${cur()}<input type="number" data-k="amt" inputmode="decimal" min="0" max="1000000" step="any" value="${r.amt}" aria-label="${r.label} amount">${coinSuf()}</span>
+    <span class="freq" role="group" aria-label="How often">${['day', 'week', 'month', 'year'].map(f => `<button data-f="${f}" class="${r.freq === f ? 'sel' : ''}" aria-pressed="${r.freq === f}">${f === 'day' ? 'per day' : f}</button>`).join('')}</span></div></div>`;
+}
+function renderRows(){
+  $('mrows').innerHTML = S.rows.map(rowHTML).join('') || `<div class="empty">Nothing coming in yet. Tap “+ Add more”.</div>`;
+  $('addBtn').disabled = S.rows.length >= MAX_ROWS; $('addBtn').textContent = S.rows.length >= MAX_ROWS ? `${MAX_ROWS} rows max` : '+ Add more';
+}
+function renderAddMenu(){
+  $('addMenu').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<button data-p="${k}">${p.icon} ${p.kind === 'salary' ? 'Paychecks (salary)' : k === 'other' ? 'Something else' : `${p.label} ${amtTxt(p.amt)}/${PERIOD_WORD[p.freq]}`}</button>`).join('');
+}
+function renderSummary(){
+  const items = [['qStart', `🏁 Start ${shortAmt(S.start)}`], ...S.rows.map((r, i) => [`mrow${i}`, `${r.icon} ${rowShort(r)}`]), ['qRate', `📈 ${S.rate}%/${PERIOD_SHORT[S.period]}`], ['qLong', `⏳ ${niceDur(S.days)}`]];
+  $('summary').innerHTML = items.map(([id, t]) => `<button data-go="${id}" aria-label="Edit: ${t}">${t}</button>`).join('');
+}
 function syncUI(rewrite){
-  if(rewrite){ F.start.value = S.start; F.rate.value = S.rate; F.years.value = yearsVal(S.days); F.weekly.value = S.weekly; if(F.name.value !== S.name) F.name.value = S.name; }
-  document.querySelectorAll('.chips').forEach(ch => { const f = ch.dataset.for; ch.querySelectorAll('button').forEach(b => { let on;
+  if(rewrite){ F.start.value = S.start; F.rate.value = S.rate; F.years.value = yearsVal(S.days); if(F.name.value !== S.name) F.name.value = S.name; }
+  document.querySelectorAll('.chips[data-for]').forEach(ch => { const f = ch.dataset.for; ch.querySelectorAll('button').forEach(b => { let on;
     if(f === 'preset') on = +b.dataset.r === S.rate && b.dataset.p === S.period;
     else if(f === 'period') on = b.dataset.v === S.period;
     else if(f === 'sound') on = (b.dataset.v === '1') === S.sound;
     else on = +b.dataset.v === S[f];
+    if(f === 'start') b.textContent = shortAmt(+b.dataset.v);
     b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }); });
+  document.querySelectorAll('#units button').forEach(b => { const on = b.dataset.u === S.units; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
+  const w = words();
   $('rateOut').textContent = rateTxt(S) + (S.rate === 1 && S.period === 'day' ? ' ✨' : '');
   $('daysOut').textContent = S.days % 365 === 0 ? (S.days === 365 ? 'year' : 'years') : `years (${niceDur(S.days)})`;
+  $('startLab').textContent = w.startLab; $('startCur').textContent = cur(); $('inLab').textContent = w.inLab;
+  $('legPut').textContent = w.put; $('legGrow').textContent = w.grew;
   $('sound').textContent = S.sound ? '🔊' : '🔇';
   setText('title', 'title', titleText());
+  renderSummary();
   if(!run) readout(S.start, S.start, null, S.days, false);
   save();
 }
@@ -851,9 +999,8 @@ function bindNum(el, apply){
 bindNum(F.start, v => S.start = v);
 bindNum(F.rate, v => S.rate = v);
 bindNum(F.years, v => S.days = Math.max(1, Math.round(v * 365)));
-bindNum(F.weekly, v => S.weekly = v);
 F.name.addEventListener('input', () => { S.name = F.name.value; S = sanitize(S); syncUI(false); });
-document.querySelectorAll('.chips').forEach(ch => ch.addEventListener('click', e => {
+document.querySelectorAll('.chips[data-for]').forEach(ch => ch.addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return; const f = ch.dataset.for;
   if(f === 'preset'){ S.rate = +b.dataset.r; S.period = b.dataset.p; }
   else if(f === 'period') S.period = b.dataset.v;
@@ -861,6 +1008,31 @@ document.querySelectorAll('.chips').forEach(ch => ch.addEventListener('click', e
   else S[f] = +b.dataset.v;
   S = sanitize(S); syncUI(true); beep(700, .05, 'sine', .05);
 }));
+$('units').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.units = b.dataset.u; S = sanitize(S); renderRows(); renderAddMenu(); syncUI(true); });
+$('summary').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; const el = $(b.dataset.go); if(!el) return;
+  el.scrollIntoView({ block:'nearest', behavior:reduced ? 'auto' : 'smooth' }); const inp = el.querySelector('input[type=number]'); if(inp) setTimeout(() => inp.focus({ preventScroll:true }), reduced ? 0 : 350); });
+$('addBtn').onclick = () => { const m = $('addMenu'), open = m.classList.toggle('open'); $('addBtn').setAttribute('aria-expanded', open); };
+$('addMenu').addEventListener('click', e => { const b = e.target.closest('button'); if(!b || S.rows.length >= MAX_ROWS) return;
+  S.rows.push(newRow(b.dataset.p)); S = sanitize(S); $('addMenu').classList.remove('open'); $('addBtn').setAttribute('aria-expanded', false);
+  renderRows(); syncUI(false); beep(880, .07, 'sine', .05);
+  const el = $('mrow' + (S.rows.length - 1)); if(el) el.scrollIntoView({ block:'nearest' }); });
+$('mrows').addEventListener('input', e => {
+  const t = e.target, row = t.closest('.mrow'); if(!row || !t.dataset.k) return; const i = +row.dataset.i, r = S.rows[i]; if(!r) return;
+  if(t.dataset.k === 'label') r.label = t.value; else { const v = parseFloat(t.value); if(!Number.isFinite(v)) return; r[t.dataset.k] = v; }
+  S = sanitize(S); syncUI(false);
+  const note = row.querySelector('.mnote'); if(note) note.textContent = salaryNote(S.rows[i]);
+  if(t.dataset.k === 'salary') row.querySelectorAll('[data-sal]').forEach(b => b.classList.toggle('sel', +b.dataset.sal === S.rows[i].salary));
+});
+$('mrows').addEventListener('change', e => { const t = e.target, row = t.closest('.mrow'); if(!row || !t.dataset.k) return; const r = S.rows[+row.dataset.i]; if(r) t.value = r[t.dataset.k]; });
+$('mrows').addEventListener('click', e => {
+  const b = e.target.closest('button'), row = e.target.closest('.mrow'); if(!b || !row) return; const i = +row.dataset.i, r = S.rows[i]; if(!r) return;
+  if(b.dataset.act === 'del') S.rows.splice(i, 1);
+  else if(b.dataset.f) r.freq = b.dataset.f;
+  else if(b.dataset.sal) r.salary = +b.dataset.sal;
+  else return;
+  S = sanitize(S); renderRows(); syncUI(false); beep(700, .05, 'sine', .05);
+  if(!b.dataset.act){ const nb = $('mrow' + i) && $('mrow' + i).querySelector(b.dataset.f ? `[data-f="${b.dataset.f}"]` : `[data-sal="${b.dataset.sal}"]`); if(nb) nb.focus({ preventScroll:true }); }
+});
 $('moreBtn').onclick = () => { const box = $('moreBox'), open = box.classList.toggle('open'); $('moreBtn').textContent = open ? 'Less ▴' : 'More ▾'; $('moreBtn').setAttribute('aria-expanded', open); };
 $('sound').onclick = () => { S.sound = !S.sound; syncUI(false); };
 $('infoBtn').onclick = () => $('info').classList.add('show');
@@ -869,7 +1041,7 @@ $('infoClose').onclick = () => $('info').classList.remove('show');
 // ================= grow (main view) =================
 let run = null, panelShown = true, resultShown = false;
 function setPanels(p, r){ panelShown = p; resultShown = r; $('panel').classList.toggle('hide', !p); $('result').classList.toggle('show', r); }
-mainV.onTier = (k) => { if(run && !run.done && k > run.maxTier){ run.maxTier = k; queueBanner(TIERS[k].banner, 'tier'); chord(440 + k * 40); burst(24); } };
+mainV.onTier = (k) => { if(run && !run.done && k > run.maxTier){ run.maxTier = k; queueBanner(tierBanner(k), 'tier'); chord(440 + k * 40); burst(24); } };
 function play(){
   const o = plan(S), sim = simulate(o);
   const dur = clamp(3200 + (o.days / 365) * 170, 3000, 11000) * S.speed;
@@ -881,41 +1053,57 @@ function step(now){
   const r = run, D = r.o.days;
   const p = Math.min(1, (now - r.t0) / r.dur), day = Math.round(p * D);
   if(day > r.day){
-    const weeks = Math.floor(day / 7) - Math.floor(r.day / 7);
-    if(weeks > 0 && r.o.weekly > 0 && now - r.lastDrop > (reduced ? 260 : 120)){ r.lastDrop = now; dropCoin('mine'); if(weeks > 3 && !reduced) dropCoin('mine'); ding(now); }
+    if(r.sim.put[day] > r.sim.put[r.day] && now - r.lastDrop > (reduced ? 260 : 120)){ r.lastDrop = now; dropCoin('mine'); if(day - r.day > 20 && !reduced) dropCoin('mine'); ding(now); }
     const gNow = r.sim.bal[day] - r.sim.put[day], gWas = r.sim.bal[r.day] - r.sim.put[r.day];
     if(r.o.rate > 0 && gNow > gWas && now - r.lastPop > (reduced ? 500 : Math.max(90, 420 - 330 * clamp(gNow / Math.max(1, r.sim.put[day]), 0, 1)))){ r.lastPop = now; popCoin(); }
     r.day = day;
   }
   const total = r.sim.bal[day], put = r.sim.put[day];
-  if(!r.lesson && put > 0 && total - put > put){ r.lesson = true; queueBanner('Now your treasure earns more than you put in! 🌱', 'lesson'); chord(660); burst(30); }
+  if(!r.lesson && put > 0 && total - put > put){ r.lesson = true; queueBanner(isUSD() ? 'Now your money earns more than you saved! 🌱' : 'Now your treasure earns more than you put in! 🌱', 'lesson'); chord(660); burst(30); }
   if(p >= 1 && !r.done){ r.done = true; setTimeout(() => { if(run === r) showResult(); }, 750); }
   return { total, put, day, final:r.done };
 }
+// split the saved total into rows; floors, with the rounding remainder on the biggest part so the parts add up exactly
+function breakdown(sim, o){
+  const names = ['starting money', ...o.rows.map(r => lower(r.label))];
+  const parts = names.map((n, i) => ({ n, v:sim.by[i] })).filter(x => x.v > 0);
+  if(sim.put[sim.days] < 1e15 && parts.length){ const tot = Math.floor(sim.put[sim.days] + 1e-7); parts.forEach(x => x.f = Math.floor(x.v + 1e-7));
+    const big = parts.reduce((a, b) => b.f > a.f ? b : a); big.f += tot - parts.reduce((s, x) => s + x.f, 0); parts.forEach(x => x.v = x.f); }
+  return parts;
+}
 function showResult(){
-  const r = run, D = r.o.days, total = r.sim.bal[D], put = r.sim.put[D], grew = Math.max(0, total - put);
-  const t = fmtCoins(total), pi = fmtCoins(put), gr = fmtCoins(grew), dur = niceDur(D);
+  const r = run, D = r.o.days, total = r.sim.bal[D], put = r.sim.put[D], grew = diffOf(total, put), w = words(), usd = isUSD();
+  const dur = niceDur(D);
   let big;
-  const what = S.start > 0 && S.weekly > 0 ? `${whose()} ${fmtCoins(S.start)} coins plus ${fmtWeekly(S.weekly)} a week` : S.start > 0 ? `${whose()} ${fmtCoins(S.start)} coins` : `${fmtWeekly(S.weekly)} coins a week`;
-  if(total <= 0) big = `With no coins, nothing can grow. Put in at least <b>1 coin</b> and try again!`;
-  else if(r.o.rate === 0) big = `In ${dur}, ${what} became <b>${t} coins</b>. You put in <b>${pi}</b>, and a piggy bank grew it by <b>0</b>.`;
-  else big = `In ${dur}, ${what} grew to <b>${t} coins</b>! You put in <b>${pi}</b> and the treasure grew <b>${gr}</b> all by itself.`;
+  if(total <= 0) big = usd ? `With no money coming in, nothing can grow. Add at least <b>$1</b> and try again!` : `With no coins, nothing can grow. Put in at least <b>1 coin</b> and try again!`;
+  else if(r.o.rate === 0) big = `In ${dur}, ${whose()} plan reached <b>${fmtAmt(total)}</b>. ${w.put} <b>${fmtMoney(put)}</b>, and a piggy bank grew it by <b>${fmtMoney(0)}</b>.`;
+  else big = `In ${dur}, ${whose()} plan grew to <b>${fmtAmt(total)}</b>! ${w.put} <b>${fmtMoney(put)}</b> and ${usd ? 'your money' : 'the treasure'} grew <b>${fmtMoney(grew)}</b> all by itself.`;
   $('resBig').innerHTML = big;
+  const parts = breakdown(r.sim, r.o);
+  $('resBrk').innerHTML = parts.length ? `${w.put} <b>${fmtMoney(put)}</b> (from ${parts.map(x => `${x.n} <b>${fmtMoney(x.v)}</b>`).join(', ')}). ${w.grew} <b>${fmtMoney(grew)}</b>. Total <b>${fmtMoney(total)}</b>.` : '';
+  // salary line: only when a paycheck row exists
+  const sal = r.o.rows.filter(x => x.kind === 'salary'), months = monthsIn(D);
+  if(sal.length && total > 0){
+    const finalPay = sal.reduce((s, x) => s + (months > 0 ? salaryAt(x, months) : x.salary), 0), live = total * .04;
+    $('resSal').innerHTML = (finalPay > 0 ? `💼 That's <b>${fmtX(total / finalPay)} years</b> of your salary (${fmtAmt(finalPay)} a year by the end), ` : '💼 That\'s ') + `enough to live on about <b>${fmtAmt(live)} a year</b> by the 4% rule.`;
+    $('resSal').hidden = false;
+  } else $('resSal').hidden = true;
   // comparison list
   const rows = [];
   const presetRates = [[0, '🐷 Piggy bank, 0%'], [4, '🏦 Savings, 4% a year'], [7, '📈 Investing, 7% a year'], [10, '🚀 Super, 10% a year']];
-  const isPreset = S.period === 'year' && presetRates.some(([x]) => x === S.rate) || (S.rate === 0);
+  const isPreset = (S.period === 'year' && presetRates.some(([x]) => x === S.rate)) || S.rate === 0;
   if(!isPreset) rows.push({ l:`⭐ Your plan, ${rateTxt(S)}`, v:total, me:true });
-  for(const [x, l] of presetRates){ const s = simulate(plan(S, { rate:x / 100, pd:365 })); rows.push({ l, v:s.bal[D], me:isPreset && (x === S.rate) && (S.period === 'year' || S.rate === 0) }); }
+  for(const [x, l] of presetRates){ const s = simulate(plan(S, { rate:x / 100, pd:365 })); rows.push({ l, v:s.bal[D], me:isPreset && x === S.rate }); }
   const late = simulate(plan(S, { delay:3650 }));
   rows.push({ l:'⏰ If you started 10 years later', v:late.bal[D], late:D <= 3650 });
-  $('resCmp').innerHTML = rows.map(o => `<div class="${o.me ? 'me' : ''}"><span>${o.l}</span><b>${o.late ? 'not started yet' : fmtCoins(o.v) + ' coins'}</b></div>`).join('');
+  $('resCmp').innerHTML = rows.map(o => `<div class="${o.me ? 'me' : ''}"><span>${o.l}</span><b>${o.late ? 'not started yet' : fmtAmt(o.v)}</b></div>`).join('');
   let lesson;
-  if(total <= 0) lesson = 'Coins can only grow if you have some!';
-  else if(r.o.rate === 0) lesson = 'A piggy bank keeps coins safe, but they never grow. Coins that earn interest make more coins!';
-  else if(grew > put) lesson = 'Your coins made more coins than you put in. Start early, keep adding, and let it grow! 🌱';
+  if(total <= 0) lesson = usd ? 'Money can only grow if you have some!' : 'Coins can only grow if you have some!';
+  else if(r.o.rate === 0) lesson = usd ? 'A piggy bank keeps money safe, but it never grows. Money that earns interest makes more money!' : 'A piggy bank keeps coins safe, but they never grow. Coins that earn interest make more coins!';
+  else if(total - put > put) lesson = usd ? 'Your money made more money than you saved. Start early, keep adding, and let it grow! 🌱' : 'Your coins made more coins than you put in. Start early, keep adding, and let it grow! 🌱';
   else { const yrs = Math.LN2 / Math.log(1 + r.o.rate) * r.o.pd / 365; lesson = `Growth starts slow, then speeds up. At this speed money doubles about every ${yrs >= 1 ? Math.round(yrs) + ' years' : Math.max(1, Math.round(yrs * 365)) + ' days'}. Keep going!`; }
   $('resLesson').textContent = lesson;
+  for(let i = bq.length - 1; i >= 0; i--) if(bq[i].kind === 'tier') bq.splice(i, 1);   // the result card speaks for itself
   setPanels(false, true); $('result').scrollTop = 0;
   requestAnimationFrame(() => { measure(); prepChart(r.sim); });
   chord(); burst(40);
@@ -938,10 +1126,11 @@ function drawChart(hx){
   c.clearRect(0, 0, w, h);
   const mx = Math.max(4, niceMax(Math.max(...bal)));
   c.font = '700 11px Nunito, system-ui, sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'right';
-  let lw = 0; for(let i = 0; i <= 4; i++) lw = Math.max(lw, c.measureText(fmtAxis(mx * i / 4)).width);
+  const ax = v => cur() + fmtAxis(v);
+  let lw = 0; for(let i = 0; i <= 4; i++) lw = Math.max(lw, c.measureText(ax(mx * i / 4)).width);
   const padL = Math.ceil(lw) + 12, padR = 10, padT = 10, padB = 22, pw = w - padL - padR, ph = h - padT - padB;
   const X = d => padL + d / Math.max(1, D) * pw, Y = v => padT + ph - v / mx * ph;
-  for(let i = 0; i <= 4; i++){ const v = mx * i / 4, y = Y(v); c.strokeStyle = i ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(padL, y); c.lineTo(w - padR, y); c.stroke(); c.fillStyle = 'rgba(255,255,255,.7)'; c.fillText(fmtAxis(v), padL - 6, y); }
+  for(let i = 0; i <= 4; i++){ const v = mx * i / 4, y = Y(v); c.strokeStyle = i ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(padL, y); c.lineTo(w - padR, y); c.stroke(); c.fillStyle = 'rgba(255,255,255,.7)'; c.fillText(ax(v), padL - 6, y); }
   // x ticks in years (months for short plans)
   c.textAlign = 'center'; c.textBaseline = 'top';
   const yrs = D / 365; let ticks = [], lab;
@@ -963,14 +1152,14 @@ function drawChart(hx){
   const place = (text, lo, hi, color) => { const tw = c.measureText(text).width, i0 = at(lx - tw), i1 = n;
     const top = Math.max(Y(hi[i0]), Y(hi[i1])), bot = Math.min(Y(lo ? lo[i0] : 0), Y(lo ? lo[i1] : 0));
     if(bot - top > 17){ c.fillStyle = color; c.fillText(text, lx, (top + bot) / 2); } };
-  place('You put in', null, put, '#2a1600');
+  place(words().put, null, put, '#2a1600');
   place('Grew', put, bal, '#1d2a00');
   // hover crosshair + tooltip
   if(hx != null){
     const d = clamp(Math.round((hx - padL) / pw * D), 0, D); let i = 0; while(i < n && xs[i + 1] <= d) i++;
     const x = X(xs[i]); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x, padT); c.lineTo(x, Y(0)); c.stroke();
     c.fillStyle = '#fff'; c.beginPath(); c.arc(x, Y(bal[i]), 4, 0, Math.PI * 2); c.fill();
-    const lines = [timeTxt(xs[i], D), `Total: ${fmtCoins(bal[i])}`, `Put in: ${fmtCoins(put[i])}`, `Grew: ${fmtCoins(Math.max(0, bal[i] - put[i]))}`];
+    const lines = [timeTxt(xs[i], D), `Total: ${fmtMoney(bal[i])}`, `${words().put}: ${fmtMoney(put[i])}`, `Grew: ${fmtMoney(diffOf(bal[i], put[i]))}`];
     c.font = '800 12px Nunito, system-ui, sans-serif'; const bw = Math.max(...lines.map(l => c.measureText(l).width)) + 16, bh = lines.length * 15 + 8;
     const bx = x + 10 + bw > w ? x - 10 - bw : x + 10; c.fillStyle = 'rgba(8,10,40,.94)'; rr(c, bx, padT, bw, bh, 8); c.fill(); c.strokeStyle = 'rgba(255,255,255,.3)'; c.stroke();
     c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; lines.forEach((l, k) => c.fillText(l, bx + 8, padT + 5 + k * 15));
@@ -980,7 +1169,7 @@ chartCv.addEventListener('pointermove', e => { const r = chartCv.getBoundingClie
 chartCv.addEventListener('pointerdown', e => { const r = chartCv.getBoundingClientRect(); drawChart(e.clientX - r.left); });
 chartCv.addEventListener('pointerleave', () => drawChart(null));
 
-// ================= race =================
+// ================= race (every lane runs the full multi-row plan) =================
 const MODES = {
   early: { title:'Start early vs start late', lanes:['emma', 'leo'], long:true },
   save:  { title:'Save all vs spend half', lanes:['sam', 'hal'] },
@@ -988,24 +1177,25 @@ const MODES = {
   all:   { title:'All 3 races at once', lanes:['emma', 'leo', 'hal', 'pip'], long:true },
 };
 const raceHorizon = (mode, s) => MODES[mode].long ? Math.max(s.days, 7300) : s.days;
+function halfRows(rows){ return rows.map(r => r.kind === 'salary' ? Object.assign({}, r, { save:r.save / 2 }) : Object.assign({}, r, { amt:r.amt / 2 })); }
 function racer(k, s, H){
-  const base = plan(s, { days:H }), w = fmtWeekly(s.weekly), hw = fmtWeekly(s.weekly / 2);
+  const base = plan(s, { days:H });
   switch(k){
     case 'emma':  return { icon:'👧', name:'Early Emma', sub:'starts now', o:base };
     case 'leo':   return { icon:'👦', name:'Late Leo', sub:'waits 10 years', o:Object.assign({}, base, { delay:Math.min(3650, H) }) };
-    case 'sam':   return { icon:'🧒', name:'Saving Sam', sub:`saves ${w} a week`, o:base };
-    case 'hal':   return { icon:'🍭', name:'Half Hal', sub:`spends half, saves ${hw}`, o:Object.assign({}, base, { weekly:s.weekly / 2 }) };
+    case 'sam':   return { icon:'🧒', name:'Saving Sam', sub:'saves it all', o:base };
+    case 'hal':   return { icon:'🍭', name:'Half Hal', sub:'spends half', o:Object.assign({}, base, { rows:halfRows(base.rows) }) };
     case 'pip':   return { icon:'🐷', name:'Piggy Pip', sub:'piggy bank, 0%', o:Object.assign({}, base, { rate:0 }) };
     case 'grace': return { icon:'🌱', name:'Growing Grace', sub:`grows ${rateTxt(s)}`, o:base };
   }
 }
 let raceMode = 'early', RS = null, minis = [];
 function raceSub(mode, H){
-  const w = fmtWeekly(S.weekly), r = rateTxt(S), y = Math.round(H / 365 * 10) / 10;
-  if(mode === 'early') return `Twins! Both save ${w} coins a week at ${r}. Early Emma starts now. Late Leo waits 10 years. Race to year ${y}.`;
-  if(mode === 'save') return `Both start with ${fmtCoins(S.start)} coins at ${r}. Saving Sam saves ${w} a week; Half Hal spends half and saves ${fmtWeekly(S.weekly / 2)}.`;
-  if(mode === 'piggy') return `Same coins in for both. Piggy Pip keeps them in a piggy bank. Growing Grace lets them grow at ${r}.`;
-  return `Early Emma starts now, saves it all, and grows at ${r}. Leo waits 10 years, Hal saves half, Pip uses a piggy bank. Race to year ${y}.`;
+  const r = rateTxt(S), y = Math.round(H / 365 * 10) / 10, p = planTxt(S.rows);
+  if(mode === 'early') return `Twins with the same plan (${p}) at ${r}. Early Emma starts now. Late Leo waits 10 years. Race to year ${y}.`;
+  if(mode === 'save') return `Both start with ${fmtAmt(S.start)} at ${r}. Saving Sam saves everything coming in (${p}); Half Hal spends half of it.`;
+  if(mode === 'piggy') return `Same plan for both (${p}). Piggy Pip keeps it in a piggy bank. Growing Grace lets it grow at ${r}.`;
+  return `Early Emma starts now, saves it all, and grows at ${r}. Leo waits 10 years, Hal spends half, Pip uses a piggy bank. Race to year ${y}.`;
 }
 function buildLanes(){
   const m = MODES[raceMode], split = $('split'), H = raceHorizon(raceMode, S);
@@ -1018,7 +1208,7 @@ function buildLanes(){
   return { lanes, H };
 }
 function sizeMinis(){ for(const mi of minis){ const r = mi.cv.getBoundingClientRect(); if(!r.width) continue; mi.w = r.width; mi.h = r.height; mi.cv.width = Math.round(r.width * DPR); mi.cv.height = Math.round(r.height * DPR); mi.c = mi.cv.getContext('2d'); mi.c.setTransform(DPR, 0, 0, DPR, 0, 0); } }
-function laneVal(mi, total, put){ const tr = TIERS[tierFor(total)]; mi.val.innerHTML = `${fmtCoins(total)} coins<small>put in ${fmtCoins(put)} · ${tr.e} ${total < 1 ? 'nothing yet' : tr.name}</small>`; }
+function laneVal(mi, total, put){ const tr = TIERS[tierFor(total)]; mi.val.innerHTML = `${fmtAmt(total)}<small>${words().putShort} ${fmtMoney(put)} · ${tr.e} ${total < 1 ? 'nothing yet' : tr.name}</small>`; }
 function resetRace(){
   document.querySelectorAll('#raceMode button').forEach(b => { const on = b.dataset.m === raceMode; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
   const { lanes, H } = buildLanes();
@@ -1050,17 +1240,17 @@ function finishRace(){
   const by = k => res.find(r => r.l.name.startsWith(k));
   const order = res.slice().sort((a, b) => b.v - a.v), A = order[0], B = order[1];
   chord();
-  const c = fmtCoins; let html;
-  if(A.v - B.v < .5) html = `It's a tie! Both have <b>${c(A.v)} coins</b>.<br><span>${raceMode === 'save' ? 'Set weekly coins above 0 to see a difference.' : raceMode === 'piggy' ? 'Pick a growth rate above 0% to see a difference.' : 'Put in some coins to see a difference.'}</span>`;
-  else if(raceMode === 'early'){ const e = by('Early'), l = by('Late'); html = `👧 Early Emma wins with <b>${c(e.v)} coins</b>! Late Leo has <b>${c(l.v)}</b>.<br><span>Emma put in ${c(e.p - l.p)} more coins, but ended with ${c(e.v - l.v)} more. Starting early wins!</span>`; }
-  else if(raceMode === 'save'){ const a = by('Saving'), b = by('Half'); html = `🧒 Saving Sam wins with <b>${c(a.v)} coins</b>! Half Hal has <b>${c(b.v)}</b>.<br><span>Saving ${c(a.p - b.p)} more coins turned into ${c(a.v - b.v)} more treasure.</span>`; }
-  else if(raceMode === 'piggy'){ const g = by('Growing'), p = by('Piggy'); html = `🌱 Growing Grace wins with <b>${c(g.v)} coins</b>! Piggy Pip has <b>${c(p.v)}</b>, just what she put in.<br><span>Growth added ${c(g.v - p.v)} free coins.</span>`; }
-  else html = `🏆 ${A.l.name} wins with <b>${c(A.v)} coins</b>!<br><span>${order.slice(1).map(o => `${o.l.icon} ${o.l.name}: ${c(o.v)}`).join(' · ')}</span>`;
+  const a = fmtAmt, m = fmtMoney, ps = words().putShort; let html;
+  if(A.v - B.v < .5) html = `It's a tie! Both have <b>${a(A.v)}</b>.<br><span>${raceMode === 'piggy' ? 'Pick a growth rate above 0% to see a difference.' : 'Add some money coming in to see a difference.'}</span>`;
+  else if(raceMode === 'early'){ const e = by('Early'), l = by('Late'); html = `👧 Early Emma wins with <b>${a(e.v)}</b>! Late Leo has <b>${a(l.v)}</b>.<br><span>Emma ${ps} ${m(diffOf(e.p, l.p))} more, but ended with ${m(diffOf(e.v, l.v))} more. Starting early wins!</span>`; }
+  else if(raceMode === 'save'){ const x = by('Saving'), y = by('Half'); html = `🧒 Saving Sam wins with <b>${a(x.v)}</b>! Half Hal has <b>${a(y.v)}</b>.<br><span>Saving ${m(diffOf(x.p, y.p))} more turned into ${m(diffOf(x.v, y.v))} more treasure.</span>`; }
+  else if(raceMode === 'piggy'){ const g = by('Growing'), p = by('Piggy'); html = `🌱 Growing Grace wins with <b>${a(g.v)}</b>! Piggy Pip has <b>${a(p.v)}</b>, just what she ${ps}.<br><span>Growth added ${m(diffOf(g.v, p.v))} for free.</span>`; }
+  else html = `🏆 ${A.l.name} wins with <b>${a(A.v)}</b>!<br><span>${order.slice(1).map(o => `${o.l.icon} ${o.l.name}: ${a(o.v)}`).join(' · ')}</span>`;
   $('verdict').innerHTML = html;
 }
 
 // ================= main loop =================
-let gyCur = null, lastT = performance.now(), preview = null;   // preview: test hook to show any count at idle
+let gyCur = null, lastT = performance.now(), preview = null;   // preview: test hook to show any amount at idle
 function gyTarget(){ const cover = panelShown ? panelH : resultShown ? resultH + 10 : 0; return Math.max(topH + 100, Math.min(H - cover - 30, topH + 70 + Math.min(W, 560) * 1.05)); }   // tall screens: keep the treasure near the middle, floor below
 function frame(now){
   const dt = Math.min(.05, Math.max(0, (now - lastT) / 1000)); lastT = now;
@@ -1071,14 +1261,14 @@ function frame(now){
   else { total = S.start; put = S.start; }
   const gt = gyTarget(); gyCur = gyCur == null ? gt : gyCur + (gt - gyCur) * Math.min(1, dt * 7);
   mainV.draw(ctx, W, H, { x0:12, x1:W - 12, top:topH + 6, gy:gyCur }, total, put, now, dt);
-  const tr = mainV.tier;
-  if(TIERS[tr] && TIERS[tr].each && total >= 10){ ctx.font = '800 13px Nunito, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(TIERS[tr].each, W / 2, gyCur + 15); }
+  const each = tierEach(mainV.tier);
+  if(each && total >= 10){ ctx.font = '800 13px Nunito, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(each, W / 2, gyCur + 15); }
   drawParts(ctx, dt, now);
   requestAnimationFrame(frame);
 }
 
-window.TC = { simulate, closedForm, plan, racer, raceHorizon, fmtCoins, sanitize, tierFor, layout, MODES, panels(p, r){ setPanels(p, r); }, preview(total, put){ preview = total == null ? null : { total, put }; if(!preview) syncUI(false); }, get S(){ return S; }, set S(v){ S = sanitize(v); syncUI(true); } };
-resize(); syncUI(true);
+window.TC = { simulate, closedForm, plan, racer, raceHorizon, fmtCoins, fmtAmt, sanitize, tierFor, layout, MODES, PRESETS, newRow, panels(p, r){ setPanels(p, r); }, preview(total, put){ preview = total == null ? null : { total, put }; if(!preview) syncUI(false); }, get S(){ return S; }, set S(v){ S = sanitize(v); renderRows(); renderAddMenu(); syncUI(true); } };
+resize(); renderRows(); renderAddMenu(); syncUI(true);
 requestAnimationFrame(frame);
 </script>
 </body>
