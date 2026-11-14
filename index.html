@@ -152,11 +152,7 @@
   </div>
   <button class="more" id="moreBtn">More options ▾</button>
   <div class="moreBox" id="moreBox">
-    <div class="q">
-      <label>Start as big as…</label>
-      <div class="chips" data-for="start"><button data-v="0" class="sel">⚛️ atom</button><button data-v="2">🦠 germ</button><button data-v="4">🐜 ant</button><button data-v="5">🐭 mouse</button><button data-v="6">🐱 cat</button><button data-v="7">🧍 person</button></div>
-      <input type="hidden" id="start" value="0">
-    </div>
+    <input type="hidden" id="start" value="0"><!-- every crystal starts at an atom (Dan, 2026-11-14) -->
     <div class="q">
       <label>On days you skip, the crystal…</label>
       <div class="chips" data-for="decay"><button data-v="0" class="sel">stays the same</button><button data-v="0.5">shrinks a little (−0.5%)</button><button data-v="1">shrinks more (−1%)</button><button data-v="2">shrinks a lot (−2%)</button></div>
@@ -225,7 +221,7 @@
   <p class="note"><b>The race:</b> "Once a week" gets the same total practice as every day, crammed into one session. One big session counts like ~2.6 days (√7, diminishing returns), and a little is forgotten in between, so even the smallest daily habit beats it.</p>
   <p class="note">Money works the same way, only slower: about 7% a year doubles every ~10 years. Slow, slow, then BOOM.</p>
   <p class="note"><b>My real crystal</b> (📅 button) tracks actual practice: tap once a day after practicing and the crystal grows by that day's %. It's stored only in this browser, nothing is uploaded. Tap a kid's name again to rename; clear the name to delete.</p>
-  <p class="note" style="opacity:.6;font-size:13px">Version 2026-11-13c. If this is older, pull down to refresh (GitHub can serve a cached copy for ~10 minutes).</p>
+  <p class="note" style="opacity:.6;font-size:13px">Version 2026-11-14a. If this is older, pull down to refresh (GitHub can serve a cached copy for ~10 minutes).</p>
   <div class="row"><button id="infoClose">✕ Back</button></div>
 </div>
 
@@ -495,9 +491,9 @@ function paintBackground(c, w, h, L, now, gy){
   const g = c.createLinearGradient(0,0,0,h); g.addColorStop(0, `rgb(${top})`); g.addColorStop(1, `rgb(${bot})`);
   c.fillStyle = g; c.fillRect(0,0,w,h);
   if(f.micro > 0){ // soft drifting cells, sized to the canvas so narrow race lanes stay calm
-    const R = Math.min(w, h) / 28, n = w < 260 ? 14 : 40;
+    const R = Math.min(w, h) / 22, n = clamp(Math.round(w*h/40000), 6, 16);
     for(let i=0;i<n;i++){ const s = stars[i*3]; const y = ((s.y*h + now*0.006*s.r) % (h+40)) - 20;
-      c.fillStyle = `rgba(170,255,240,${0.05*f.micro})`; c.strokeStyle = `rgba(190,255,250,${0.16*f.micro})`; c.lineWidth = 1.2;
+      c.fillStyle = `rgba(170,255,240,${0.06*f.micro})`; c.strokeStyle = `rgba(190,255,250,${0.10*f.micro})`; c.lineWidth = 1.2;
       c.beginPath(); c.arc(s.x*w, y, R*(0.6+s.r*0.5), 0, Math.PI*2); c.fill(); c.stroke(); }
   }
   if(f.space > 0) for(const s of stars){ c.fillStyle = `rgba(255,255,255,${f.space*(0.4+0.6*Math.abs(Math.sin(now/900+s.t)))})`; c.beginPath(); c.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2); c.fill(); }
@@ -542,10 +538,26 @@ function drawCrystal(c, cx, baseY, h, hue, t){
   c.restore();
 }
 const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+// Emoji fonts are bitmaps (~160px), so big text emoji go blurry. Draw vector Twemoji SVGs instead; text is the fallback.
+const EMOJI_IMG = {};
+function twemojiCode(e){ const cps = [...e].map(ch => ch.codePointAt(0)); const keep = cps.includes(0x200d); return cps.filter(cp => keep || cp !== 0xfe0f).map(cp => cp.toString(16)).join('-'); }
+function emojiImg(e){
+  let r = EMOJI_IMG[e];
+  if(!r){ const img = new Image(); r = EMOJI_IMG[e] = { img, ok:false }; img.onload = () => { r.ok = true; }; img.src = `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/${twemojiCode(e)}.svg`; }
+  return r.ok ? r.img : null;
+}
+STAGES.forEach(s => emojiImg(s.e));
 function drawThing(c, st, x, baseY, px, label, labelSize){
   c.save(); c.textAlign = 'center';
   if(px < 6){ c.fillStyle = '#fff'; c.beginPath(); c.arc(x, baseY-3, 2.5, 0, Math.PI*2); c.fill(); }
-  else { const fs = Math.min(px/1.15, 1600); c.font = `${fs}px ${EMOJI_FONT}`; c.textBaseline = st.round ? 'middle' : 'bottom'; c.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08); }
+  else {
+    if(!st.round){ c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(x, baseY, px*0.42, Math.max(2, px*0.06), 0, 0, Math.PI*2); c.fill(); }  // sits on the ground
+    c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = Math.min(14, px*0.08); c.shadowOffsetY = Math.min(4, px*0.02);
+    const img = emojiImg(st.e);
+    if(img){ const s = px; c.drawImage(img, x - s/2, baseY - s, s, s); }
+    else { const fs = Math.min(px/1.15, 1600); c.font = `${fs}px ${EMOJI_FONT}`; c.textBaseline = st.round ? 'middle' : 'bottom'; c.fillText(st.e, x, st.round ? baseY - px/2 : baseY + fs*0.08); }
+    c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0;
+  }
   if(label){ c.font = `800 ${labelSize}px Nunito, sans-serif`; c.fillStyle = 'rgba(255,255,255,.95)'; c.textBaseline = 'top'; c.fillText(st.n, x, baseY + 6); }
   c.restore();
 }
@@ -585,7 +597,7 @@ function frame(now){
   const labelSize = Math.max(13, Math.min(20, W/30));
   if(playing && kNow < LAST){                                 // faint target to beat, at its true size
     const nPx = next.s*scale;
-    if(nPx < avail*1.15){ ctx.save(); ctx.globalAlpha = 0.55; drawThing(ctx, next, Math.min(W - Math.max(nPx,10)/2 - 8, cx + Math.max(cPx,6)*0.34 + Math.max(nPx,10)*0.45), gy, nPx, false); ctx.restore();
+    if(nPx < avail*1.15){ ctx.save(); drawThing(ctx, next, Math.min(W - Math.max(nPx,10)/2 - 8, cx + Math.max(cPx,6)*0.34 + Math.max(nPx,10)*0.45), gy, nPx, false); ctx.restore();
       ctx.save(); ctx.font = `800 ${labelSize}px Nunito, sans-serif`; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
       ctx.fillText(`next: ${next.n}`, Math.min(W - 70, cx + Math.max(cPx,6)*0.34 + Math.max(nPx,10)*0.45), gy + 6); ctx.restore(); }
   }
@@ -594,7 +606,7 @@ function frame(now){
     const prev = STAGES[kNow], pPx = prev.s*scale;
     drawThing(ctx, prev, Math.max(Math.max(pPx,10)/2 + 8, cx - cPx*0.31 - Math.max(pPx,10)*0.35), gy, pPx, true, labelSize);
   }
-  for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life-=dt*0.9; if(p.life<=0){particles.splice(i,1);continue;} ctx.fillStyle=`hsla(${p.hue},100%,65%,${p.life})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  for(let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.life-=dt*0.9; if(p.life<=0){particles.splice(i,1);continue;} ctx.fillStyle=`hsl(${p.hue},100%,65%)`; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*Math.min(1,p.life*1.5),0,Math.PI*2); ctx.fill(); }  // solid, shrinks away
   if(raceState) drawRace(now);
   drawMine(now);
   requestAnimationFrame(frame);
