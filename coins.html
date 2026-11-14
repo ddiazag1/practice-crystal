@@ -877,11 +877,11 @@ class Viewer {
     if(this.shake > .01){ c.translate((Math.random() - .5) * 6 * this.shake, (Math.random() - .5) * 4 * this.shake); this.shake *= Math.pow(.02, dt); }
     const t = now / 1000;
     if(this.prev && this.trans < 1){
-      this.trans = Math.min(1, this.trans + dt / .75); const e = ease(this.trans);
-      const ps = this.prev.scale * (1 - .55 * e), pb = box.gy - this.prev.L.bot * ps;
-      c.globalAlpha = 1 - e; drawLayout(c, this.prev.L, cx, pb, ps, t);
-      c.globalAlpha = Math.min(1, this.trans * 1.6); drawLayout(c, L, cx, base, this.scale * (.75 + .25 * backOut(this.trans)), t);
-      c.globalAlpha = 1;
+      // Solid swap, no see-through cross-fade: the old treasure shrinks away, then the new one pops in.
+      this.trans = Math.min(1, this.trans + dt / .75);
+      const OUT = .3;
+      if(this.trans < OUT){ const e = ease(this.trans / OUT), ps = this.prev.scale * (1 - .9 * e), pb = box.gy - this.prev.L.bot * ps; drawLayout(c, this.prev.L, cx, pb, ps, t); }
+      else { const p = (this.trans - OUT) / (1 - OUT), s = this.scale * Math.max(.05, backOut(p)), b = box.gy - L.bot * s; drawLayout(c, L, cx, b, s, t); }
     } else drawLayout(c, L, cx, base, this.scale, t);
     c.restore();
     this.content = { cx, base, top:base - L.top * this.scale, w:L.w * this.scale, sc:this.scale };
