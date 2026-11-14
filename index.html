@@ -114,6 +114,10 @@
   .sub.small { font-size:12px; opacity:.6; }
   .verdict { font-family:'Fredoka',sans-serif; font-size:clamp(17px,4.4vw,26px); text-align:center; max-width:700px; min-height:2.4em; color:var(--gold); }
   .verdict span { font-size:.72em; color:#fff; }
+  .switch { display:flex; align-self:center; flex-shrink:0; background:rgba(0,0,0,.35); border-radius:999px; padding:3px; gap:2px; }
+  .switch a { font-family:'Fredoka',sans-serif; font-weight:700; text-decoration:none; color:#fff; padding:6px 16px; border-radius:999px; font-size:clamp(14px,3.6vw,17px); }
+  .switch a.on { background:#ffcf3f; color:#3a2600; }
+  .switch a:focus-visible { outline:3px solid #fff; outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -130,6 +134,7 @@
 <button class="corner" id="sound" aria-label="sound">🔊</button>
 
 <div class="panel" id="panel">
+  <nav class="switch" aria-label="Switch game"><a class="on" href="index.html" aria-current="page">💎 Crystal</a><a href="coins.html">💰 Coins</a></nav>
   <div class="q">
     <label>How many days? <span class="num"><input type="number" id="daysNum" min="1" max="3650" value="365"> <b id="daysOut">1 year</b></span></label>
     <input type="range" id="days" min="1" max="3650" step="1" value="365">
@@ -555,7 +560,7 @@ function groundY(){
   if(!panel.classList.contains('hide')) cover = panel.getBoundingClientRect().height;
   else if(res.classList.contains('show')) cover = res.getBoundingClientRect().height + 14;
   else if(playing) cover = 64;   // room for the Skip button
-  gyAt = now; gyCache = Math.max(H*0.42, H - cover - 34);
+  gyAt = now; gyCache = Math.max(H*0.34, H - cover - 30);
   return gyCache;
 }
 let last = performance.now();
